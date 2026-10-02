@@ -89,6 +89,28 @@
       <button id="print" class="btn ghost">Chop etish / PDF</button>
     </div>
   </section>
+
+  <!-- Rasmdan haqiqatga -->
+  <section class="step" data-step="7" hidden>
+    <h2>7. Rasmdan haqiqatga: bugun qanday yasaymiz?</h2>
+    <p class="hint">Kelajak yoki fantastik rasmni yuklang. Undagi qismlarni belgilang: sayt har biri uchun bugungi yasash usullarini, kerakli narsalarni va bosqichli rejani chiqaradi.</p>
+    <div class="drop" id="drop">
+      <input type="file" id="file" accept="image/*">
+      <img id="preview" alt="" hidden>
+      <span id="dropHint">Rasmni tanlang yoki shu yerga tashlang</span>
+    </div>
+    <label>Rasmda nima ko'rinadi / nima bo'lishi kerak? (ixtiyoriy)
+      <textarea data-k="imgNote" rows="2" placeholder="Masalan: Havoda suzuvchi yarim shaffof ekran, qo'lda kiyiladigan yengil qurilma"></textarea>
+    </label>
+    <h3>Rasmdagi qismlar</h3>
+    <div id="comps" class="trends"></div>
+    <div class="row">
+      <button id="plan" class="btn primary">Bugungi yasash rejasini tuzish</button>
+      <button id="ai" class="btn">✨ Claude bilan rasmni tahlil qilish</button>
+    </div>
+    <div id="aiOut" class="ai" hidden></div>
+    <div id="planOut"></div>
+  </section>
 </main>
 
 <footer class="wrap actions">
@@ -99,6 +121,7 @@
 
 <p class="wrap note">Metodika: Cecilia Tham, "Designing Products of the Future" kursi (Domestika) ish varaqlari asosida: Starting Point, Futures Wheel, Futures Cone. Bu mustaqil o'quv vositasi.</p>
 
+<script src="kb.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

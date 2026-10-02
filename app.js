@@ -26,17 +26,17 @@ const HORS = [
   {k:'present', name:'Hozir (0)'},{k:'near', name:'Yaqin kelajak (1)'},
   {k:'mid', name:'O‘rta kelajak (2)'},{k:'far', name:'Uzoq kelajak (3)'}
 ];
-const LABELS = ['Boshlang‘ich nuqta','Kelajak g‘ildiragi','Konus: tekis','Konus: loyihalangan','Teskari xarit. + g‘oya','Artefakt'];
+const LABELS = ['Boshlang‘ich nuqta','Kelajak g‘ildiragi','Konus: tekis','Konus: loyihalangan','Teskari xarit. + g‘oya','Artefakt','Rasm → bugun'];
 
 function blank(){
   const a = {}; ROWS.forEach(r=>a[r.k]=['','','','']);
   const br = ()=>({t:'',s:'',a:''});
   return {step:1, a, combos:['','',''], start:'',
     wheel:{pos:[br(),br()], neg:[br(),br()]}, cat:{}, hor:{}, past:'',
-    target:'', persona:'', pain:'', ideas:[], pick:null, canvas:{}};
+    target:'', persona:'', pain:'', imgNote:'', comps:[], needs:{}, ideas:[], pick:null, canvas:{}};
 }
 let state = load() || blank();
-function load(){ try{const s=JSON.parse(localStorage.getItem(STORE)); return s&&s.a?s:null;}catch(e){return null;} }
+function load(){ try{const s=JSON.parse(localStorage.getItem(STORE)); return s&&s.a?Object.assign(blank(),s):null;}catch(e){return null;} }
 function save(){ try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){} }
 
 // yo'l bo'yicha o'qish/yozish: "wheel.pos.0.t"
@@ -229,10 +229,10 @@ function render(){
   document.querySelectorAll('.step').forEach(s=>s.hidden=+s.dataset.step!==state.step);
   $('#steps').innerHTML = LABELS.map((l,i)=>`<button class="${i+1===state.step?'on':(i+1<state.step?'done':'')}" data-s="${i+1}">${i+1}. ${l}</button>`).join('');
   $('#steps').querySelectorAll('button').forEach(b=>b.onclick=()=>go(+b.dataset.s));
-  ({1:renderStart,2:renderWheel,3:renderCone1,4:renderCone2,5:()=>{renderTarget();renderBack();renderIdeas();},6:renderCanvas})[state.step]();
+  ({1:renderStart,2:renderWheel,3:renderCone1,4:renderCone2,5:()=>{renderTarget();renderBack();renderIdeas();},6:renderCanvas,7:renderReality})[state.step]();
   bind($('#cone2').parentElement);
   $('#prev').style.visibility=state.step===1?'hidden':'visible';
-  $('#next').style.display=state.step===6?'none':'';
+  $('#next').style.display=state.step===7?'none':'';
 }
 
 $('#next').onclick=()=>go(state.step+1);
@@ -244,4 +244,103 @@ $('#reset').onclick=()=>{ if(confirm('Hamma ma‘lumot o‘chiriladi. Davom etam
 $('#copy').onclick=async()=>{ try{ await navigator.clipboard.writeText(canvasText()); alert('Nusxa olindi'); }catch(e){ alert('Nusxa olib bo‘lmadi'); } };
 $('#print').onclick=()=>window.print();
 $('#download').onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([canvasText()],{type:'text/plain;charset=utf-8'})); a.download=(state.canvas.name||'mahsulot')+'.txt'; a.click(); URL.revokeObjectURL(a.href); };
+// ---- 7: Rasmdan haqiqatga ----
+let imgData = null; // brauzer xotirasida (saqlanmaydi)
+const norm = s => String(s||'').toLowerCase().replace(/[‘’ʻ'`]/g,'');
+function contextText(){ return [state.start,state.imgNote,state.persona,state.pain, state.canvas.promise,state.canvas.artifact,state.canvas.name, state.ideas.map(i=>i.pitch).join(' ')].join(' '); }
+function autoComps(){
+  const t = norm(contextText());
+  return KB.map(k=>({id:k.id,n:k.kw.filter(w=>norm(w).length>=4&&t.includes(norm(w))).length}))
+    .filter(x=>x.n).sort((a,b)=>b.n-a.n).slice(0,5).map(x=>x.id);
+}
+function renderReality(){
+  bind($('#drop').parentElement);
+  if(!state.comps.length) state.comps = autoComps();
+  $('#comps').innerHTML = KB.map(k=>`<button class="trend${state.comps.includes(k.id)?' sel':''}" data-c="${k.id}"><b>${esc(k.name)}</b><span>Bugun: ${TRL_TXT(k.trl)} (TRL ${k.trl}/9)</span></button>`).join('');
+  $('#comps').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const i=state.comps.indexOf(b.dataset.c); if(i>=0) state.comps.splice(i,1); else state.comps.push(b.dataset.c);
+    save(); renderReality();
+  });
+  if(imgData){ $('#preview').src=imgData; $('#preview').hidden=false; $('#dropHint').hidden=true; }
+  renderPlan();
+}
+function loadImage(file){
+  if(!file||!file.type.startsWith('image/')) return;
+  const fr=new FileReader();
+  fr.onload=()=>{ const im=new Image(); im.onload=()=>{
+      const m=1280, s=Math.min(1,m/Math.max(im.width,im.height));
+      const c=document.createElement('canvas'); c.width=Math.round(im.width*s); c.height=Math.round(im.height*s);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      imgData=c.toDataURL('image/jpeg',0.85); renderReality();
+    }; im.src=fr.result; };
+  fr.readAsDataURL(file);
+}
+function renderPlan(){
+  const sel = KB.filter(k=>state.comps.includes(k.id));
+  const box = $('#planOut');
+  if(!sel.length){ box.innerHTML=''; return; }
+  const avg = sel.reduce((s,k)=>s+k.trl,0)/sel.length;
+  const hardest = sel.slice().sort((a,b)=>a.trl-b.trl)[0];
+  const cost = Math.round(sel.reduce((s,k)=>s+k.cost,0)/sel.length*10)/10;
+  const uniq = key => [...new Set(sel.flatMap(k=>k[key]))];
+  const li = arr => arr.map(x=>`<li>${esc(x)}</li>`).join('');
+  const need = (grp,arr) => arr.map((x,i)=>{ const id=grp+':'+x; return `<label class="chk"><input type="checkbox" data-n="${esc(id)}"${state.needs[id]?' checked':''}> ${esc(x)}</label>`; }).join('');
+  box.innerHTML = `
+  <h3>Haqiqiylik jadvali</h3>
+  <p class="hint">Umumiy tayyorlik: <b>${avg.toFixed(1)}/9</b> — eng qiyin qism: <b>${esc(hardest.name)}</b> (TRL ${hardest.trl}). Nisbiy murakkablik/narx: ${cost}/5.</p>
+  <table class="mx"><tr><th>Qism</th><th>Bugungi holat</th><th>Bugun qanday yasaladi</th><th>Hali yetishmaydi</th></tr>
+  ${sel.map(k=>`<tr><td><b>${esc(k.name)}</b><br><small>TRL ${k.trl} · ${TRL_TXT(k.trl)}</small></td><td>${k.trl>=8?'✅':k.trl>=6?'🟡':'🔴'}</td><td>${esc(k.today)}</td><td>${esc(k.gap)}</td></tr>`).join('')}</table>
+  <h3>Bosqichli reja: fantastikadan prototipgacha</h3>
+  <div class="phases">
+    <div><b>0-bosqich: Maket (1–2 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.mock))}</ul></div>
+    <div><b>1-bosqich: Kontseptni isbotlash (2–4 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.poc))}</ul></div>
+    <div><b>2-bosqich: Prototip (2–3 oy)</b><ul>${li(sel.map(k=>k.name+': '+k.proto))}</ul></div>
+    <div><b>3-bosqich: Pilot va kengaytirish</b><ul><li>10–20 haqiqiy foydalanuvchida sinov</li><li>Narx, ishlab chiqarish va hamkorlar</li><li>Xaritadagi o‘rta/uzoq kelajak tugunlariga mos yangi imkoniyatlarni qo‘shish</li></ul></div>
+  </div>
+  <h3>Kerakli narsalar ro‘yxati (ehtiyojlar)</h3>
+  <div class="needs">
+    <div><h4>Qismlar va materiallar</h4>${need('p',uniq('parts'))}</div>
+    <div><h4>Asbob-uskuna va dasturlar</h4>${need('t',uniq('tools'))}</div>
+    <div><h4>Ko‘nikma va odamlar</h4>${need('s',uniq('skills'))}</div>
+  </div>
+  <div class="row"><button class="btn" id="dlPlan">Rejani .txt yuklab olish</button></div>`;
+  box.querySelectorAll('[data-n]').forEach(c=>c.onchange=()=>{ state.needs[c.dataset.n]=c.checked; save(); });
+  $('#dlPlan').onclick=()=>download('yasash-rejasi.txt', planText(sel));
+}
+function planText(sel){
+  const L=[`YASASH REJASI: ${state.canvas.name||state.start||''}`,'',`Rasm izohi: ${state.imgNote||'—'}`,''];
+  sel.forEach(k=>L.push(`## ${k.name} (TRL ${k.trl}/9, ${TRL_TXT(k.trl)})`,`Bugun: ${k.today}`,`Yetishmaydi: ${k.gap}`,`Maket: ${k.mock}`,`Isbot: ${k.poc}`,`Prototip: ${k.proto}`,`Qismlar: ${k.parts.join('; ')}`,`Asboblar: ${k.tools.join('; ')}`,`Ko‘nikmalar: ${k.skills.join('; ')}`,''));
+  return L.join('\n');
+}
+function download(name,text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+
+// Claude bilan tahlil (ixtiyoriy, server kerak)
+function md(s){
+  return esc(s).split('\n').map(l=>{
+    l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    if(/^#{1,3} /.test(l)) return '<h4>'+l.replace(/^#+ /,'')+'</h4>';
+    if(/^\s*[-*] /.test(l)) return '<div class="li">• '+l.replace(/^\s*[-*] /,'')+'</div>';
+    return l?'<p>'+l+'</p>':'';
+  }).join('');
+}
+async function askClaude(){
+  const out=$('#aiOut'); out.hidden=false;
+  if(!imgData){ out.innerHTML='<p>Avval rasmni yuklang.</p>'; return; }
+  out.innerHTML='<p>Claude rasmni tahlil qilmoqda… (1 daqiqagacha vaqt olishi mumkin)</p>';
+  try{
+    const r=await fetch('/api/analyze',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({image:imgData,note:state.imgNote,context:state.canvas.name?canvasText():contextText(),
+        parts:KB.filter(k=>state.comps.includes(k.id)).map(k=>k.name)})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||('Server xatosi '+r.status));
+    out.innerHTML=md(j.text||'');
+  }catch(e){
+    out.innerHTML='<p><b>AI rejimi mavjud emas:</b> '+esc(e.message)+'</p><p>Ishga tushirish: <code>npm install</code>, so‘ng <code>ANTHROPIC_API_KEY=... npm start</code> va <code>http://localhost:3000</code> manzilini oching. Usiz ham yuqoridagi oflayn reja ishlaydi.</p>';
+  }
+}
+$('#file').onchange=e=>loadImage(e.target.files[0]);
+['dragover','drop'].forEach(ev=>$('#drop').addEventListener(ev,e=>{ e.preventDefault(); if(ev==='drop') loadImage(e.dataTransfer.files[0]); }));
+$('#plan').onclick=()=>{ if(!state.comps.length) state.comps=autoComps(); save(); renderReality(); $('#planOut').scrollIntoView({behavior:'smooth'}); };
+$('#ai').onclick=askClaude;
+
 render();

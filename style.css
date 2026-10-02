@@ -76,3 +76,19 @@ table.mx{width:100%;border-collapse:collapse;margin-top:14px;font-size:.85rem}
 .back{display:grid;gap:8px}
 .back div{border-left:4px solid var(--acc);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;white-space:pre-wrap}
 .back b{display:block;color:var(--acc);font-size:.8rem;text-transform:uppercase}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;margin:10px 0;background:var(--bg)}
+.drop img{max-width:100%;max-height:380px;border-radius:8px;display:block;margin:10px auto 0}
+.drop input{display:block;margin:0 auto}
+.phases{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.phases{grid-template-columns:1fr}}
+.phases>div{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);font-size:.88rem}
+.phases ul{margin:6px 0 0;padding-left:18px}
+.needs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:760px){.needs{grid-template-columns:1fr}}
+.needs>div{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.needs h4{margin:0 0 6px;color:var(--acc)}
+.chk{display:flex;gap:8px;font-weight:400;margin:4px 0;font-size:.88rem;align-items:flex-start}
+.chk input{width:auto;margin:3px 0 0}
+.ai{border:1px solid var(--acc);border-radius:10px;padding:12px;margin:12px 0;background:var(--acc2)}
+.ai h4{margin:10px 0 2px;color:var(--acc)}.ai p{margin:4px 0}
+code{background:var(--bg);padding:1px 5px;border-radius:4px}
