@@ -115,11 +115,12 @@ async function analyze(){
 function fromAI(j){
   const clamp=v=>Math.max(3,Math.min(97,+v||50)); const byKind={};
   (j.components||[]).forEach((c,i)=>{ if(!LIB[c.kind]) return; if(byKind[c.kind]){ byKind[c.kind].qty+=Math.max(1,c.qty|0); return; }
-    byKind[c.kind]={id:"c"+Object.keys(byKind).length,kind:c.kind,qty:Math.max(1,c.qty|0),label:c.label||LIB[c.kind].n,fiction:c.fiction||LIB[c.kind].fic,note:c.note||"",x:clamp(c.x),y:clamp(c.y)}; });
+    byKind[c.kind]={id:"c"+Object.keys(byKind).length,kind:c.kind,qty:Math.max(1,c.qty|0),label:String(c.label||LIB[c.kind].n),fiction:String(c.fiction||LIB[c.kind].fic),note:String(c.note||""),x:clamp(c.x),y:clamp(c.y)}; });
   const comps=Object.values(byKind); if(!comps.length) throw new Error("Komponent aniqlanmadi");
+  const num=(v,def,lo,hi)=>{ v=parseFloat(v); return isFinite(v)?Math.min(hi,Math.max(lo,v)):def; };
   const d=j.dimensions_mm||{}; const arch=ARCH[j.archetype]?j.archetype:"generic";
-  return {mode:"ai",arch,name:j.product_name||"Aniqlangan qurilma",summary:j.summary||"",geometry:j.geometry||"",dims:[d.w||150,d.h||150,d.d||150],overall:j.overall_complexity||null,comps,
-    alts:(j.tech_alternatives||[]).map(t=>({fic:t.fiction,real:t.closest_real,lim:t.limitation,fut:t.future,st:ST[t.status]?t.status:"experimental"})),risks:(j.risks&&j.risks.length?j.risks:defaultRisks(comps)),mechanisms:j.mechanisms||[]};
+  return {mode:"ai",arch,name:String(j.product_name||"Aniqlangan qurilma"),summary:String(j.summary||""),geometry:String(j.geometry||""),dims:[num(d.w,150,20,1000),num(d.h,150,20,1000),num(d.d,150,20,1000)],overall:CX.includes(j.overall_complexity)?j.overall_complexity:null,comps,
+    alts:(Array.isArray(j.tech_alternatives)?j.tech_alternatives:[]).map(t=>({fic:String(t.fiction||"-"),real:String(t.closest_real||"-"),lim:String(t.limitation||"-"),fut:String(t.future||"-"),st:ST[t.status]?t.status:"experimental"})),risks:(Array.isArray(j.risks)&&j.risks.length?j.risks.map(String):defaultRisks(comps)),mechanisms:Array.isArray(j.mechanisms)?j.mechanisms.map(String):[]};
 }
 function setMode(){ const b=$("#modeBadge"); if(S.a&&S.a.mode==="ai"){ b.textContent="AI tahlil · Claude"; b.className="badge ai"; } else if(S.aiOK){ b.textContent="Claude AI tayyor"; b.className="badge ai"; } else { b.textContent="DEMO rejim"; b.className="badge"; } }
 
@@ -142,14 +143,13 @@ RENDER.analysis=function(p){
   const tiles=[["Geometriya",a.geometry||ARCH[a.arch]?.n||"Modulli qurilma"],["Mexanizmlar",(a.mechanisms.length||cnt(k=>LIB[k].grp==="mech"&&!["fasteners","cooling"].includes(k)))+" ta"],["Harakatlanuvchi qismlar",cnt(k=>["motor_servo","motor_stepper","gearbox","gear","joint","arm_link","gripper"].includes(k))+" ta"],["Bo'g'inlar",cnt(k=>["joint","arm_link"].includes(k))+" ta"],["Tishli g'ildiraklar",cnt(k=>["gear","gearbox"].includes(k))+" ta"],["Motorlar",cnt(k=>["motor_servo","motor_stepper"].includes(k))+" ta"],["Elektronika",cnt(k=>LIB[k].grp==="elec")+" blok"],["Sensorlar",cnt(k=>k==="sensor")+" guruh"],["Displeylar / yoritish",cnt(k=>["display_oled","holo_screen","led_ring","core_light","lens_visor"].includes(k))+" ta"],["Ramka / korpus",cnt(k=>LIB[k].grp==="struct")+" ta"],["Mahkamlagichlar",ks.includes("fasteners")?a.comps.find(c=>c.kind==="fasteners").qty+" dona":"-"],["Materiallar",uniq(ks.map(k=>LIB[k].mk)).filter(m=>m!=="elec").length+" xil"],["Murakkablik",overall],["Taxminiy gabarit",D.join(" × ")+" mm"],["Ichki komponentlar",a.comps.length+" ta"],["Ishlab chiqarish",pipeline(a).filter(x=>x.on).length+" bosqich"]];
   p.innerHTML=`
   <div class="card"><h2 style="margin:0 0 4px">${esc(a.name)}</h2><p class="mut" style="margin:0">${esc(a.summary)}</p>${a.mode==="demo"?`<p class="mut" style="margin:8px 0 0;font-size:.82rem">⚠ DEMO tahlil: komponentlar tanlangan tur (${esc(ARCH[a.arch].n)}) shablonidan olingan. Markerlarni sudrab rasmdagi joyga qo'ying. Rasmni haqiqiy tahlil qilish uchun Claude AI rejimini yoqing (README).</p>`:`<p style="margin:8px 0 0;color:var(--gr);font-size:.82rem">✔ Rasm Claude tomonidan ko'rilib tahlil qilingan.</p>`}</div>
-  <div class="grid" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);margin-top:12px" id="anaGrid">
+  <div class="anagrid" id="anaGrid">
     <div><div class="stage" id="stage"><img src="${S.img}" alt=""><svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></svg><div class="pinlayer" id="pins"></div></div>
       <p class="mut" style="font-size:.78rem">Markerni bosing — tafsilot ochiladi. Sudrab joyini o'zgartirishingiz mumkin.</p></div>
     <div><div class="card" id="detail"></div><div class="complist" style="margin-top:10px" id="clist"></div></div>
   </div>
   <h3>ANIQLANGAN ELEMENTLAR</h3><div class="grid g4">${tiles.map(([k,v])=>`<div class="stat"><small>${k}</small><b style="font-size:.95rem">${esc(v)}</b></div>`).join("")}</div>
   <h3>MUHANDISLIK QIYINLIK KO'RSATKICHLARI</h3><div class="grid g2">${diff.map(d=>`<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${d.n}</b>${lvPill(d.l)}</div><div class="meter"><i style="width:${(d.l+1)*25}%"></i></div><small class="mut">${esc(d.why)}</small></div>`).join("")}</div>`;
-  const mq=window.matchMedia("(max-width:760px)"); if(mq.matches) $("#anaGrid").style.gridTemplateColumns="1fr";
   drawPins(); drawList(); drawDetail();
 };
 function drawPins(){
@@ -159,8 +159,9 @@ function drawPins(){
   const L=[],R=[]; a.comps.forEach((c,i)=>(c.x<50?L:R).push({c,i}));
   const place=arr=>{ arr.sort((p,q)=>p.c.y-q.c.y); let last=-9; arr.forEach(o=>{ o.ly=Math.max(o.c.y,last+5.2); last=o.ly; }); };
   place(L);place(R);
+  const narrow=($("#stage").clientWidth||800)<600;
   let svg="",lab=""; [[L,2],[R,98]].forEach(([arr,ex])=>arr.forEach(o=>{ svg+=`<polyline points="${o.c.x},${o.c.y} ${ex},${o.ly} ${ex<50?0:100},${o.ly}" fill="none" stroke="${o.c.id===S.sel?"#ff8a3d":"#22d3ee"}" stroke-opacity=".7" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="4 3"/>`;
-    lab+=`<div class="callout" data-id="${o.c.id}" style="position:absolute;top:${o.ly}%;${ex<50?"left:0":"right:0"};transform:translateY(-50%);font:700 .62rem var(--mono);background:rgba(4,8,12,.85);color:${o.c.id===S.sel?"#ff8a3d":"#7dd3fc"};padding:1px 5px;border:1px solid rgba(34,211,238,.35);border-radius:3px;cursor:pointer;max-width:42%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${o.i+1} ${esc(LIB[o.c.kind].n.split("(")[0].trim())}</div>`; }));
+    lab+=`<div class="callout" data-id="${o.c.id}" style="position:absolute;top:${o.ly}%;${ex<50?"left:0":"right:0"};transform:translateY(-50%);font:700 .62rem var(--mono);background:rgba(4,8,12,.85);color:${o.c.id===S.sel?"#ff8a3d":"#7dd3fc"};padding:1px 5px;border:1px solid rgba(34,211,238,.35);border-radius:3px;cursor:pointer;max-width:42%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${o.i+1}${narrow?"":" "+esc(LIB[o.c.kind].n.split("(")[0].trim())}</div>`; }));
   $("#lines").innerHTML=svg; layer.insertAdjacentHTML("beforeend",lab);
   $$(".callout",layer).forEach(el=>el.onclick=()=>selectComp(el.dataset.id));
   $$(".pin",layer).forEach(el=>{
@@ -200,7 +201,9 @@ RENDER.model=function(p){
     <div id="drawBox" ${S.drawing?"":"hidden"}></div>
     <h3>CAD KONSEPT: KO'RINISHLAR</h3><div class="views" id="views"></div>
     <p class="mut" style="font-size:.8rem">Model parametrik konsept: komponentlar soddalashtirilgan primitivlar (quti/silindr) bilan ko'rsatilgan. STEP o'rniga parametrik CAD spetsifikatsiya beriladi (to'liq STEP/CAD detallash muhandis ishi).</p>`;
-  const cv=$("#cv"); const ctx=cv.getContext("2d");
+  const cv=$("#cv");
+  const fit=()=>{ const W=cv.parentElement.clientWidth||800, ratio=W<560?1:0.625, dpr=Math.min(2,window.devicePixelRatio||1); cv.style.height=Math.round(W*ratio)+"px"; cv.width=Math.round(W*dpr); cv.height=Math.round(W*ratio*dpr); };
+  fit(); window._fit=fit;
   const reqDraw=()=>{ dirty=true; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; if(dirty){ dirty=false; draw3D(); } }); };
   window._req=reqDraw;
   let drag=null,moved=0;
@@ -221,7 +224,7 @@ RENDER.model=function(p){
 function tween(a,b,ms,fn,done){ const t0=performance.now(); const step=t=>{ const k=Math.min(1,(t-t0)/ms), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; fn(a+(b-a)*e); if(k<1) requestAnimationFrame(step); else done&&done(); }; requestAnimationFrame(step); }
 function animateAssemble(){ tween(1.2,0,1600,v=>{ S.view.explode=v; $("#rExp").value=v*100; window._req&&window._req(); },renderViews); }
 function draw3D(){ const cv=$("#cv"); if(!cv) return; const ctx=cv.getContext("2d"); const polys=render(S.a,{...S.view,sectionZ:S.view.section,w:cv.width,h:cv.height,hidden:S.hidden,sel:S.sel}); S._polys=polys; paintCanvas(ctx,polys,cv.width,cv.height);
-  ctx.fillStyle="rgba(34,211,238,.7)"; ctx.font="12px ui-monospace,monospace"; ctx.fillText("FUTURE FORGE · konsept model · sudrab aylantiring, g'ildirak = zoom",14,cv.height-12); }
+  ctx.fillStyle="rgba(34,211,238,.7)"; ctx.font=Math.round(cv.width/80)+"px ui-monospace,monospace"; ctx.fillText("FUTURE FORGE · konsept model",14,cv.height-12); }
 function pick(x,y){ const polys=S._polys||[]; for(let i=polys.length-1;i>=0;i--){ const q=polys[i].pts; let inside=false; for(let a=0,b=q.length-1;a<q.length;b=a++){ if(((q[a][1]>y)!==(q[b][1]>y)) && (x<(q[b][0]-q[a][0])*(y-q[a][1])/(q[b][1]-q[a][1])+q[a][0])) inside=!inside; } if(inside){ selectComp(polys[i].cid); return; } } }
 function drawModelList(){ const el=$("#mlist"); if(!el) return; el.innerHTML=S.a.comps.filter(c=>!LIB[c.kind].nogeo).map(c=>`<div class="compitem${c.id===S.sel?" sel":""}" data-id="${c.id}"><input type="checkbox" ${S.hidden.has(c.id)?"":"checked"} data-v="${c.id}" style="width:auto;margin:0" aria-label="Ko'rsatish"><span style="flex:1">${esc(LIB[c.kind].n)}</span></div>`).join("");
   $$(".compitem",el).forEach(x=>x.onclick=e=>{ if(e.target.dataset.v) return; selectComp(x.dataset.id); }); $$("[data-v]",el).forEach(cb=>cb.onchange=()=>{ cb.checked?S.hidden.delete(cb.dataset.v):S.hidden.add(cb.dataset.v); window._req(); renderViews(); }); }
@@ -261,7 +264,7 @@ RENDER.machines=function(p){
 RENDER.bom=function(p){
   const rows=bomRows(S.a), tot=rows.reduce((s,r)=>s+r.cost,0);
   p.innerHTML=`<div class="row"><button class="btn primary sm" id="xl">⬇ Excel BOM (.xlsx)</button><button class="btn sm" id="csv">CSV</button><span class="mut" style="font-size:.8rem">Narxlar taxminiy prototip narxlari (${cfg.cur}).</span></div>
-  <div class="tw"><table><tr><th>#</th><th>Detal</th><th class="n">Soni</th><th>Material</th><th>Ishlab chiqarish usuli</th><th>Mashina</th><th>Turi</th><th>Qiyinlik</th><th class="n">Taxminiy narx</th></tr>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc(r.part)}</b></td><td class="n">${r.qty}</td><td>${esc(r.mat)}</td><td>${esc(r.method)}</td><td>${esc(r.machine)}</td><td>${pill(r.mfg,/sotib/i.test(r.mfg)?"#22d3ee":"#ff8a3d")}</td><td>${r.diff}</td><td class="n">${money(r.cost)}</td></tr>`).join("")}<tr><td colspan="8" class="n"><b>JAMI (faqat detallar, mehnatsiz)</b></td><td class="n"><b>${money(tot)}</b></td></tr></table></div>`;
+  <div class="tw bom"><table><tr><th>#</th><th>Detal</th><th class="n">Soni</th><th>Material</th><th>Ishlab chiqarish usuli</th><th>Mashina</th><th>Turi</th><th>Qiyinlik</th><th class="n">Taxminiy narx</th></tr>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc(r.part)}</b></td><td class="n">${r.qty}</td><td>${esc(r.mat)}</td><td>${esc(r.method)}</td><td>${esc(r.machine)}</td><td>${pill(r.mfg,/sotib/i.test(r.mfg)?"#22d3ee":"#ff8a3d")}</td><td>${r.diff}</td><td class="n">${money(r.cost)}</td></tr>`).join("")}<tr><td colspan="8" class="n"><b>JAMI (faqat detallar, mehnatsiz)</b></td><td class="n"><b>${money(tot)}</b></td></tr></table></div>`;
   $("#xl").onclick=()=>saveFile(slug()+"-BOM.xlsx",bomXLSX());
   $("#csv").onclick=()=>saveFile(slug()+"-BOM.csv","﻿"+[["Detal","Soni","Material","Usul","Mashina","Turi","Qiyinlik","Narx (USD)"],...rows.map(r=>[r.part,r.qty,r.mat,r.method,r.machine,r.mfg,r.diff,rnd(r.cost,2)])].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n"),"text/csv;charset=utf-8");
 };
@@ -353,15 +356,16 @@ RENDER.report=function(p){
 function init(){
   $("#archPick").innerHTML=Object.entries(ARCH).map(([k,v])=>`<button class="chip${k===S.arch?" sel":""}" data-k="${k}">${v.n}</button>`).join("");
   $$("#archPick .chip").forEach(b=>b.onclick=()=>{ S.arch=b.dataset.k; $$("#archPick .chip").forEach(x=>x.classList.toggle("sel",x===b)); });
-  $("#pick").onclick=()=>$("#file").click(); $("#file").onchange=e=>loadFile(e.target.files[0]);
+  $("#pick").onclick=()=>$("#file").click(); $("#file").onchange=e=>{ loadFile(e.target.files[0]); };
   const d=$("#drop"); ["dragenter","dragover"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.add("over"); })); ["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.remove("over"); })); d.addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
   d.addEventListener("keydown",e=>{ if(e.key==="Enter") $("#file").click(); });
   $("#cam").onclick=openCam; $("#snap").onclick=snap;
   $("#sample").onclick=async()=>{ S.arch="holo"; $$("#archPick .chip").forEach(x=>x.classList.toggle("sel",x.dataset.k==="holo")); setImage(await sampleImage()); };
   $("#analyze").onclick=analyze;
   $("#cur").onchange=e=>{ cfg.cur=e.target.value; if(S.a) RENDER[S.tab]($("#panel")); };
-  $("#newBtn").onclick=()=>{ $("#dash").hidden=true; $("#hero").hidden=false; $("#newBtn").hidden=true; S.a=null; $("#prep").hidden=true; setMode(); window.scrollTo({top:0}); };
+  $("#newBtn").onclick=()=>{ $("#file").value=""; $("#dash").hidden=true; $("#hero").hidden=false; $("#newBtn").hidden=true; S.a=null; $("#prep").hidden=true; setMode(); window.scrollTo({top:0}); };
   fetch("/api/status").then(r=>r.ok?r.json():null).then(j=>{ if(j&&j.ai){ S.server=true; S.aiOK=true; setMode(); } }).catch(()=>{});
   if(window.claude&&window.claude.use){ window.claude.use("sample").then(async s=>{ if(!s) return; const l=await s.limits().catch(()=>null); if(l&&l.images){ S.sample=s; S.aiOK=true; setMode(); if(S.img) setImage(S.img); } }).catch(()=>{}); }
 }
+let rz=0; window.addEventListener("resize",()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(!S.a) return; if(S.tab==="model"&&window._fit){ window._fit(); draw3D(); } else if(S.tab==="analysis"){ drawPins(); } },150); });
 init();
