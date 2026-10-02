@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future Forge AI</title>
+<link rel="stylesheet" href="forge.css">
+</head>
+<body>
+<div class="bgfx" aria-hidden="true"></div>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#39ff88"/></linearGradient></defs><path d="M24 3 41 13v22L24 45 7 35V13z" fill="none" stroke="url(#lg)" stroke-width="2.2"/><path d="M15 31V17h14M15 24h10" stroke="url(#lg)" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="33" cy="31" r="3" fill="#ff8a3d"/></svg>
+    <div><h1>FUTURE FORGE <span>AI</span></h1><p>Fantastik g'oyani real mahsulotga aylantir</p></div>
+  </div>
+  <div class="hdr-tools">
+    <span id="modeBadge" class="badge">DEMO rejim</span>
+    <label class="cur">Valyuta <select id="cur"><option>USD</option><option>UZS</option><option>EUR</option></select></label>
+    <button id="newBtn" class="btn ghost" hidden>＋ Yangi rasm</button>
+  </div>
+</header>
+<div class="disclaimer" role="note"><b>⚠ Ogohlantirish:</b> AI-generated engineering concepts require professional verification before fabrication or use. <span>(AI yaratgan muhandislik konseptlari ishlab chiqarish yoki foydalanishdan oldin professional tekshiruvni talab qiladi.)</span></div>
+
+<main>
+  <section id="hero" class="wrap">
+    <div class="step-tag">1-QADAM · RASM YUKLASH</div>
+    <div class="drop" id="drop" tabindex="0">
+      <div class="scanlines"></div>
+      <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M32 8v32M20 20l12-12 12 12M10 44v10h44V44" stroke="#22d3ee" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2>Fantastik qurilma rasmini yuklang</h2>
+      <p>PNG · JPG · WEBP — kino, o'yin, konsept-art, kitob yoki o'z tasavvuringizdan</p>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
+      <div class="row">
+        <button class="btn primary" id="pick">Rasm tanlash</button>
+        <button class="btn" id="cam">📷 AI kamera orqali tahlil qilish</button>
+        <button class="btn" id="sample">✦ Namuna rasmdan boshlash</button>
+      </div>
+      <video id="video" autoplay playsinline hidden></video>
+      <button class="btn primary" id="snap" hidden>Suratga olish</button>
+    </div>
+
+    <div id="prep" hidden>
+      <div class="step-tag">2-QADAM · TAHLIL</div>
+      <div class="prepgrid">
+        <div class="shot" id="shot"><img id="prevImg" alt="Yuklangan rasm"><div class="scan" id="scan"></div></div>
+        <div class="prepctl">
+          <h3 id="prepTitle">Rasm tayyor</h3>
+          <p class="mut" id="prepNote"></p>
+          <div id="archBox">
+            <p class="lab">Qurilma turi (DEMO tahlil shabloni):</p>
+            <div id="archPick" class="chips"></div>
+          </div>
+          <label class="lab">Qo'shimcha izoh (ixtiyoriy)
+            <textarea id="hint" rows="2" placeholder="Masalan: Marvel filmidagi qo'l qurilmasi; yorqin ko'k halqali…"></textarea>
+          </label>
+          <button class="btn primary big" id="analyze">▶ AI TAHLILNI BOSHLASH</button>
+          <ol id="steps" class="steps"></ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dash" class="wrap" hidden>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div id="panel" class="panel"></div>
+  </section>
+</main>
+<footer class="wrap foot">FUTURE FORGE AI — funksional prototip. Narxlar, vaqtlar va parametrlar taxminiy. Konseptlar professional tekshiruvdan o'tishi shart.</footer>
+<div id="toast"></div>
+
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="writers.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

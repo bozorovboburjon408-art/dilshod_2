@@ -10,6 +10,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
 const client = new Anthropic();
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
+const STATUSES = ['current', 'modified', 'experimental', 'speculative'];
 
 const SYSTEM = `Siz kelajak mahsulotlarini loyihalash bo'yicha mutaxassis va amaliy muhandis-dizaynersiz.
 Foydalanuvchi kelajak yoki fantastik rasm yuboradi. Vazifangiz: rasmdagi narsani HOZIRGI sharoitda (bugungi texnologiya, materiallar va byudjet bilan) qanday yasash mumkinligini ko'rsatish.
@@ -45,9 +46,74 @@ async function analyze(body) {
   return msg.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
 }
 
+
+// ---- FUTURE FORGE: rasmni Claude ko'rib tahlil qiladi, natija tuzilgan JSON ----
+const FORGE_SYSTEM = `Siz ko'p tarmoqli muhandislik jamoasisiz: sanoat dizayneri, mexanik muhandis, elektronika muhandisi, ishlab chiqarish texnologi va maker.
+Foydalanuvchi kino, o'yin, konsept-art yoki xayoldagi fantastik qurilma rasmini yuboradi. Siz rasmni shunchaki tasvirlamaysiz: uni bugungi texnologiyalar bilan ishlab chiqarish mumkin bo'lgan real mahsulot konseptiga aylantirasiz.
+Qoidalar:
+- Rasmda aslida ko'ringan qismlarni aniqlang; ko'rinmaydigan ichki komponentlarni mantiqiy taxmin qiling va buni "note" maydonida ayting.
+- Har bir komponent uchun "kind" faqat berilgan ro'yxatdan tanlanadi (eng yaqinini tanlang).
+- x va y rasmdagi komponent markazining foizdagi o'rni (0-100, x chapdan, y tepadan).
+- Imkonsiz texnologiyalarni "imkonsiz" demang: eng yaqin real texnologiyani, hozirgi cheklovni va kelajak yo'nalishini yozing; status: current, modified, experimental yoki speculative.
+- Mavjud bo'lmagan texnologiyani uydirmang. Barcha matnlar o'zbek tilida (lotin), qisqa va aniq.
+- dimensions_mm: mahsulotning taxminiy gabaritlari (mm).`;
+
+function forgeSchema(kinds) {
+  const str = { type: 'string' }, num = { type: 'number' };
+  return {
+    type: 'object', additionalProperties: false,
+    required: ['product_name', 'archetype', 'summary', 'geometry', 'dimensions_mm', 'overall_complexity', 'components', 'mechanisms', 'tech_alternatives', 'risks'],
+    properties: {
+      product_name: str,
+      archetype: { type: 'string', enum: ['holo', 'arm', 'visor', 'core', 'generic'] },
+      summary: str, geometry: str,
+      dimensions_mm: { type: 'object', additionalProperties: false, required: ['w', 'h', 'd'], properties: { w: num, h: num, d: num } },
+      overall_complexity: { type: 'string', enum: ['Past', "O'rta", 'Yuqori', 'Juda yuqori'] },
+      components: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['kind', 'label', 'fiction', 'qty', 'x', 'y', 'note'],
+        properties: { kind: { type: 'string', enum: kinds }, label: str, fiction: str, qty: { type: 'integer' }, x: num, y: num, note: str } } },
+      mechanisms: { type: 'array', items: str },
+      tech_alternatives: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['fiction', 'closest_real', 'limitation', 'future', 'status'],
+        properties: { fiction: str, closest_real: str, limitation: str, future: str, status: { type: 'string', enum: STATUSES } } } },
+      risks: { type: 'array', items: str },
+    },
+  };
+}
+
+async function forge(body) {
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(body.image || '');
+  if (!m) throw Object.assign(new Error("Rasm formati noto'g'ri"), { status: 400 });
+  const kinds = (body.kinds || []).filter(k => k && /^[a-z_0-9]+$/.test(k.k)).slice(0, 80);
+  if (!kinds.length) throw Object.assign(new Error('kinds yo‘q'), { status: 400 });
+  const catalog = kinds.map(k => `- ${k.k}: ${k.n} (fantastik ko'rinishi: ${k.g})`).join('\n');
+  const text = `Komponent turlari (kind):\n${catalog}\n\n` + (body.hint ? `Foydalanuvchi izohi: ${String(body.hint).slice(0, 1000)}\n\n` : '') +
+    "Rasmni tahlil qiling va JSON qaytaring. Archetype: holo (gologramma/proyektor), arm (robot qo'l), visor (kiyiladigan HUD), core (energiya yadrosi), aks holda generic.";
+  const stream = client.messages.stream({
+    model: 'claude-opus-5-5',
+    max_tokens: 16000,
+    thinking: { type: 'adaptive' },
+    system: FORGE_SYSTEM,
+    output_config: { format: { type: 'json_schema', schema: forgeSchema(kinds.map(k => k.k)) } },
+    messages: [{ role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } },
+      { type: 'text', text },
+    ] }],
+  });
+  const msg = await stream.finalMessage();
+  if (msg.stop_reason === 'refusal') throw Object.assign(new Error("Model so'rovni rad etdi"), { status: 422 });
+  const out = msg.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  try { return JSON.parse(out); } catch { throw Object.assign(new Error("Model javobini o'qib bo'lmadi"), { status: 502 }); }
+}
+
 http.createServer(async (req, res) => {
   const send = (code, obj) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };
   try {
+    if (req.method === 'GET' && req.url === '/api/status') return send(200, { ai: !!process.env.ANTHROPIC_API_KEY });
+    if (req.method === 'POST' && req.url === '/api/forge') {
+      if (!process.env.ANTHROPIC_API_KEY) return send(503, { error: 'ANTHROPIC_API_KEY o\u2018rnatilmagan' });
+      let raw = ''; let size = 0;
+      for await (const c of req) { size += c.length; if (size > 14e6) return send(413, { error: 'Rasm juda katta' }); raw += c; }
+      return send(200, await forge(JSON.parse(raw)));
+    }
     if (req.method === 'POST' && req.url === '/api/analyze') {
       if (!process.env.ANTHROPIC_API_KEY) return send(503, { error: 'ANTHROPIC_API_KEY o‘rnatilmagan' });
       let raw = ''; let size = 0;
@@ -55,8 +121,8 @@ http.createServer(async (req, res) => {
       return send(200, { text: await analyze(JSON.parse(raw)) });
     }
     const p = req.url.split('?')[0];
-    const file = path.join(root, p === '/' ? 'index.html' : p);
-    if (!file.startsWith(root) || !TYPES[path.extname(file)] || !fs.existsSync(file) || /server\.js$/.test(file)) { res.writeHead(404); return res.end('Not found'); }
+    const file = path.join(root, p === '/' ? 'index.html' : p.endsWith('/') ? p + 'index.html' : p);
+    if (!file.startsWith(root + path.sep) || !TYPES[path.extname(file)] || !fs.existsSync(file) || /server\.js$/.test(file)) { res.writeHead(404); return res.end('Not found'); }
     res.writeHead(200, { 'content-type': TYPES[path.extname(file)] });
     fs.createReadStream(file).pipe(res);
   } catch (e) {
