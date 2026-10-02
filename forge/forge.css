@@ -151,3 +151,12 @@ canvas#cv{width:100%;border:1px solid var(--line);border-radius:14px;background:
 .mstrip .mcard{min-width:220px}
 .run{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gr);margin-right:6px;animation:ping 1.4s ease-out infinite}
 .ident{margin:8px 0 0;padding:8px 12px;border:1px solid rgba(57,255,136,.4);border-radius:10px;background:rgba(57,255,136,.07);font-size:.88rem}
+
+.pin.inf{border-style:dashed;opacity:.8;background:rgba(6,8,12,.55)}
+.regtog{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0;font-size:.8rem;color:var(--mut)}
+.regtog label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.edit{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:.8rem}.edit select{max-width:100%}
+.addmode .stage{cursor:crosshair;outline:2px dashed var(--or)}
+.edit label{display:flex;flex-direction:column;gap:3px;width:100%;min-width:0}
+.edit select{width:100%;max-width:100%;min-width:0}
+.regtog span{min-width:0}

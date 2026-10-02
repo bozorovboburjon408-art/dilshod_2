@@ -1,7 +1,7 @@
 'use strict';
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
-const S = {img:null, hint:"", arch:"holo", a:null, sel:null, hidden:new Set(), view:{yaw:32,pitch:18,zoom:1,explode:0,section:null}, tab:"analysis", laser:{type:"co2",kerf:0.15,sw:600,sh:400}, aiOK:false, sample:null, server:false, drawing:false, kinds:new Map(ARCH.holo.kinds), archManual:false, fname:"", ready:Promise.resolve()};
+const S = {img:null, hint:"", arch:"holo", a:null, sel:null, hidden:new Set(), view:{yaw:32,pitch:18,zoom:1,explode:0,section:null}, tab:"analysis", laser:{type:"co2",kerf:0.15,sw:600,sh:400}, aiOK:false, sample:null, server:false, drawing:false, showReg:true, addKind:null, kinds:new Map(ARCH.holo.kinds), archManual:false, fname:"", ready:Promise.resolve()};
 const pill = (t,c)=>`<span class="pill" style="color:${c}">${esc(t)}</span>`;
 const lvPill = l=>`<span class="pill lv${l}">${CX[l]}</span>`;
 const stPill = s=>pill(ST[s].n,ST[s].c);
@@ -125,7 +125,9 @@ async function analyze(){
     }catch(e){ toast("AI tahlil ishlamadi ("+e.message+"). DEMO shablonga o'tildi."); }
   }
   if(!a && !S.aiOK){ await new Promise(r=>setTimeout(r,STEPS.length*520)); }
+  let vis=null; try{ vis=await segmentImage(S.img); }catch(e){}
   if(!a){ const custom=S.arch==="custom"; a=buildAnalysis(S.arch,{kinds:[...S.kinds],name:custom?"Maxsus qurilma":undefined,summary:(custom?"":ARCH[S.arch].desc+" ")+(S.hint?"Izoh: "+S.hint:(custom?"Foydalanuvchi belgilagan komponentlardan tuzilgan qurilma.":""))}); }
+  if(a){ a.vis=vis; if(a.mode!=="ai"&&vis){ a.matchInfo=matchRegions(a.comps,vis)||null; } }
   clearInterval(tick); li.forEach(l=>l.className="on"); $("#scan").classList.remove("on"); btn.disabled=false;
   S.a=a; S.sel=a.comps[0].id; S.hidden=new Set(); S.view={yaw:32,pitch:18,zoom:1,explode:0,section:null}; S.tab="analysis";
   setTimeout(()=>{ $("#hero").hidden=true; $("#dash").hidden=false; $("#newBtn").hidden=false; setMode(); renderTabs(); window.scrollTo({top:0}); },500);
@@ -145,6 +147,7 @@ function setMode(){ const b=$("#modeBadge"); if(S.a&&S.a.mode==="ai"){ b.textCon
 /* ---------- Tablar ---------- */
 const TABS=[["analysis","AI TAHLIL"],["reality","REALITY KONVERSIYA"],["model","3D MODEL"],["materials","MATERIALLAR"],["machines","MASHINALAR"],["bom","BOM"],["electronics","ELEKTRONIKA"],["laser","LAZER"],["print","3D BOSMA"],["cost","NARX"],["mfg","ISHLAB CHIQARISH"],["report","HISOBOT"]];
 function renderTabs(){
+  S.addKind=null; $("#panel").classList.remove("addmode");
   $("#tabs").innerHTML=TABS.map(([k,n],i)=>`<button class="tab${S.tab===k?" on":""}" data-t="${k}" role="tab">${String(i+1).padStart(2,"0")} ${n}</button>`).join("");
   $$(".tab").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; renderTabs(); });
   const p=$("#panel"); p.style.animation="none"; p.offsetHeight; p.style.animation="";
@@ -160,20 +163,22 @@ RENDER.analysis=function(p){
   const diff=difficulty(a); const overall=a.overall||CX[Math.max(...diff.map(d=>d.l))];
   const tiles=[["Geometriya",a.geometry||ARCH[a.arch]?.n||"Modulli qurilma"],["Mexanizmlar",(a.mechanisms.length||cnt(k=>LIB[k].grp==="mech"&&!["fasteners","cooling"].includes(k)))+" ta"],["Harakatlanuvchi qismlar",cnt(k=>["motor_servo","motor_stepper","gearbox","gear","joint","arm_link","gripper"].includes(k))+" ta"],["Bo'g'inlar",cnt(k=>["joint","arm_link"].includes(k))+" ta"],["Tishli g'ildiraklar",cnt(k=>["gear","gearbox"].includes(k))+" ta"],["Motorlar",cnt(k=>["motor_servo","motor_stepper"].includes(k))+" ta"],["Elektronika",cnt(k=>LIB[k].grp==="elec")+" blok"],["Sensorlar",cnt(k=>k==="sensor")+" guruh"],["Displeylar / yoritish",cnt(k=>["display_oled","holo_screen","led_ring","core_light","lens_visor"].includes(k))+" ta"],["Ramka / korpus",cnt(k=>LIB[k].grp==="struct")+" ta"],["Mahkamlagichlar",ks.includes("fasteners")?a.comps.find(c=>c.kind==="fasteners").qty+" dona":"-"],["Materiallar",uniq(ks.map(k=>LIB[k].mk)).filter(m=>m!=="elec").length+" xil"],["Murakkablik",overall],["Taxminiy gabarit",D.join(" × ")+" mm"],["Ichki komponentlar",a.comps.length+" ta"],["Ishlab chiqarish",pipeline(a).filter(x=>x.on).length+" bosqich"]];
   p.innerHTML=`
-  <div class="card"><h2 style="margin:0 0 4px">${esc(a.name)}</h2><p class="mut" style="margin:0">${esc(a.summary)}</p>${a.mode==="demo"?`<p class="mut" style="margin:8px 0 0;font-size:.82rem">⚠ DEMO tahlil: rasm kompyuter tomonidan ko'rilmagan. Mahsulot va komponentlar sizning tanlovingiz (${esc(ARCH[a.arch]?ARCH[a.arch].n:"Maxsus")}) asosida tuzildi. Markerlarni rasmdagi joyiga sudrab qo'ying. Rasmni haqiqiy tahlil qilish uchun Claude AI rejimini yoqing.</p>`:`<p style="margin:8px 0 0;color:var(--gr);font-size:.82rem">✔ Rasm Claude tomonidan ko'rilib tahlil qilingan.</p>${a.identified?`<div class="ident"><b>AI rasmda ko'rdi:</b> ${esc(a.identified)}</div>`:""}`}</div>
+  <div class="card"><h2 style="margin:0 0 4px">${esc(a.name)}</h2><p class="mut" style="margin:0">${esc(a.summary)}</p>${a.mode==="demo"?`<p class="mut" style="margin:8px 0 0;font-size:.82rem">⚠ DEMO tahlil (AI emas). Rasm kompyuter ko'rishi bilan rang va shakl bo'yicha ${a.vis?a.vis.regions.length:0} ta bo'lakka ajratildi; ${a.matchInfo?`${a.matchInfo.seen} ta komponent aniq bo'lakka bog'landi, ${a.matchInfo.inferred} tasi ichki (taxminiy)`:"komponentlar taxminiy joylashtirildi"}. Mahsulot turi va komponent nomlari sizning tanlovingiz (${esc(ARCH[a.arch]?ARCH[a.arch].n:"Maxsus")}) asosida; noto'g'ri bo'lsa, markerni bosib turini o'zgartiring yoki yangisini qo'shing. Rasmni haqiqiy tushunish uchun Claude AI rejimi kerak.</p>`:`<p style="margin:8px 0 0;color:var(--gr);font-size:.82rem">✔ Rasm Claude tomonidan ko'rilib tahlil qilingan.</p>${a.identified?`<div class="ident"><b>AI rasmda ko'rdi:</b> ${esc(a.identified)}</div>`:""}`}</div>
   <div class="anagrid" id="anaGrid">
     <div><div class="stage" id="stage"><img src="${S.img}" alt=""><svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></svg><div class="pinlayer" id="pins"></div></div>
-      <p class="mut" style="font-size:.78rem">Markerni bosing — tafsilot ochiladi. Sudrab joyini o'zgartirishingiz mumkin.</p></div>
+      <div class="regtog">${a.vis?`<label><input type="checkbox" id="regChk" ${S.showReg?"checked":""}> Rasmdan ajratilgan bo'laklar (${a.vis.regions.length})</label>`:""}<span>Qattiq marker = rasmdagi bo'lak · punktir = ichki (taxminiy)</span></div><p class="mut" style="font-size:.78rem">Markerni bosing, tafsilot ochiladi. Sudrab joyini o'zgartiring.</p></div>
     <div><div class="card" id="detail"></div><div class="complist" style="margin-top:10px" id="clist"></div></div>
   </div>
   <h3>ANIQLANGAN ELEMENTLAR</h3><div class="grid g4">${tiles.map(([k,v])=>`<div class="stat"><small>${k}</small><b style="font-size:.95rem">${esc(v)}</b></div>`).join("")}</div>
   <h3>KERAKLI STANOKLAR · ANIMATSION MODELLAR</h3><div class="mstrip">${mach(a).slice(0,8).map(m=>machineCard(m,a)).join("")}</div><div class="row"><button class="btn sm" id="gom">Barcha stanoklar va ustaxona darajalari →</button></div>
   <h3>MUHANDISLIK QIYINLIK KO'RSATKICHLARI</h3><div class="grid g2">${diff.map(d=>`<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${d.n}</b>${lvPill(d.l)}</div><div class="meter"><i style="width:${(d.l+1)*25}%"></i></div><small class="mut">${esc(d.why)}</small></div>`).join("")}</div>`;
+  const chk=$("#regChk"); if(chk) chk.onchange=()=>{ S.showReg=chk.checked; drawPins(); };
+  $("#stage").onclick=e=>{ if(!S.addKind||e.target.closest(".pin,.callout")) return; const r=$("#stage").getBoundingClientRect(); const L=LIB[S.addKind]; const c={id:"c"+Date.now(),kind:S.addKind,qty:1,label:L.n,fiction:L.fic,note:"Qo'lda qo'shildi",x:+((e.clientX-r.left)/r.width*100).toFixed(1),y:+((e.clientY-r.top)/r.height*100).toFixed(1),seen:true}; S.a.comps.push(c); S.sel=c.id; S.addKind=null; $("#anaGrid").parentElement.classList.remove("addmode"); toast("Komponent qo'shildi"); RENDER.analysis($("#panel")); };
   drawPins(); drawList(); drawDetail(); $("#gom").onclick=()=>{ S.tab="machines"; renderTabs(); };
 };
 function drawPins(){
   const a=S.a, layer=$("#pins"); if(!layer) return;
-  layer.innerHTML=a.comps.map((c,i)=>`<div class="pin${c.id===S.sel?" sel":""}" data-id="${c.id}" style="left:${c.x}%;top:${c.y}%" title="${esc(LIB[c.kind].n)}">${i+1}</div>`).join("");
+  layer.innerHTML=a.comps.map((c,i)=>`<div class="pin${c.id===S.sel?" sel":""}${c.seen===false?" inf":""}" data-id="${c.id}" style="left:${c.x}%;top:${c.y}%" title="${esc(LIB[c.kind].n)}">${i+1}</div>`).join("");
   // chiqarish chiziqlari va yozuvlari (chap/o'ng chetga)
   const L=[],R=[]; a.comps.forEach((c,i)=>(c.x<50?L:R).push({c,i}));
   const place=arr=>{ arr.sort((p,q)=>p.c.y-q.c.y); let last=-9; arr.forEach(o=>{ o.ly=Math.max(o.c.y,last+5.2); last=o.ly; }); };
@@ -181,7 +186,8 @@ function drawPins(){
   const narrow=($("#stage").clientWidth||800)<600;
   let svg="",lab=""; [[L,2],[R,98]].forEach(([arr,ex])=>arr.forEach(o=>{ svg+=`<polyline points="${o.c.x},${o.c.y} ${ex},${o.ly} ${ex<50?0:100},${o.ly}" fill="none" stroke="${o.c.id===S.sel?"#ff8a3d":"#22d3ee"}" stroke-opacity=".7" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="4 3"/>`;
     lab+=`<div class="callout" data-id="${o.c.id}" style="position:absolute;top:${o.ly}%;${ex<50?"left:0":"right:0"};transform:translateY(-50%);font:700 .62rem var(--mono);background:rgba(4,8,12,.85);color:${o.c.id===S.sel?"#ff8a3d":"#7dd3fc"};padding:1px 5px;border:1px solid rgba(34,211,238,.35);border-radius:3px;cursor:pointer;max-width:42%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${o.i+1}${narrow?"":" "+esc(LIB[o.c.kind].n.split("(")[0].trim())}</div>`; }));
-  $("#lines").innerHTML=svg; layer.insertAdjacentHTML("beforeend",lab);
+  let rg=""; if(a.vis&&S.showReg){ const sc=cOf(S.sel); rg=a.vis.regions.map(r=>`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="none" stroke="#39ff88" stroke-opacity=".4" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="3 2"/>`).join("")+(sc&&sc.box?`<rect x="${sc.box[0]}" y="${sc.box[1]}" width="${sc.box[2]}" height="${sc.box[3]}" fill="rgba(255,138,61,.12)" stroke="#ff8a3d" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`:""); }
+  $("#lines").innerHTML=rg+svg; layer.insertAdjacentHTML("beforeend",lab);
   $$(".callout",layer).forEach(el=>el.onclick=()=>selectComp(el.dataset.id));
   $$(".pin",layer).forEach(el=>{
     el.onpointerdown=e=>{ e.preventDefault(); const id=el.dataset.id, st=$("#stage").getBoundingClientRect(); let moved=false; el.setPointerCapture(e.pointerId);
@@ -198,7 +204,12 @@ function detailHTML(c){
   <div><small>REAL TEXNOLOGIYA</small>${esc(L.n)}</div><div><small>ISHLAB CHIQARISH USULI</small>${esc(L.method)}</div><div><small>KERAKLI MASHINA</small>${esc(L.mach.join(", ")||"Tayyor sotib olinadi")}</div><div><small>MATERIAL</small>${esc(M.n)}</div>
   <div class="l"><small>NEGA SHUNDAY</small>${esc(L.why)}</div></div>${c.note?`<p class="mut" style="font-size:.82rem">AI izohi: ${esc(c.note)}</p>`:""}`;
 }
-function drawDetail(){ const el=$("#detail"); if(el) el.innerHTML=detailHTML(cOf(S.sel)); }
+function drawDetail(){
+  const el=$("#detail"); if(!el) return; const c=cOf(S.sel); el.innerHTML=detailHTML(c)+`<div class="edit"><label>Turi: <select id="kSel">${Object.keys(LIB).map(k=>`<option value="${k}"${k===c.kind?" selected":""}>${esc(LIB[k].n)}</option>`).join("")}</select></label><button class="btn sm" id="kDel">🗑 O'chirish</button></div><div class="edit"><label>Yangi komponent: <select id="kAdd">${Object.keys(LIB).filter(k=>!LIB[k].nogeo).map(k=>`<option value="${k}">${esc(LIB[k].n)}</option>`).join("")}</select></label><button class="btn sm" id="kAddBtn">＋ Rasmga qo'yish</button></div>`;
+  $("#kSel").onchange=e=>{ const L=LIB[e.target.value]; c.kind=e.target.value; c.label=L.n; c.fiction=L.fic; RENDER.analysis($("#panel")); };
+  $("#kDel").onclick=()=>{ if(S.a.comps.length<2){ toast("Kamida bitta komponent qolishi kerak"); return; } S.a.comps=S.a.comps.filter(x=>x.id!==c.id); S.sel=S.a.comps[0].id; RENDER.analysis($("#panel")); };
+  $("#kAddBtn").onclick=()=>{ S.addKind=$("#kAdd").value; $("#anaGrid").parentElement.classList.add("addmode"); toast("Rasmda komponent turgan joyni bosing"); };
+}
 
 /* --- 2. REALITY --- */
 RENDER.reality=function(p){
