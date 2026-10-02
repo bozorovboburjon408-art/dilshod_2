@@ -176,3 +176,60 @@ const LASER_TBL = {
  mdf:{3:{co2:["55-65%","12-18","1"],diode:["100%","120-200 mm/min","3-5"]},engrave:{co2:["15-25%","250-350","1"],diode:["50-65%","2000-3000 mm/min","1"]}},
  al6061:{1:{fiber:["Yupqa list (<=1 mm): 100-300W fiber lazer, ko'pincha 1-2 o'tish; ustaxona 20-50W lazer kesmaydi","-","-"]},engrave:{fiber:["60-80% (20-50W)","600-1500 mm/s","1-2"]}}
 };
+
+/* ===== Kengaytma: yangi komponentlar, qurilma turlari, kalit so'zlar ===== */
+Object.assign(LIB,{
+ rotor:{n:"Rotor (BLDC motor + parrak)", grp:"mech", mfg:"Sotib olinadi", method:"BLDC motor (2306) + ESC + 5-6 dyuymli parrak", mach:[], mk:"elec", alt:"Kanalli fan (ducted fan) - shovqin kamroq", why:"Havoda ushlab turish uchun tortish kuchi rotordan keladi (antigravitatsiya emas).", cx:1, st:"modified", cost:38, cat:"mechanical", hrs:0, color:"#ff8a3d", fic:"Havoda suzuvchi antigravitatsiya"},
+ camera:{n:"Kamera moduli", grp:"elec", mfg:"Sotib olinadi", method:"Tayyor modul (Raspberry Pi Camera, OV2640, ESP32-CAM)", mach:["Lehim stansiyasi"], mk:"elec", alt:"Telefon kamerasi", why:"Atrofni ko'rish, kompyuter ko'rishi uchun.", cx:0, st:"current", cost:15, cat:"electronics", hrs:0, color:"#2dd4bf", fic:"Sun'iy ko'z"},
+ antenna:{n:"Antenna (Wi-Fi / LoRa / GPS)", grp:"elec", mfg:"Sotib olinadi", method:"Tayyor antenna moduli (2.4 GHz, 868/915 MHz LoRa, GNSS)", mach:[], mk:"elec", alt:"PCB antenna (plata ichida)", why:"Simsiz aloqa va joylashuv.", cx:0, st:"current", cost:6, cat:"electronics", hrs:0, color:"#94a3b8", fic:"Uzoq aloqa"},
+ grip:{n:"Tutqich (ergonomik dasta)", grp:"struct", mfg:"Ishlab chiqariladi", method:"3D bosma (PETG/TPU) + silikon yoki rezina qoplama", mach:["FDM 3D printer","Aerograf"], mk:"petg", alt:"Alyuminiy dasta + rezina qoplama", why:"Qo'lda ushlash qulayligi va zarbadan himoya.", cx:0, st:"current", cost:14, cat:"print", hrs:1.5, color:"#6b7686", fic:"Qo'lga mos dasta", print:{nozzle:0.4, layer:0.2, infill:20, walls:3, support:"Qisman", orient:"Uzun o'qi bo'ylab yotqizing"}},
+ wheel:{n:"G'ildirak + motor-reduktor", grp:"mech", mfg:"Sotib olinadi / yig'iladi", method:"Tayyor g'ildirak + DC reduktorli motor yoki 3D bosma disk + TPU shina", mach:["FDM 3D printer"], mk:"petg", alt:"Zanjirli (gusenitsa) yurish tizimi", why:"Yer ustida yurish uchun eng sodda va ishonchli yechim.", cx:1, st:"current", cost:24, cat:"mechanical", hrs:0.5, color:"#475569", fic:"Yengil yuruvchi tayanch"},
+ light_tube:{n:"Yorug' quvur (diffuzor + LED lenta)", grp:"ui", mfg:"Ishlab chiqariladi", method:"Matt akril/polikarbonat quvur + LED lenta + diffuzor + ichki alyuminiy profil", mach:["Silliqlash/jilolash mashinasi"], mk:"acrylic", alt:"Shisha trubka + LED neon lenta", why:"Faqat yorug'lik effekti (rekvizit); real energiya batareyadan olinadi.", cx:1, st:"modified", cost:34, cat:"materials", hrs:1, color:"#39ff88", fic:"Energiya oqimi (yorug' tayoq)", emis:true}
+});
+Object.assign(LAYOUT,{
+ drone:{ housing_print:["b",70,28,70,0,22,0], arm_link:["b",150,6,9,0,24,0,[[0,0,0,45],[0,0,0,135]]], rotor:["c",26,2,0,0,36,0,[[54,0,54],[-54,0,54],[54,0,-54],[-54,0,-54]]],
+         pcb:["b",50,2,50,0,14,0], mcu:["b",24,3,16,0,17,6], sensor:["b",12,3,12,18,17,-12], battery:["b",60,18,28,0,30,0], power:["b",30,6,20,0,12,-26], camera:["b",18,16,18,0,18,40], antenna:["c",1.5,40,0,-28,50,-28], led_ring:["r",32,2,26,0,6,0], fasteners:["c",1.6,8,0,0,12,0,[[-25,0,-25],[25,0,-25],[-25,0,25],[25,0,25]]] },
+ rover:{ housing_print:["b",110,30,190,0,36,0], frame_sheet:["b",126,3,210,0,16,0], wheel:["x",24,16,0,0,24,0,[[68,0,70],[-68,0,70],[68,0,-70],[-68,0,-70]]], pcb:["b",70,2,60,0,22,10], mcu:["b",26,3,18,0,25,10], sensor:["c",12,10,0,0,58,80], camera:["b",24,18,18,0,60,92],
+         battery:["b",60,18,90,0,26,-40], power:["b",30,6,20,0,22,40], led_ring:["r",30,2,22,0,52,-30], cable:["b",3,3,150,30,22,0], fasteners:["c",1.6,8,0,0,18,0,[[-50,0,-90],[50,0,-90],[-50,0,90],[50,0,90]]], antenna:["c",1.5,36,0,40,70,-70] },
+ scanner:{ housing_print:["b",72,140,24,0,70,0], display_oled:["b",56,70,2,0,95,13], sensor:["b",14,6,8,0,128,-8], camera:["b",18,18,6,-18,128,-10], pcb:["b",50,2,40,0,60,0], mcu:["b",22,3,16,0,63,0], battery:["b",50,60,10,0,50,-8], power:["b",26,5,18,0,22,0], grip:["c",16,60,0,0,26,0], led_ring:["r",12,2,8,22,120,12], speaker:["c",8,4,0,-22,32,12], ui_panel:["b",30,3,10,0,50,13], antenna:["c",1.5,26,0,28,148,0], fasteners:["c",1.6,8,0,0,70,0,[[-30,0,0],[30,0,0]]] },
+ blade:{ grip:["c",16,160,0,0,80,0], light_tube:["c",13,620,0,0,470,0], led_ring:["r",16,3,12,0,162,0], pcb:["b",20,100,8,0,70,0], mcu:["b",14,18,3,0,100,5], battery:["c",9,140,0,0,60,-8], power:["b",14,24,5,0,110,-4], speaker:["c",10,6,0,0,12,0], sensor:["b",8,3,8,0,40,6], ui_panel:["b",12,6,3,0,128,16], fasteners:["c",1.5,8,0,0,150,0,[[-12,0,0],[12,0,0]]] }
+});
+Object.assign(ARCH,{
+ drone:{n:"Uchuvchi dron (multirotor)", dims:[160,60,160], desc:"4 rotorli uchuvchi apparat: ramka, BLDC rotorlar, uchish kontrolleri, kamera va batareya.",
+   kinds:[["housing_print",1],["arm_link",2],["rotor",4],["pcb",1],["mcu",1],["sensor",2],["battery",1],["power",1],["camera",1],["antenna",1],["led_ring",1],["cable",1],["fasteners",24],["finish",1]],
+   alts:[{fic:"Antigravitatsiya (havoda osilib turish)", real:"Multirotor tortish kuchi (BLDC + parrak)", lim:"Parvoz vaqti ~15-40 daqiqa; shovqin; shamolga sezgir", fut:"Yuqori energiya zichlikli batareyalar, vodorodli yonilg'i elementlari", st:"modified"},
+         {fic:"O'zi uchadigan aqlli apparat", real:"Avtopilot (PX4/ArduPilot) + GPS + kamera", lim:"Murakkab muhitda xavfsizlik va qonuniy cheklovlar", fut:"Ishonchli avtonom navigatsiya", st:"modified"},
+         {fic:"Jim uchish", real:"Kanalli fan, katta sekin parraklar", lim:"Shovqin to'liq yo'qolmaydi", fut:"Maxsus aerodinamik parraklar", st:"experimental"}]},
+ rover:{n:"Yurib boruvchi robot (rover)", dims:[130,90,210], desc:"G'ildirakli mobil platforma: shassi, motorlar, sensorlar, kamera va batareya.",
+   kinds:[["housing_print",1],["frame_sheet",1],["wheel",4],["pcb",1],["mcu",1],["sensor",2],["camera",1],["battery",1],["power",1],["led_ring",1],["antenna",1],["cable",1],["fasteners",24],["finish",1]],
+   alts:[{fic:"Har qanday yerdan yuradigan mashina", real:"Gusenitsa yoki yo'l-yo'riq g'ildiraklar + yumshoq osma", lim:"Qiya, notekis relyefda cheklangan", fut:"Oyoqli/gibrid yurish tizimlari", st:"modified"},
+         {fic:"O'zi yo'l topadi", real:"LiDAR/kamera + SLAM + navigatsiya (ROS 2)", lim:"Murakkab muhitda xato qilishi mumkin", fut:"Ishonchli umumiy navigatsiya", st:"current"}]},
+ scanner:{n:"Qo'l skaneri / aqlli gadjet (tricorder)", dims:[72,150,26], desc:"Qo'lda ushlanadigan qurilma: ekran, sensorlar, kamera, tutqich va batareya.",
+   kinds:[["housing_print",1],["display_oled",1],["sensor",2],["camera",1],["pcb",1],["mcu",1],["battery",1],["power",1],["grip",1],["led_ring",1],["speaker",1],["ui_panel",1],["antenna",1],["fasteners",8],["finish",1]],
+   alts:[{fic:"Hamma narsani bir zumda skanerlaydi", real:"Sensor to'plami (gaz, harorat, namlik, ToF) + kamera", lim:"Har bir o'lchov uchun alohida sensor kerak; materialni to'liq aniqlay olmaydi", fut:"Miniatyur spektrometrlar (NIR)", st:"experimental"},
+         {fic:"Tibbiy skanerlash", real:"PPG puls, harorat, ECG elektrodlar (wellness darajasi)", lim:"Tibbiy tashxis uchun sertifikatsiya kerak", fut:"Sertifikatlangan portativ diagnostika", st:"experimental"}]},
+ exo:{n:"Kiyiladigan ekzoskelet / zirh", dims:[500,700,300], desc:"Tanaga kiyiladigan ramka: bo'g'inlar, yuritmalar, batareya va boshqaruv elektronikasi.",
+   kinds:[["frame_sheet",1],["arm_link",4],["joint",4],["motor_servo",4],["gearbox",4],["bearing",8],["shield_panel",2],["pcb",1],["mcu",1],["sensor",3],["battery",1],["power",1],["cable",1],["fasteners",40],["finish",1]],
+   alts:[{fic:"Inson kuchini bir necha baravar oshiradi", real:"Aktiv ekzoskelet (reduktorli motorlar) - yengil yuklarni ko'tarishda yordam", lim:"Batareya, og'irlik, xavfsizlik; to'liq 'super kuch' mumkin emas", fut:"Yengil sun'iy mushaklar", st:"experimental"},
+         {fic:"O'tmas zirh", real:"Karbon/polikarbonat/kevlar qatlamli panellar", lim:"Og'irlik va harakatchanlik bilan kelishish kerak", fut:"Yangi kompozitlar", st:"modified"}]},
+ prop:{n:"Yorug' tayoq (rekvizit)", dims:[60,800,60], desc:"Kosplay/rekvizit: yorug' quvur, tutqich, LED, batareya va ovoz effektlari. Funksiyasiz (faqat yorug'lik).",
+   kinds:[["grip",1],["light_tube",1],["led_ring",1],["pcb",1],["mcu",1],["sensor",1],["battery",1],["power",1],["speaker",1],["ui_panel",1],["fasteners",6],["finish",1]],
+   alts:[{fic:"Energiya pichog'i", real:"LED yorug' quvur (faqat yorug'lik effekti, rekvizit)", lim:"Haqiqiy plazma/energiya tig'i yo'q; bu xavfsiz namoyish buyumi", fut:"Yo'q (fantastika)", st:"speculative"},
+         {fic:"Zarbadan chiqadigan ovoz va nur", real:"IMU sensor + ovoz effektlari + LED animatsiya", lim:"Yo'q: to'liq mumkin", fut:"Yengilroq batareyalar", st:"current"}]}
+});
+const KEYWORDS = {
+ holo:["gologramma","hologram","holo","proyektor","projector"],
+ arm:["robot qo'l","manipulyator","tutgich","gauntlet","claw","bilak","qo'l"],
+ visor:["ko'zoynak","kozoynak","visor","hud","shlem","helmet","glasses","goggles","ar "],
+ core:["reaktor","yadro","reactor","core","kristal","crystal","chiroq","lamp"],
+ drone:["dron","drone","uchuvchi","quadcopter","jetpack","parvoz","propeller","kopter","helicopter"],
+ rover:["rover","g'ildirak","gildirak","mashina","avtomobil","vehicle","tank","car","transport","yurib"],
+ scanner:["skaner","scanner","tricorder","detektor","gadjet","gadget","planshet","pda","telefon"],
+ exo:["ekzoskelet","exo","zirh","armor","suit","kostyum","mech","kiyiladigan zirh"],
+ prop:["qilich","saber","lightsaber","yorug' tayoq","tayoq","wand","pichoq"]
+};
+function guessArch(text){
+  const t=String(text||"").toLowerCase().replace(/[‘’ʻ`]/g,"'"); let best=null,bs=0;
+  Object.entries(KEYWORDS).forEach(([k,ws])=>{ const s=ws.filter(w=>t.includes(w.replace(/[‘’ʻ`]/g,"'"))).length; if(s>bs){bs=s;best=k;} });
+  return best;
+}

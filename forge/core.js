@@ -8,13 +8,14 @@ const uniq = a => [...new Set(a)];
 
 /* ---------- Tahlil obyektini qurish ---------- */
 function buildAnalysis(archKey, opts={}){
-  const A = ARCH[archKey] || ARCH.holo;
-  const comps = A.kinds.map(([kind,qty],i)=>{
+  const A = ARCH[archKey] || (opts.kinds?{n:"Maxsus qurilma",desc:"Foydalanuvchi belgilagan komponentlardan tuzilgan qurilma.",dims:[160,120,160],alts:[],kinds:[]}:ARCH.holo);
+  const kl = (opts.kinds||A.kinds).filter(([k])=>LIB[k]);
+  const comps = kl.map(([kind,qty],i)=>{
     const m = (opts.markers||{})[kind];
-    return {id:"c"+i, kind, qty, label:LIB[kind].n, fiction:LIB[kind].fic, note:"", ...autoMarker(i,A.kinds.length,archKey,kind,m)};
+    return {id:"c"+i, kind, qty, label:LIB[kind].n, fiction:LIB[kind].fic, note:"", ...autoMarker(i,kl.length,archKey,kind,m)};
   });
-  return {mode:opts.mode||"demo", arch:archKey, name:opts.name||A.n, summary:opts.summary||A.desc, geometry:opts.geometry||"", dims:opts.dims||A.dims.slice(),
-    overall:opts.overall||null, comps, alts:opts.alts||A.alts.map(a=>({fic:a.fic, real:a.real, lim:a.lim, fut:a.fut, st:a.st})), risks:opts.risks||defaultRisks(comps), mechanisms:opts.mechanisms||[]};
+  return {mode:opts.mode||"demo", arch:ARCH[archKey]?archKey:"generic", name:opts.name||A.n, summary:opts.summary||A.desc, geometry:opts.geometry||"", dims:opts.dims||A.dims.slice(),
+    overall:opts.overall||null, comps, alts:opts.alts||(A.alts||[]).map(a=>({fic:a.fic, real:a.real, lim:a.lim, fut:a.fut, st:a.st})), risks:opts.risks||defaultRisks(comps), mechanisms:opts.mechanisms||[]};
 }
 const HOLO_MARK = {housing_led:[50,80], frame_sheet:[30,86], motor_stepper:[50,74], gearbox:[56,68], bearing:[44,70], pcb:[34,76], mcu:[40,79], sensor:[63,79], battery:[27,78], power:[70,77], holo_screen:[50,30], led_ring:[50,66], cooling:[74,82], ui_panel:[50,92], fasteners:[20,92], finish:[82,56]};
 function autoMarker(i,n,arch,kind,m){
@@ -31,6 +32,9 @@ function defaultRisks(comps){
   if(kinds.some(k=>["motor_servo","motor_stepper","arm_link","joint"].includes(k))) r.push("Harakatlanuvchi qismlar: qisish/kesish xavfi; himoya qopqoqlari va favqulodda to'xtatish kerak.");
   if(kinds.includes("core_light")) r.push("'Energiya yadrosi' faqat vizual effekt; real energiya batareyadan olinadi.");
   if(kinds.includes("lens_visor")) r.push("Ko'zga yaqin yorug'lik manbalari: ko'z xavfsizligi me'yorlariga rioya qiling.");
+  if(kinds.includes("rotor")) r.push("Aylanuvchi parraklar jarohat xavfi: himoya halqalari, xavfsiz sinov joyi va mahalliy dron qonunlariga rioya qiling.");
+  if(kinds.includes("light_tube")) r.push("Yorug' tayoq faqat rekvizit/namoyish buyumi: haqiqiy energiya yoki kesuvchi funksiya yo'q va qo'shilmasligi kerak.");
+  if(kinds.includes("wheel")) r.push("Harakatlanuvchi platforma: to'qnashuv sensori va favqulodda to'xtatish tugmasi tavsiya etiladi.");
   r.push("Sertifikatsiya (CE/FCC, batareya xavfsizligi) kichik seriya oldidan talab etilishi mumkin.");
   return r;
 }
@@ -150,24 +154,27 @@ function instances(a){
     let g = lay[c.kind];
     if(!g){ const i=auto++; g=["b",20,12,16,-50+(i%4)*34,8,-60-Math.floor(i/4)*26]; }
     const [sh,sx,sy,sz,px,py,pz,rep]=g;
-    (rep||[[0,0,0]]).forEach((o,j)=>out.push({cid:c.id, kind:c.kind, sh, sx, sy, sz, c:[px+o[0],py+o[1],pz+o[2]], color:L.color, emis:!!L.emis, glass:["housing_led","holo_screen","lens_visor","optics"].includes(c.kind)}));
+    (rep||[[0,0,0]]).forEach((o,j)=>out.push({cid:c.id, kind:c.kind, sh, sx, sy, sz, rot:o[3]||0, c:[px+o[0],py+o[1],pz+o[2]], color:L.color, emis:!!L.emis, glass:["housing_led","holo_screen","lens_visor","optics"].includes(c.kind)}));
   });
   return out;
 }
 function meshOf(ins, off=[0,0,0]){
-  const [cx,cy,cz]=[ins.c[0]+off[0],ins.c[1]+off[1],ins.c[2]+off[2]];
+  const cx=ins.c[0]+off[0], cy=ins.c[1]+off[1], cz=ins.c[2]+off[2];
+  const rot=(ins.rot||0)*Math.PI/180, cr=Math.cos(rot), sr=Math.sin(rot);
+  const T=p=>[p[0]*cr+p[2]*sr+cx, p[1]+cy, -p[0]*sr+p[2]*cr+cz];
   const P=[];
   if(ins.sh==="b"){
     const x=ins.sx/2,y=ins.sy/2,z=ins.sz/2;
-    const v=[[-x,-y,-z],[x,-y,-z],[x,y,-z],[-x,y,-z],[-x,-y,z],[x,-y,z],[x,y,z],[-x,y,z]].map(p=>[p[0]+cx,p[1]+cy,p[2]+cz]);
+    const v=[[-x,-y,-z],[x,-y,-z],[x,y,-z],[-x,y,-z],[-x,-y,z],[x,-y,z],[x,y,z],[-x,y,z]].map(T);
     [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]].forEach(f=>P.push(f.map(i=>v[i])));
   } else if(ins.sh==="r"){
     const N=22, ro=ins.sx, ri=ins.sz, h=ins.sy/2, ot=[],ob=[],it=[],ib=[];
-    for(let i=0;i<N;i++){ const t=i/N*Math.PI*2, co=Math.cos(t), si=Math.sin(t); ot.push([cx+ro*co,cy+h,cz+ro*si]); ob.push([cx+ro*co,cy-h,cz+ro*si]); it.push([cx+ri*co,cy+h,cz+ri*si]); ib.push([cx+ri*co,cy-h,cz+ri*si]); }
+    for(let i=0;i<N;i++){ const t=i/N*Math.PI*2, co=Math.cos(t), si=Math.sin(t); ot.push(T([ro*co,h,ro*si])); ob.push(T([ro*co,-h,ro*si])); it.push(T([ri*co,h,ri*si])); ib.push(T([ri*co,-h,ri*si])); }
     for(let i=0;i<N;i++){ const j=(i+1)%N; P.push([ob[i],ob[j],ot[j],ot[i]]); P.push([it[i],it[j],ib[j],ib[i]]); P.push([ot[i],ot[j],it[j],it[i]]); P.push([ib[i],ib[j],ob[j],ob[i]]); }
   } else {
-    const N=18, r=ins.sx, h=ins.sy/2, top=[], bot=[];
-    for(let i=0;i<N;i++){ const t=i/N*Math.PI*2; top.push([cx+r*Math.cos(t),cy+h,cz+r*Math.sin(t)]); bot.push([cx+r*Math.cos(t),cy-h,cz+r*Math.sin(t)]); }
+    const N=18, r=ins.sx, h=ins.sy/2, top=[], bot=[], ax=ins.sh; // c: Y o'qi, x: X o'qi, z: Z o'qi
+    const mp=(a,b,t)=> ax==="x"? [t,a,b] : ax==="z"? [a,b,t] : [a,t,b];
+    for(let i=0;i<N;i++){ const t=i/N*Math.PI*2, a=r*Math.cos(t), b=r*Math.sin(t); top.push(T(mp(a,b,h))); bot.push(T(mp(a,b,-h))); }
     for(let i=0;i<N;i++){ const j=(i+1)%N; P.push([bot[i],bot[j],top[j],top[i]]); }
     P.push(top.slice().reverse()); P.push(bot.slice());
   }
@@ -288,7 +295,7 @@ function dxfDrawing(a){
 }
 function paramSpec(a){
   const lay=LAYOUT[a.arch]||{};
-  const parts=instances(a).map((i,k)=>({id:k+1, component:LIB[i.kind].n, shape:i.sh==="b"?"box":"cylinder (axis Y)", size_mm:i.sh==="b"?{x:i.sx,y:i.sy,z:i.sz}:{radius:i.sx,height:i.sy}, center_mm:{x:i.c[0],y:i.c[1],z:i.c[2]}, material:MATS[LIB[i.kind].mk].n}));
+  const parts=instances(a).map((i,k)=>({id:k+1, component:LIB[i.kind].n, shape:i.sh==="b"?"box":i.sh==="r"?"ring (outer radius=size.radius, inner=size.inner)":"cylinder (axis "+(i.sh==="x"?"X":i.sh==="z"?"Z":"Y")+")", size_mm:i.sh==="b"?{x:i.sx,y:i.sy,z:i.sz}:i.sh==="r"?{radius:i.sx,height:i.sy,inner:i.sz}:{radius:i.sx,length:i.sy}, rotation_y_deg:i.rot||0, center_mm:{x:i.c[0],y:i.c[1],z:i.c[2]}, material:MATS[LIB[i.kind].mk].n}));
   return JSON.stringify({format:"FUTURE FORGE parametrik CAD spetsifikatsiyasi", note:"Bu STEP fayl emas. Quyidagi parametrlar Fusion 360 / FreeCAD / Onshape / SolidWorks da modelni qayta qurish uchun yetarli konsept asosdir. Haqiqiy detallash (tolerans, rezba, filet, yig'ish mate'lari) CAD muhandisi tomonidan bajariladi.", product:a.name, units:"mm", coordinate_system:"Y yuqoriga, Z oldinga", overall_dimensions_mm:dimsOf(a).map(v=>Math.round(v)), parts, suggested_workflow:["Har bir 'parts' qatoridan sketch + extrude/revolve","Korpus uchun devor qalinligi 2-3 mm (3D bosma) yoki 3 mm (akril)","Mahkamlagich teshiklari: M3 uchun 3.2 mm o'tkazuvchi, 2.5 mm rezba oldi","Tolerans: 3D bosma +/-0.2 mm, CNC +/-0.05 mm, lazer +/-0.1 mm","STEP/STL ni shu spetsifikatsiya asosida eksport qiling"]}, null, 2);
 }
 

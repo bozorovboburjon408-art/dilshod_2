@@ -139,3 +139,15 @@ canvas#cv{width:100%;border:1px solid var(--line);border-radius:14px;background:
 @media(max-width:900px){.anagrid{grid-template-columns:1fr}}
 .tw table{min-width:760px}.tw.bom table{min-width:1020px}
 .tw td{min-width:70px}
+
+.kgrp{margin:6px 0}.kgrp b{display:block;font:700 .62rem var(--mono);letter-spacing:.1em;color:var(--mut);margin-bottom:3px}
+.kgrp .chip{padding:3px 9px;font-size:.76rem}
+.manim{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line2)}
+.mcard{border:1px solid var(--line2);background:var(--panel);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.mcard .cat{font:700 .6rem var(--mono);letter-spacing:.1em;color:var(--or)}
+.mcard b{display:block}.mcard p{margin:0;color:var(--mut);font-size:.8rem}
+.mcard .use{color:var(--tx);font-size:.78rem}
+.mstrip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px}
+.mstrip .mcard{min-width:220px}
+.run{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gr);margin-right:6px;animation:ping 1.4s ease-out infinite}
+.ident{margin:8px 0 0;padding:8px 12px;border:1px solid rgba(57,255,136,.4);border-radius:10px;background:rgba(57,255,136,.07);font-size:.88rem}

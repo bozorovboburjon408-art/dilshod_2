@@ -49,23 +49,25 @@ async function analyze(body) {
 
 // ---- FUTURE FORGE: rasmni Claude ko'rib tahlil qiladi, natija tuzilgan JSON ----
 const FORGE_SYSTEM = `Siz ko'p tarmoqli muhandislik jamoasisiz: sanoat dizayneri, mexanik muhandis, elektronika muhandisi, ishlab chiqarish texnologi va maker.
-Foydalanuvchi kino, o'yin, konsept-art yoki xayoldagi fantastik qurilma rasmini yuboradi. Siz rasmni shunchaki tasvirlamaysiz: uni bugungi texnologiyalar bilan ishlab chiqarish mumkin bo'lgan real mahsulot konseptiga aylantirasiz.
+Foydalanuvchi kino, o'yin, konsept-art yoki xayoldagi fantastik qurilma rasmini yuboradi. AVVAL rasmda aynan nima tasvirlanganini identified_object da aniqlang va faqat ko'ringan narsaga asoslaning (boshqa mahsulot o'ylab topmang). Keyin uni bugungi texnologiyalar bilan ishlab chiqarish mumkin bo'lgan real mahsulot konseptiga aylantiring.
 Qoidalar:
 - Rasmda aslida ko'ringan qismlarni aniqlang; ko'rinmaydigan ichki komponentlarni mantiqiy taxmin qiling va buni "note" maydonida ayting.
 - Har bir komponent uchun "kind" faqat berilgan ro'yxatdan tanlanadi (eng yaqinini tanlang).
 - x va y rasmdagi komponent markazining foizdagi o'rni (0-100, x chapdan, y tepadan).
 - Imkonsiz texnologiyalarni "imkonsiz" demang: eng yaqin real texnologiyani, hozirgi cheklovni va kelajak yo'nalishini yozing; status: current, modified, experimental yoki speculative.
 - Mavjud bo'lmagan texnologiyani uydirmang. Barcha matnlar o'zbek tilida (lotin), qisqa va aniq.
-- dimensions_mm: mahsulotning taxminiy gabaritlari (mm).`;
+- dimensions_mm: mahsulotning taxminiy gabaritlari (mm).
+- Agar rasmda qurol bo'lsa: faqat funksiyasiz kosplay/rekvizit (yorug'lik/ovoz effektli, otish yoki kesish mexanizmisiz) sifatida konseptlang va risks da ayting.`;
 
 function forgeSchema(kinds) {
   const str = { type: 'string' }, num = { type: 'number' };
   return {
     type: 'object', additionalProperties: false,
-    required: ['product_name', 'archetype', 'summary', 'geometry', 'dimensions_mm', 'overall_complexity', 'components', 'mechanisms', 'tech_alternatives', 'risks'],
+    required: ['identified_object', 'product_name', 'archetype', 'summary', 'geometry', 'dimensions_mm', 'overall_complexity', 'components', 'mechanisms', 'tech_alternatives', 'risks'],
     properties: {
+      identified_object: str,
       product_name: str,
-      archetype: { type: 'string', enum: ['holo', 'arm', 'visor', 'core', 'generic'] },
+      archetype: { type: 'string', enum: ['holo', 'arm', 'visor', 'core', 'drone', 'rover', 'scanner', 'exo', 'prop', 'generic'] },
       summary: str, geometry: str,
       dimensions_mm: { type: 'object', additionalProperties: false, required: ['w', 'h', 'd'], properties: { w: num, h: num, d: num } },
       overall_complexity: { type: 'string', enum: ['Past', "O'rta", 'Yuqori', 'Juda yuqori'] },
@@ -86,7 +88,7 @@ async function forge(body) {
   if (!kinds.length) throw Object.assign(new Error('kinds yo‘q'), { status: 400 });
   const catalog = kinds.map(k => `- ${k.k}: ${k.n} (fantastik ko'rinishi: ${k.g})`).join('\n');
   const text = `Komponent turlari (kind):\n${catalog}\n\n` + (body.hint ? `Foydalanuvchi izohi: ${String(body.hint).slice(0, 1000)}\n\n` : '') +
-    "Rasmni tahlil qiling va JSON qaytaring. Archetype: holo (gologramma/proyektor), arm (robot qo'l), visor (kiyiladigan HUD), core (energiya yadrosi), aks holda generic.";
+    "Rasmni tahlil qiling va JSON qaytaring. Archetype: holo, arm, visor, core, drone, rover, scanner, exo, prop, aks holda generic.";
   const stream = client.messages.stream({
     model: 'claude-opus-5-5',
     max_tokens: 16000,

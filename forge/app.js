@@ -1,7 +1,7 @@
 'use strict';
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
-const S = {img:null, hint:"", arch:"holo", a:null, sel:null, hidden:new Set(), view:{yaw:32,pitch:18,zoom:1,explode:0,section:null}, tab:"analysis", laser:{type:"co2",kerf:0.15,sw:600,sh:400}, aiOK:false, sample:null, server:false, drawing:false};
+const S = {img:null, hint:"", arch:"holo", a:null, sel:null, hidden:new Set(), view:{yaw:32,pitch:18,zoom:1,explode:0,section:null}, tab:"analysis", laser:{type:"co2",kerf:0.15,sw:600,sh:400}, aiOK:false, sample:null, server:false, drawing:false, kinds:new Map(ARCH.holo.kinds), archManual:false, fname:"", ready:Promise.resolve()};
 const pill = (t,c)=>`<span class="pill" style="color:${c}">${esc(t)}</span>`;
 const lvPill = l=>`<span class="pill lv${l}">${CX[l]}</span>`;
 const stPill = s=>pill(ST[s].n,ST[s].c);
@@ -48,13 +48,13 @@ function fitImage(src){
   return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const m=1600,s=Math.min(1,m/Math.max(im.width,im.height)); const c=document.createElement("canvas"); c.width=Math.round(im.width*s); c.height=Math.round(im.height*s); const x=c.getContext("2d"); x.fillStyle="#000"; x.fillRect(0,0,c.width,c.height); x.drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",0.9)); }; im.onerror=()=>rej(new Error("Rasmni o'qib bo'lmadi")); im.src=src; });
 }
 async function loadFile(f){
-  if(!f) return; if(!/^image\/(png|jpeg|webp)$/.test(f.type)){ toast("Faqat PNG, JPG yoki WEBP"); return; }
+  if(!f) return; S.fname=f.name||""; S.fname=f.name||""; if(!/^image\/(png|jpeg|webp)$/.test(f.type)){ toast("Faqat PNG, JPG yoki WEBP"); return; }
   const fr=new FileReader(); fr.onload=async()=>{ try{ setImage(await fitImage(fr.result)); }catch(e){ toast(e.message); } }; fr.readAsDataURL(f);
 }
 function setImage(d){
   S.img=d; $("#prevImg").src=d; $("#prep").hidden=false; $("#prepTitle").textContent="Rasm tayyor";
   $("#prepNote").textContent=S.aiOK?"Claude rasmni ko'rib tahlil qiladi: komponentlar, mexanizmlar va materiallarni o'zi aniqlaydi.":"DEMO rejimi: server/AI kaliti yo'q. Rasmga eng yaqin qurilma turini tanlang. Tahlil tayyor shablon asosida tuziladi, markerlarni rasmdagi joyiga sudrab qo'yishingiz mumkin.";
-  $("#archBox").hidden=S.aiOK; $$("#steps li").forEach(l=>l.className="");
+  $("#archBox").hidden=S.aiOK; $$("#steps li").forEach(l=>l.className=""); if(!S.aiOK){ hintGuess(); renderBuilder(); }
   $("#prep").scrollIntoView({behavior:"smooth",block:"start"});
 }
 let camStream=null;
@@ -67,35 +67,53 @@ function snap(){
   camStream&&camStream.getTracks().forEach(t=>t.stop()); v.hidden=true; $("#snap").hidden=true; fitImage(c.toDataURL("image/jpeg",0.9)).then(setImage);
 }
 
+
+/* ---------- Qurilma turi va komponentlarni belgilash (DEMO rejim) ---------- */
+const GRPN={struct:"KORPUS / RAMKA",mech:"MEXANIKA",elec:"ELEKTRONIKA",ui:"KO'RSATISH / INTERFEYS",opt:"OPTIKA",proc:"SIRT ISHLOVI"};
+function selectArch(k,manual){ S.arch=k; if(manual) S.archManual=true; if(ARCH[k]) S.kinds=new Map(ARCH[k].kinds); renderBuilder(); }
+function renderBuilder(){
+  $("#archPick").innerHTML=[...Object.keys(ARCH).map(k=>[k,ARCH[k].n]),["custom","Boshqa / o'zim yig'aman"]].map(([k,n])=>`<button class="chip${k===S.arch?" sel":""}" data-k="${k}">${esc(n)}</button>`).join("");
+  $$("#archPick .chip").forEach(b=>b.onclick=()=>selectArch(b.dataset.k,true));
+  $("#kindPick").innerHTML=Object.keys(GRPN).map(g=>{ const ks=Object.keys(LIB).filter(k=>LIB[k].grp===g); return ks.length?`<div class="kgrp"><b>${GRPN[g]}</b><div class="chips">${ks.map(k=>`<button class="chip${S.kinds.has(k)?" sel":""}" data-k="${k}">${esc(LIB[k].n.split("(")[0].trim())}</button>`).join("")}</div></div>`:""; }).join("")+`<p class="lab">Tanlangan komponentlar: <b>${S.kinds.size}</b></p>`;
+  $$("#kindPick .chip").forEach(b=>b.onclick=()=>{ const k=b.dataset.k; if(S.kinds.has(k)) S.kinds.delete(k); else S.kinds.set(k,k==="fasteners"?12:1); renderBuilder(); });
+}
+function hintGuess(){
+  const g=guessArch(($("#hint").value||"")+" "+S.fname); const n=$("#guessNote");
+  if(g&&!S.archManual&&g!==S.arch){ selectArch(g,false); }
+  n.textContent=g?("Kalit so'zlar bo'yicha taklif: "+ARCH[g].n+(S.archManual?" (siz tanlagan tur o'zgarmadi)":"")):"";
+}
+
 /* ---------- Tahlil ishga tushirish ---------- */
 const STEPS=["Umumiy geometriya aniqlanmoqda","Mexanizmlar va harakatlanuvchi qismlar","Bo'g'inlar, tishli g'ildiraklar, motorlar","Elektronika, sensorlar va displeylar","Ramka, korpus va mahkamlagichlar","Materiallar va ishlab chiqarish murakkabligi","Taxminiy o'lchamlar va ichki komponentlar","Fantastika -> real texnologiya xaritalash"];
 function dataToBlob(d){ const m=/^data:([^;]+);base64,(.+)$/.exec(d); const bin=atob(m[2]); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Blob([u],{type:m[1]}); }
 function forgePrompt(hint){
   const catalog=Object.keys(LIB).map(k=>`- ${k}: ${LIB[k].n} (fantastik ko'rinishi: ${LIB[k].fic})`).join("\n");
   return `Siz ko'p tarmoqli muhandislik jamoasisiz: sanoat dizayneri, mexanik muhandis, elektronika muhandisi, ishlab chiqarish texnologi va maker.
-Ilova qilingan rasm kino, o'yin, konsept-art yoki xayoldagi fantastik qurilma. Uni tasvirlamang: bugungi texnologiyalar bilan ishlab chiqarish mumkin bo'lgan real mahsulot konseptiga aylantiring.
+Ilova qilingan rasm kino, o'yin, konsept-art yoki xayoldagi fantastik qurilma. AVVAL rasmda aynan nima tasvirlanganini aniqlang (\"identified_object\"): qurilma turi, asosiy qismlari. Faqat rasmda ko'ringan narsaga asoslaning, boshqa mahsulot o'ylab topmang. Keyin uni bugungi texnologiyalar bilan ishlab chiqarish mumkin bo'lgan real mahsulot konseptiga aylantiring.
 Qoidalar:
 - Rasmda ko'ringan qismlarni aniqlang; ichki komponentlarni mantiqiy taxmin qiling va buni "note" da ayting.
 - "kind" faqat quyidagi ro'yxatdan (eng yaqinini tanlang).
 - x, y: komponent markazining rasmdagi o'rni foizda (0-100; x chapdan, y tepadan).
 - Imkonsiz texnologiyani "imkonsiz" demang: eng yaqin real texnologiya, hozirgi cheklov, kelajak yo'nalishi; status: current | modified | experimental | speculative.
 - Mavjud bo'lmagan texnologiyani uydirmang. Matnlar o'zbek tilida (lotin), qisqa va aniq.
+- Agar rasmda qurol bo'lsa: faqat funksiyasiz kosplay/rekvizit (yorug'lik/ovoz effektli, otish yoki kesish mexanizmisiz) sifatida konseptlang va buni risks da ayting.
 
 Komponent turlari:
 ${catalog}
 ${hint?`\nFoydalanuvchi izohi: ${hint}\n`:""}
 FAQAT bitta JSON obyekt qaytaring:
-{"product_name":str,"archetype":"holo|arm|visor|core|generic","summary":str,"geometry":str,"dimensions_mm":{"w":num,"h":num,"d":num},"overall_complexity":"Past|O'rta|Yuqori|Juda yuqori",
+{"identified_object":str,"product_name":str,"archetype":"holo|arm|visor|core|drone|rover|scanner|exo|prop|generic","summary":str,"geometry":str,"dimensions_mm":{"w":num,"h":num,"d":num},"overall_complexity":"Past|O'rta|Yuqori|Juda yuqori",
 "components":[{"kind":str,"label":str,"fiction":str,"qty":int,"x":num,"y":num,"note":str}],"mechanisms":[str],
 "tech_alternatives":[{"fiction":str,"closest_real":str,"limitation":str,"future":str,"status":"current|modified|experimental|speculative"}],"risks":[str]}
 8-16 ta komponent va 3-5 ta tech_alternatives bering.`;
 }
 async function analyze(){
   if(!S.img){ toast("Avval rasm yuklang"); return; }
-  S.hint=$("#hint").value.trim(); const btn=$("#analyze"); btn.disabled=true; $("#scan").classList.add("on");
+  S.hint=$("#hint").value.trim(); if(!S.aiOK&&!S.kinds.size){ toast("Kamida bitta komponent belgilang"); return; } const btn=$("#analyze"); btn.disabled=true; $("#scan").classList.add("on");
   const ol=$("#steps"); ol.innerHTML=STEPS.map(s=>`<li>${s}</li>`).join(""); const li=$$("li",ol);
   let i=0; const tick=setInterval(()=>{ if(i>0) li[i-1].className="on"; if(i<li.length){ li[i].className="cur"; i++; } },520);
   let a=null;
+  if(!S.sample && window.claude && window.claude.use){ await S.ready; }
   if(S.sample){
     try{ const j=await S.sample.json(forgePrompt(S.hint),{images:dataToBlob(S.img),modelTier:"default",cache:false}); a=fromAI(j); }
     catch(e){ toast("Claude tahlili ishlamadi ("+((e&&(e.code||e.message))||"xato")+"). "+(S.server?"Server orqali urinib ko'riladi.":"DEMO shablonga o'tildi.")); }
@@ -107,7 +125,7 @@ async function analyze(){
     }catch(e){ toast("AI tahlil ishlamadi ("+e.message+"). DEMO shablonga o'tildi."); }
   }
   if(!a && !S.aiOK){ await new Promise(r=>setTimeout(r,STEPS.length*520)); }
-  if(!a) a=buildAnalysis(S.arch);
+  if(!a){ const custom=S.arch==="custom"; a=buildAnalysis(S.arch,{kinds:[...S.kinds],name:custom?"Maxsus qurilma":undefined,summary:(custom?"":ARCH[S.arch].desc+" ")+(S.hint?"Izoh: "+S.hint:(custom?"Foydalanuvchi belgilagan komponentlardan tuzilgan qurilma.":""))}); }
   clearInterval(tick); li.forEach(l=>l.className="on"); $("#scan").classList.remove("on"); btn.disabled=false;
   S.a=a; S.sel=a.comps[0].id; S.hidden=new Set(); S.view={yaw:32,pitch:18,zoom:1,explode:0,section:null}; S.tab="analysis";
   setTimeout(()=>{ $("#hero").hidden=true; $("#dash").hidden=false; $("#newBtn").hidden=false; setMode(); renderTabs(); window.scrollTo({top:0}); },500);
@@ -119,7 +137,7 @@ function fromAI(j){
   const comps=Object.values(byKind); if(!comps.length) throw new Error("Komponent aniqlanmadi");
   const num=(v,def,lo,hi)=>{ v=parseFloat(v); return isFinite(v)?Math.min(hi,Math.max(lo,v)):def; };
   const d=j.dimensions_mm||{}; const arch=ARCH[j.archetype]?j.archetype:"generic";
-  return {mode:"ai",arch,name:String(j.product_name||"Aniqlangan qurilma"),summary:String(j.summary||""),geometry:String(j.geometry||""),dims:[num(d.w,150,20,1000),num(d.h,150,20,1000),num(d.d,150,20,1000)],overall:CX.includes(j.overall_complexity)?j.overall_complexity:null,comps,
+  return {mode:"ai",identified:String(j.identified_object||""),arch,name:String(j.product_name||"Aniqlangan qurilma"),summary:String(j.summary||""),geometry:String(j.geometry||""),dims:[num(d.w,150,20,1000),num(d.h,150,20,1000),num(d.d,150,20,1000)],overall:CX.includes(j.overall_complexity)?j.overall_complexity:null,comps,
     alts:(Array.isArray(j.tech_alternatives)?j.tech_alternatives:[]).map(t=>({fic:String(t.fiction||"-"),real:String(t.closest_real||"-"),lim:String(t.limitation||"-"),fut:String(t.future||"-"),st:ST[t.status]?t.status:"experimental"})),risks:(Array.isArray(j.risks)&&j.risks.length?j.risks.map(String):defaultRisks(comps)),mechanisms:Array.isArray(j.mechanisms)?j.mechanisms.map(String):[]};
 }
 function setMode(){ const b=$("#modeBadge"); if(S.a&&S.a.mode==="ai"){ b.textContent="AI tahlil · Claude"; b.className="badge ai"; } else if(S.aiOK){ b.textContent="Claude AI tayyor"; b.className="badge ai"; } else { b.textContent="DEMO rejim"; b.className="badge"; } }
@@ -142,15 +160,16 @@ RENDER.analysis=function(p){
   const diff=difficulty(a); const overall=a.overall||CX[Math.max(...diff.map(d=>d.l))];
   const tiles=[["Geometriya",a.geometry||ARCH[a.arch]?.n||"Modulli qurilma"],["Mexanizmlar",(a.mechanisms.length||cnt(k=>LIB[k].grp==="mech"&&!["fasteners","cooling"].includes(k)))+" ta"],["Harakatlanuvchi qismlar",cnt(k=>["motor_servo","motor_stepper","gearbox","gear","joint","arm_link","gripper"].includes(k))+" ta"],["Bo'g'inlar",cnt(k=>["joint","arm_link"].includes(k))+" ta"],["Tishli g'ildiraklar",cnt(k=>["gear","gearbox"].includes(k))+" ta"],["Motorlar",cnt(k=>["motor_servo","motor_stepper"].includes(k))+" ta"],["Elektronika",cnt(k=>LIB[k].grp==="elec")+" blok"],["Sensorlar",cnt(k=>k==="sensor")+" guruh"],["Displeylar / yoritish",cnt(k=>["display_oled","holo_screen","led_ring","core_light","lens_visor"].includes(k))+" ta"],["Ramka / korpus",cnt(k=>LIB[k].grp==="struct")+" ta"],["Mahkamlagichlar",ks.includes("fasteners")?a.comps.find(c=>c.kind==="fasteners").qty+" dona":"-"],["Materiallar",uniq(ks.map(k=>LIB[k].mk)).filter(m=>m!=="elec").length+" xil"],["Murakkablik",overall],["Taxminiy gabarit",D.join(" × ")+" mm"],["Ichki komponentlar",a.comps.length+" ta"],["Ishlab chiqarish",pipeline(a).filter(x=>x.on).length+" bosqich"]];
   p.innerHTML=`
-  <div class="card"><h2 style="margin:0 0 4px">${esc(a.name)}</h2><p class="mut" style="margin:0">${esc(a.summary)}</p>${a.mode==="demo"?`<p class="mut" style="margin:8px 0 0;font-size:.82rem">⚠ DEMO tahlil: komponentlar tanlangan tur (${esc(ARCH[a.arch].n)}) shablonidan olingan. Markerlarni sudrab rasmdagi joyga qo'ying. Rasmni haqiqiy tahlil qilish uchun Claude AI rejimini yoqing (README).</p>`:`<p style="margin:8px 0 0;color:var(--gr);font-size:.82rem">✔ Rasm Claude tomonidan ko'rilib tahlil qilingan.</p>`}</div>
+  <div class="card"><h2 style="margin:0 0 4px">${esc(a.name)}</h2><p class="mut" style="margin:0">${esc(a.summary)}</p>${a.mode==="demo"?`<p class="mut" style="margin:8px 0 0;font-size:.82rem">⚠ DEMO tahlil: rasm kompyuter tomonidan ko'rilmagan. Mahsulot va komponentlar sizning tanlovingiz (${esc(ARCH[a.arch]?ARCH[a.arch].n:"Maxsus")}) asosida tuzildi. Markerlarni rasmdagi joyiga sudrab qo'ying. Rasmni haqiqiy tahlil qilish uchun Claude AI rejimini yoqing.</p>`:`<p style="margin:8px 0 0;color:var(--gr);font-size:.82rem">✔ Rasm Claude tomonidan ko'rilib tahlil qilingan.</p>${a.identified?`<div class="ident"><b>AI rasmda ko'rdi:</b> ${esc(a.identified)}</div>`:""}`}</div>
   <div class="anagrid" id="anaGrid">
     <div><div class="stage" id="stage"><img src="${S.img}" alt=""><svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></svg><div class="pinlayer" id="pins"></div></div>
       <p class="mut" style="font-size:.78rem">Markerni bosing — tafsilot ochiladi. Sudrab joyini o'zgartirishingiz mumkin.</p></div>
     <div><div class="card" id="detail"></div><div class="complist" style="margin-top:10px" id="clist"></div></div>
   </div>
   <h3>ANIQLANGAN ELEMENTLAR</h3><div class="grid g4">${tiles.map(([k,v])=>`<div class="stat"><small>${k}</small><b style="font-size:.95rem">${esc(v)}</b></div>`).join("")}</div>
+  <h3>KERAKLI STANOKLAR · ANIMATSION MODELLAR</h3><div class="mstrip">${mach(a).slice(0,8).map(m=>machineCard(m,a)).join("")}</div><div class="row"><button class="btn sm" id="gom">Barcha stanoklar va ustaxona darajalari →</button></div>
   <h3>MUHANDISLIK QIYINLIK KO'RSATKICHLARI</h3><div class="grid g2">${diff.map(d=>`<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${d.n}</b>${lvPill(d.l)}</div><div class="meter"><i style="width:${(d.l+1)*25}%"></i></div><small class="mut">${esc(d.why)}</small></div>`).join("")}</div>`;
-  drawPins(); drawList(); drawDetail();
+  drawPins(); drawList(); drawDetail(); $("#gom").onclick=()=>{ S.tab="machines"; renderTabs(); };
 };
 function drawPins(){
   const a=S.a, layer=$("#pins"); if(!layer) return;
@@ -250,14 +269,20 @@ RENDER.materials=function(p){
   <h3>MATERIALLAR BAZASI</h3><div class="grid auto">${Object.entries(MATS).map(([k,M])=>`<div class="mach" ${used.has(k)?'style="border-color:var(--gr)"':""}>${used.has(k)?'<span class="cat" style="color:var(--gr)">BU LOYIHADA ISHLATILADI</span>':'<span class="cat">QO\'SHIMCHA</span>'}<b>${esc(M.n)}</b><p>${esc(M.props)}</p><p><b style="display:inline">Qayerda:</b> ${esc(M.use)}</p><p><b style="display:inline">Usul:</b> ${esc(M.how)}</p><p><b style="display:inline">Muqobil:</b> ${esc(M.alt)}</p></div>`).join("")}</div>`;
 };
 
-/* --- 5. MASHINALAR --- */
+/* --- 5. MASHINALAR (animatsion modellar) --- */
+function machineCard(m,a){
+  const used=a.comps.filter(c=>LIB[c.kind].mach.includes(m)).map(c=>LIB[c.kind].n.split("(")[0].trim());
+  return `<div class="mcard">${machineSVG(m)}<span class="cat"><i class="run"></i>${MACH[m]}</span><b>${esc(m)}</b><p>${esc(MACH_INFO[m])}</p><p class="use"><b style="display:inline">Bu loyihada:</b> ${esc(used.join(", ")||"yordamchi asbob")}</p></div>`;
+}
+function animsPause(root,on){ $$("svg.manim",root).forEach(s=>{ try{ on?s.pauseAnimations():s.unpauseAnimations(); }catch(e){} }); }
 RENDER.machines=function(p){
-  const a=S.a, ms=mach(a), cats=["LASER","CNC","3D","ELEKTRONIKA","FABRIKATSIYA","SIRT ISHLOVI"];
-  const usedBy=m=>a.comps.filter(c=>LIB[c.kind].mach.includes(m)).map(c=>LIB[c.kind].n);
-  const fit=tierFit(a);
-  p.innerHTML=`<p class="mut">Faqat yuklangan qurilmaga tegishli mashinalar ko'rsatilgan (${ms.length} ta).</p>`+cats.map(cat=>{ const list=ms.filter(m=>MACH[m]===cat); if(!list.length) return ""; return `<h3>${cat}</h3><div class="grid auto">${list.map(m=>`<div class="mach"><span class="cat">${cat}</span><b>${esc(m)}</b><p>${esc(MACH_INFO[m])}</p><p><b style="display:inline">Nima uchun:</b> ${esc(usedBy(m).join(", "))}</p></div>`).join("")}</div>`; }).join("")+
+  const a=S.a, ms=mach(a), cats=["LASER","CNC","3D","ELEKTRONIKA","FABRIKATSIYA","SIRT ISHLOVI"], fit=tierFit(a);
+  p.innerHTML=`<div class="row" style="justify-content:space-between"><h3 style="margin:0">ISHLAB CHIQARISH SEXI · ANIMATSION STANOKLAR</h3><button class="btn sm" id="mpause">⏸ Animatsiyani to'xtatish</button></div><p class="mut">Faqat yuklangan qurilmaga tegishli ${ms.length} ta stanok/asbob. Har bir model ish jarayonini ko'rsatadi.</p>`+
+  cats.map(cat=>{ const list=ms.filter(m=>MACH[m]===cat); return list.length?`<h3>${cat}</h3><div class="grid auto">${list.map(m=>machineCard(m,a)).join("")}</div>`:""; }).join("")+
   `<h3>O'ZIM YASAYMAN: USTAXONA DARAJALARI</h3><div class="grid g3">${Object.values(fit).map(t=>`<div class="tier"><b>${esc(t.n)}</b><div class="meter"><i style="width:${t.pct}%"></i></div><div class="pill ${t.pct>=80?"lv0":t.pct>=50?"lv2":"lv3"}">${t.pct}% qismlar o'zingizda yasaladi</div><p class="mut" style="font-size:.8rem">${esc(t.note)}</p>${t.miss.length?`<p style="font-size:.8rem"><b>Tashqaridan buyurtma / sotib olish:</b><br>${t.miss.map(esc).join(", ")}</p>`:'<p style="font-size:.8rem;color:var(--gr)">Hammasini shu darajada yasash mumkin.</p>'}</div>`).join("")}</div>
   <p class="mut" style="font-size:.8rem">PCB va ba'zi metall detallar odatda servisga (JLCPCB, PCBWay, mahalliy CNC ustaxona) buyurtma qilinadi: bu kichik ustaxona uchun ham normal yo'l.</p>`;
+  let paused=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches; animsPause(p,paused); $("#mpause").textContent=paused?"▶ Animatsiyani yoqish":"⏸ Animatsiyani to'xtatish";
+  $("#mpause").onclick=()=>{ paused=!paused; animsPause(p,paused); $("#mpause").textContent=paused?"▶ Animatsiyani yoqish":"⏸ Animatsiyani to'xtatish"; };
 };
 
 /* --- 6. BOM --- */
@@ -354,18 +379,17 @@ RENDER.report=function(p){
 
 /* ---------- Boshlash ---------- */
 function init(){
-  $("#archPick").innerHTML=Object.entries(ARCH).map(([k,v])=>`<button class="chip${k===S.arch?" sel":""}" data-k="${k}">${v.n}</button>`).join("");
-  $$("#archPick .chip").forEach(b=>b.onclick=()=>{ S.arch=b.dataset.k; $$("#archPick .chip").forEach(x=>x.classList.toggle("sel",x===b)); });
+  renderBuilder(); let ht=0; $("#hint").addEventListener("input",()=>{ clearTimeout(ht); ht=setTimeout(hintGuess,300); });
   $("#pick").onclick=()=>$("#file").click(); $("#file").onchange=e=>{ loadFile(e.target.files[0]); };
   const d=$("#drop"); ["dragenter","dragover"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.add("over"); })); ["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.remove("over"); })); d.addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
   d.addEventListener("keydown",e=>{ if(e.key==="Enter") $("#file").click(); });
   $("#cam").onclick=openCam; $("#snap").onclick=snap;
-  $("#sample").onclick=async()=>{ S.arch="holo"; $$("#archPick .chip").forEach(x=>x.classList.toggle("sel",x.dataset.k==="holo")); setImage(await sampleImage()); };
+  $("#sample").onclick=async()=>{ S.fname=""; S.archManual=true; selectArch("holo",true); setImage(await sampleImage()); };
   $("#analyze").onclick=analyze;
   $("#cur").onchange=e=>{ cfg.cur=e.target.value; if(S.a) RENDER[S.tab]($("#panel")); };
   $("#newBtn").onclick=()=>{ $("#file").value=""; $("#dash").hidden=true; $("#hero").hidden=false; $("#newBtn").hidden=true; S.a=null; $("#prep").hidden=true; setMode(); window.scrollTo({top:0}); };
   fetch("/api/status").then(r=>r.ok?r.json():null).then(j=>{ if(j&&j.ai){ S.server=true; S.aiOK=true; setMode(); } }).catch(()=>{});
-  if(window.claude&&window.claude.use){ window.claude.use("sample").then(async s=>{ if(!s) return; const l=await s.limits().catch(()=>null); if(l&&l.images){ S.sample=s; S.aiOK=true; setMode(); if(S.img) setImage(S.img); } }).catch(()=>{}); }
+  if(window.claude&&window.claude.use){ S.ready=new Promise(res=>{ const fin=()=>res(); setTimeout(fin,11000); window.claude.use("sample").then(async s=>{ if(s){ const l=await s.limits().catch(()=>null); if(l&&l.images){ S.sample=s; S.aiOK=true; setMode(); if(S.img) setImage(S.img); } } fin(); }).catch(fin); }); }
 }
 let rz=0; window.addEventListener("resize",()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(!S.a) return; if(S.tab==="model"&&window._fit){ window._fit(); draw3D(); } else if(S.tab==="analysis"){ drawPins(); } },150); });
 init();
