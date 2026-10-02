@@ -96,8 +96,17 @@
     <p class="hint">Kelajak yoki fantastik rasmni yuklang. Undagi qismlarni belgilang: sayt har biri uchun bugungi yasash usullarini, kerakli narsalarni va bosqichli rejani chiqaradi.</p>
     <div class="drop" id="drop">
       <input type="file" id="file" accept="image/*">
-      <img id="preview" alt="" hidden>
       <span id="dropHint">Rasmni tanlang yoki shu yerga tashlang</span>
+    </div>
+    <div id="studio" hidden>
+      <div class="stage" id="stage"><img id="stageImg" alt=""><div id="pins"></div><div id="stageLabel"></div></div>
+      <div class="fxbar" id="fxbar"></div>
+      <div class="row">
+        <button class="btn primary" id="play">▶ Yasash animatsiyasi</button>
+        <select id="pinComp" title="Belgi qo'yiladigan qism"></select>
+        <span class="hint">Rasm ustiga bosib, tanlangan qism uchun belgi qo'ying.</span>
+      </div>
+      <div id="pinList" class="pinlist"></div>
     </div>
     <label>Rasmda nima ko'rinadi / nima bo'lishi kerak? (ixtiyoriy)
       <textarea data-k="imgNote" rows="2" placeholder="Masalan: Havoda suzuvchi yarim shaffof ekran, qo'lda kiyiladigan yengil qurilma"></textarea>

@@ -93,3 +93,44 @@ table.mx{width:100%;border-collapse:collapse;margin-top:14px;font-size:.85rem}
 .ai h4{margin:10px 0 2px;color:var(--acc)}.ai p{margin:4px 0}
 code{background:var(--bg);padding:1px 5px;border-radius:4px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:90vw}#toast.show{opacity:1}
+
+.stage{position:relative;border-radius:12px;overflow:hidden;background:#0b0c10;margin:10px 0;cursor:crosshair;line-height:0}
+.stage img{width:100%;max-height:520px;object-fit:contain;display:block;transition:filter 1.2s ease,transform 1.2s ease}
+#pins{position:absolute;inset:0}
+.pin{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font:700 13px/26px system-ui;text-align:center;border:2px solid #fff;cursor:pointer;line-height:22px}
+.pin::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--acc);animation:ping 1.6s ease-out infinite}
+.pin .tip{display:none;position:absolute;left:50%;bottom:34px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:6px 10px;border-radius:8px;font:500 12px/1.3 system-ui;width:max-content;max-width:220px;text-align:left}
+.pin:hover .tip,.pin:focus .tip{display:block;z-index:3}
+@keyframes ping{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.8);opacity:0}}
+#stageLabel{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.65);color:#fff;padding:4px 12px;border-radius:99px;font:600 13px/1.4 system-ui;opacity:0;transition:opacity .3s}
+#stageLabel.show{opacity:1}
+.fxbar{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.fxbar .pick{padding:4px 12px;font-size:.85rem}
+.fx-float img{animation:fxfloat 4s ease-in-out infinite}
+.fx-breathe img{animation:fxbreathe 3.2s ease-in-out infinite}
+.fx-glow img{animation:fxglow 2.4s ease-in-out infinite}
+.fx-holo img{animation:fxholo 3s steps(1) infinite;filter:hue-rotate(160deg) saturate(1.6) brightness(1.1)}
+.fx-holo::after,.fx-scan::after{content:"";position:absolute;left:0;right:0;height:18%;top:-20%;background:linear-gradient(transparent,rgba(120,220,255,.45),transparent);animation:fxscan 2.8s linear infinite;pointer-events:none}
+.fx-holo::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 4px);pointer-events:none;z-index:1}
+.fx-blueprint img{filter:grayscale(1) invert(1) contrast(1.4) sepia(1) hue-rotate(170deg) saturate(3)}
+@keyframes fxfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes fxbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes fxglow{0%,100%{filter:brightness(1) drop-shadow(0 0 0 #6ee7ff)}50%{filter:brightness(1.18) drop-shadow(0 0 22px #6ee7ff)}}
+@keyframes fxholo{0%{opacity:1}7%{opacity:.8;transform:translateX(3px)}9%{opacity:1;transform:none}60%{opacity:.92}62%{opacity:1}}
+@keyframes fxscan{to{top:110%}}
+.pinlist{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.pinlist span{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:2px 4px 2px 10px;font-size:.82rem}
+.pinlist button{border:0;background:none;color:var(--mut);cursor:pointer;font-size:1rem}
+.variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.variant{border:2px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);font-size:.88rem}
+.variant.rec{border-color:var(--acc)}
+.variant h4{margin:0 0 2px;color:var(--acc)}
+.variant .meta{color:var(--mut);font-size:.8rem;margin-bottom:6px}
+.variant ul{margin:6px 0 0;padding-left:18px}
+.badge{background:var(--acc);color:#fff;border-radius:99px;padding:1px 8px;font-size:.7rem;margin-left:6px}
+.phases>div{transition:border-color .4s,box-shadow .4s,opacity .4s}
+.phases>div.active{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc2)}
+.phases.run>div:not(.active):not(.done){opacity:.45}
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 12px}
+.progress i{display:block;height:100%;width:0;background:var(--acc);transition:width .8s ease}
+@media (prefers-reduced-motion:reduce){.stage img,.pin::before,.stage::before,.stage::after{animation:none!important;transition:none!important}}

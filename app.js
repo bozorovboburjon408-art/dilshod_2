@@ -38,7 +38,7 @@ function blank(){
   const br = ()=>({t:'',s:'',a:''});
   return {step:1, a, combos:['','',''], start:'',
     wheel:{pos:[br(),br()], neg:[br(),br()]}, cat:{}, hor:{}, past:'',
-    target:'', persona:'', pain:'', imgNote:'', comps:[], needs:{}, ideas:[], pick:null, canvas:{}};
+    target:'', persona:'', pain:'', imgNote:'', comps:[], needs:{}, pins:[], fx:[], ideas:[], pick:null, canvas:{}};
 }
 let state = load() || blank();
 function load(){ try{const s=JSON.parse(localStorage.getItem(STORE)); return s&&s.a?Object.assign(blank(),s):null;}catch(e){return null;} }
@@ -270,7 +270,7 @@ function renderReality(){
     const i=state.comps.indexOf(b.dataset.c); if(i>=0) state.comps.splice(i,1); else state.comps.push(b.dataset.c);
     save(); renderReality();
   });
-  if(imgData){ $('#preview').src=imgData; $('#preview').hidden=false; $('#dropHint').hidden=true; }
+  renderStudio();
   renderPlan();
 }
 function loadImage(file){
@@ -299,12 +299,16 @@ function renderPlan(){
   <p class="hint">Umumiy tayyorlik: <b>${avg.toFixed(1)}/9</b> — eng qiyin qism: <b>${esc(hardest.name)}</b> (TRL ${hardest.trl}). Nisbiy murakkablik/narx: ${cost}/5.</p>
   <table class="mx"><tr><th>Qism</th><th>Bugungi holat</th><th>Bugun qanday yasaladi</th><th>Hali yetishmaydi</th></tr>
   ${sel.map(k=>`<tr><td><b>${esc(k.name)}</b><br><small>TRL ${k.trl} · ${TRL_TXT(k.trl)}</small></td><td>${k.trl>=8?'✅':k.trl>=6?'🟡':'🔴'}</td><td>${esc(k.today)}</td><td>${esc(k.gap)}</td></tr>`).join('')}</table>
+  <h3>Tayyorlash variantlari</h3>
+  <p class="hint">Bir xil rasmni turli chuqurlikda tayyorlash yo\u2018llari. Xarajat taxminiy va nisbiy (birinchi variantga nisbatan), hisob-kitob emas.</p>
+  ${variantsHtml(sel,hardest)}
   <h3>Bosqichli reja: fantastikadan prototipgacha</h3>
-  <div class="phases">
-    <div><b>0-bosqich: Maket (1–2 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.mock))}</ul></div>
-    <div><b>1-bosqich: Kontseptni isbotlash (2–4 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.poc))}</ul></div>
-    <div><b>2-bosqich: Prototip (2–3 oy)</b><ul>${li(sel.map(k=>k.name+': '+k.proto))}</ul></div>
-    <div><b>3-bosqich: Pilot va kengaytirish</b><ul><li>10–20 haqiqiy foydalanuvchida sinov</li><li>Narx, ishlab chiqarish va hamkorlar</li><li>Xaritadagi o‘rta/uzoq kelajak tugunlariga mos yangi imkoniyatlarni qo‘shish</li></ul></div>
+  <div class="progress"><i id="bar"></i></div>
+  <div class="phases" id="phases">
+    <div data-ph="0"><b>0-bosqich: Maket (1–2 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.mock))}</ul></div>
+    <div data-ph="1"><b>1-bosqich: Kontseptni isbotlash (2–4 hafta)</b><ul>${li(sel.map(k=>k.name+': '+k.poc))}</ul></div>
+    <div data-ph="2"><b>2-bosqich: Prototip (2–3 oy)</b><ul>${li(sel.map(k=>k.name+': '+k.proto))}</ul></div>
+    <div data-ph="3"><b>3-bosqich: Pilot va kengaytirish</b><ul><li>10–20 haqiqiy foydalanuvchida sinov</li><li>Narx, ishlab chiqarish va hamkorlar</li><li>Xaritadagi o‘rta/uzoq kelajak tugunlariga mos yangi imkoniyatlarni qo‘shish</li></ul></div>
   </div>
   <h3>Kerakli narsalar ro‘yxati (ehtiyojlar)</h3>
   <div class="needs">
@@ -351,5 +355,89 @@ $('#file').onchange=e=>loadImage(e.target.files[0]);
 ['dragover','drop'].forEach(ev=>$('#drop').addEventListener(ev,e=>{ e.preventDefault(); if(ev==='drop') loadImage(e.dataTransfer.files[0]); }));
 $('#plan').onclick=()=>{ if(!state.comps.length) state.comps=autoComps(); save(); renderReality(); $('#planOut').scrollIntoView({behavior:'smooth'}); };
 $('#ai').onclick=askClaude;
+
+function variantsHtml(sel,hardest){
+  const L = (arr)=>arr.map(x=>`<li>${esc(x)}</li>`).join('');
+  const V = [
+    {t:'Tez maket', d:'1–2 hafta', x:'1×', r:'Talabni va g‘oyani tezda sinash. Haqiqiy texnologiyasiz.', items:sel.map(k=>`${k.name}: ${k.mock}`), out:'Natija: ko‘rsatiladigan maket, video va foydalanuvchi fikri.'},
+    {t:'Gibrid (tavsiya)', d:'1–2 oy', x:'~4×', rec:1, r:`Eng qiyin qism (${hardest.name}) maket bo‘lib qoladi, qolganlari haqiqiy ishlaydi.`,
+      items:sel.map(k=>k.id===hardest.id?`${k.name}: ${k.mock} (hozircha maket)`:`${k.name}: ${k.poc}`), out:'Natija: qisman ishlaydigan, namoyish qilsa bo‘ladigan mahsulot.'},
+    {t:'Ishlaydigan prototip', d:'2–4 oy', x:'~10×', r:'Barcha qismlar haqiqiy; laboratoriya darajasidagilar hamkor bilan.',
+      items:sel.map(k=>`${k.name}: ${k.poc} → ${k.proto}${k.trl<6?' (hamkor/laboratoriya kerak)':''}`), out:'Natija: 10–20 kishida sinab ko‘riladigan prototip.'},
+    {t:'Pilot-daraja', d:'6–12 oy', x:'~30×', r:'Xavfsizlik, ruxsatnomalar va kichik partiya ishlab chiqarish bilan.',
+      items:sel.map(k=>`${k.name}: ${k.proto}`), out:'Natija: kichik partiya va haqiqiy mijozlar.'}
+  ];
+  return '<div class="variants">'+V.map(v=>`<div class="variant${v.rec?' rec':''}"><h4>${v.t}${v.rec?'<span class="badge">tavsiya</span>':''}</h4><div class="meta">Muddat: ${v.d} · Xarajat: ${v.x}</div><div>${esc(v.r)}</div><ul>${L(v.items)}</ul><p class="hint">${esc(v.out)}</p></div>`).join('')+'</div>';
+}
+
+// ---- Rasm studiyasi: effektlar, belgilar, animatsiya ----
+const FX = [['float','Suzish'],['breathe','Nafas'],['glow','Yorug‘lik'],['scan','Skaner'],['holo','Gologramma'],['blueprint','Chizma']];
+let playTimer=null;
+function stageEl(){ return $('#stage'); }
+function applyFx(){
+  const s=stageEl(); FX.forEach(([k])=>s.classList.toggle('fx-'+k,state.fx.includes(k)));
+}
+function renderStudio(){
+  const st=$('#studio'); st.hidden=!imgData; $('#dropHint').hidden=!!imgData;
+  if(!imgData) return;
+  $('#stageImg').src=imgData;
+  $('#fxbar').innerHTML='<span class="hint">Effektlar:</span>'+FX.map(([k,n])=>`<button class="pick${state.fx.includes(k)?' sel':''}" data-f="${k}">${n}</button>`).join('')+'<button class="pick" data-f="">Tozalash</button>';
+  $('#fxbar').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.f; if(!k) state.fx=[]; else { const i=state.fx.indexOf(k); if(i>=0) state.fx.splice(i,1); else state.fx.push(k); }
+    save(); applyFx(); renderStudio();
+  });
+  const sel=KB.filter(k=>state.comps.includes(k.id));
+  const cur=$('#pinComp').value;
+  $('#pinComp').innerHTML=sel.length?sel.map(k=>`<option value="${k.id}"${cur===k.id?' selected':''}>${esc(k.name)}</option>`).join(''):'<option value="">— qism tanlang —</option>';
+  renderPins(); applyFx();
+}
+function renderPins(){
+  $('#pins').innerHTML=state.pins.map((p,i)=>{ const k=KB.find(x=>x.id===p.comp);
+    return `<div class="pin" tabindex="0" style="left:${p.x}%;top:${p.y}%">${i+1}<span class="tip"><b>${esc(k?k.name:'')}</b><br>${esc(k?k.today:'')}</span></div>`; }).join('');
+  $('#pinList').innerHTML=state.pins.map((p,i)=>{ const k=KB.find(x=>x.id===p.comp);
+    return `<span>${i+1}. ${esc(k?k.name:'')} <button data-i="${i}" title="O‘chirish">×</button></span>`; }).join('');
+  $('#pinList').querySelectorAll('button').forEach(b=>b.onclick=()=>{ state.pins.splice(+b.dataset.i,1); save(); renderPins(); });
+}
+function addPin(e){
+  if(e.target.closest('.pin')) return;
+  const comp=$('#pinComp').value; if(!comp){ toast('Avval pastdan qism tanlang.'); return; }
+  const r=$('#stageImg').getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width*100, y=(e.clientY-r.top)/r.height*100;
+  if(x<0||x>100||y<0||y>100) return;
+  state.pins.push({x:+x.toFixed(1),y:+y.toFixed(1),comp}); save(); renderPins();
+}
+const STAGES=[
+  {label:'0 · Maket: g‘oya chizma ko‘rinishida', filter:'grayscale(1) invert(1) contrast(1.3) sepia(1) hue-rotate(170deg) saturate(3)', t:'scale(.96)'},
+  {label:'1 · Kontseptni isbotlash: asosiy funksiya ishlaydi', filter:'grayscale(.7) contrast(1.1) brightness(.95)', t:'scale(.98)'},
+  {label:'2 · Prototip: ko‘rinish va material', filter:'grayscale(.2) saturate(1.1)', t:'scale(1)'},
+  {label:'3 · Pilot: haqiqiy foydalanuvchilar', filter:'saturate(1.2) brightness(1.1) drop-shadow(0 0 18px #6ee7ff)', t:'scale(1.02)'}
+];
+function stopPlay(){
+  clearInterval(playTimer); playTimer=null; $('#play').textContent='▶ Yasash animatsiyasi';
+  const im=$('#stageImg'); if(im){ im.style.filter=''; im.style.transform=''; }
+  $('#stageLabel').classList.remove('show');
+  const ph=$('#phases'); if(ph){ ph.classList.remove('run'); ph.querySelectorAll('div').forEach(d=>d.classList.remove('active','done')); }
+  const bar=$('#bar'); if(bar) bar.style.width='0';
+  applyFx();
+}
+function playBuild(){
+  if(playTimer){ stopPlay(); return; }
+  const im=$('#stageImg'), lab=$('#stageLabel'); let i=0;
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  stageEl().classList.remove(...FX.map(([k])=>'fx-'+k));
+  $('#play').textContent='■ To‘xtatish';
+  const step=()=>{
+    if(i>=STAGES.length){ clearInterval(playTimer); playTimer=null; setTimeout(stopPlay,1800); return; }
+    const s=STAGES[i]; im.style.filter=s.filter; im.style.transform=reduce?'none':s.t;
+    lab.textContent=s.label; lab.classList.add('show');
+    const ph=$('#phases'); if(ph){ ph.classList.add('run'); ph.querySelectorAll(':scope>div').forEach((d,j)=>{ d.classList.toggle('active',j===i); d.classList.toggle('done',j<i); });
+      const bar=$('#bar'); if(bar) bar.style.width=((i+1)/STAGES.length*100)+'%'; }
+    i++;
+  };
+  step(); playTimer=setInterval(step,2200);
+  $('#studio').scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
+}
+$('#stage').addEventListener('click',addPin);
+$('#play').onclick=playBuild;
 
 render();
