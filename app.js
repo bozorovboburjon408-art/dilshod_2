@@ -1,6 +1,11 @@
 'use strict';
 
 const $ = s => document.querySelector(s);
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.className='show'; clearTimeout(toast.h); toast.h=setTimeout(()=>t.className='',3500);
+}
 const STORE = 'fps-state-v2';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -220,9 +225,9 @@ const canvasText = ()=>[`MAHSULOT: ${state.canvas.name}`,'',...CV_BOXES.map(([k,
 
 // ---- Navigatsiya ----
 function go(n){
-  if(n>=2 && !state.start){ alert('Avval 1-qadamda boshlang‘ich nuqtani tanlang.'); n=1; }
-  else if(n>=3 && !nodes().length){ alert('Avval g‘ildirakni to‘ldiring.'); n=2; }
-  else if(n>=5 && !placed().length){ alert('Avval tugunlarni konusga joylang.'); n=3; }
+  if(n>=2 && !state.start){ toast('Avval 1-qadamda boshlang‘ich nuqtani tanlang.'); n=1; }
+  else if(n>=3 && !nodes().length){ toast('Avval g‘ildirakni to‘ldiring.'); n=2; }
+  else if(n>=5 && !placed().length){ toast('Avval tugunlarni konusga joylang.'); n=3; }
   state.step=n; save(); render(); window.scrollTo({top:0,behavior:'smooth'});
 }
 function render(){
@@ -240,8 +245,12 @@ $('#prev').onclick=()=>go(state.step-1);
 $('#regen').onclick=()=>{ makeIdeas(); save(); renderIdeas(); };
 $('#suggest').onclick=suggestCombos;
 $('#sample').onclick=()=>{ ROWS.forEach(r=>state.a[r.k]=r.sample.slice()); save(); renderStart(); };
-$('#reset').onclick=()=>{ if(confirm('Hamma ma‘lumot o‘chiriladi. Davom etamizmi?')){ localStorage.removeItem(STORE); location.reload(); } };
-$('#copy').onclick=async()=>{ try{ await navigator.clipboard.writeText(canvasText()); alert('Nusxa olindi'); }catch(e){ alert('Nusxa olib bo‘lmadi'); } };
+let resetArmed=false;
+$('#reset').onclick=()=>{
+  if(!resetArmed){ resetArmed=true; $('#reset').textContent='Aniqmi? Hammasi o‘chadi — yana bosing'; setTimeout(()=>{resetArmed=false;$('#reset').textContent='Boshidan boshlash';},4000); return; }
+  state=blank(); try{localStorage.removeItem(STORE);}catch(e){} imgData=null; resetArmed=false; $('#reset').textContent='Boshidan boshlash'; render();
+};
+$('#copy').onclick=async()=>{ try{ await navigator.clipboard.writeText(canvasText()); toast('Nusxa olindi'); }catch(e){ toast('Nusxa olib bo‘lmadi'); } };
 $('#print').onclick=()=>window.print();
 $('#download').onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([canvasText()],{type:'text/plain;charset=utf-8'})); a.download=(state.canvas.name||'mahsulot')+'.txt'; a.click(); URL.revokeObjectURL(a.href); };
 // ---- 7: Rasmdan haqiqatga ----
