@@ -10,7 +10,7 @@
 <header class="top">
   <div class="wrap">
     <h1>Kelajak Mahsulot Studiyasi</h1>
-    <p>Muammodan — yangi mahsulot g'oyasigacha: 5 qadamli loyihalash modeli</p>
+    <p>Kelajak sintezi: tadqiqot, dizayn va strategiyani birlashtirib, muammoni hal qiladigan kelajak artefaktini loyihalang</p>
   </div>
 </header>
 
@@ -62,8 +62,12 @@
 
   <!-- 3 -->
   <section class="step" data-step="3" hidden>
-    <h2>3. Kelajak kuchlarini tanlang</h2>
-    <p class="hint">Mahsulot bugun emas, 5–10 yildan keyingi dunyo uchun loyihalanadi. 2–4 ta kuchni tanlang.</p>
+    <h2>3. Kelajak sintezi</h2>
+    <p class="hint">Hozirdan tashqarida o'ylang: kelajakka "sayohat qiling". Avval bugungi signallarni yig'ing, kuchlarni tanlang, so'ng o'sha dunyoni tasvirlang.</p>
+    <label>Bugungi signallar (tadqiqot): nimalar o'zgarayotganini ko'ryapsiz?
+      <textarea id="signals" rows="2" placeholder="Masalan: Arzon sensorlar, keksa aholi ulushining o'sishi, uydan masofaviy parvarish"></textarea>
+    </label>
+    <p class="hint">Kelajak kuchlaridan 2–4 tasini tanlang:</p>
     <div class="trends" id="trends"></div>
     <label>Qaysi ufqda? 
       <select id="horizon">
@@ -71,6 +75,9 @@
         <option value="5" selected>5 yil</option>
         <option value="10">10 yil (uzoq kelajak)</option>
       </select>
+    </label>
+    <label>Kelajak dunyosi: o'sha vaqtda hayot qanday? (2–3 jumla)
+      <textarea id="world" rows="3" placeholder="Masalan: 2035-yilda uylar o'z-o'zini kuzatadi, yolg'iz keksalar yaqinlari bilan sezdirmay bog'langan bo'ladi"></textarea>
     </label>
   </section>
 
@@ -85,8 +92,8 @@
 
   <!-- 5 -->
   <section class="step" data-step="5" hidden>
-    <h2>5. Mahsulot kanvasi</h2>
-    <p class="hint">Tanlangan konsepsiya asosida to'liq mahsulot rejasi. Maydonlarni tahrirlashingiz mumkin.</p>
+    <h2>5. Kelajak artefakti</h2>
+    <p class="hint">Tanlangan konsepsiya asosida artefaktning ko'rinishi, vazifasi va strategiyasi. Maydonlarni tahrirlashingiz mumkin.</p>
     <div id="canvas"></div>
     <div class="row">
       <button id="copy" class="btn">Nusxa olish</button>

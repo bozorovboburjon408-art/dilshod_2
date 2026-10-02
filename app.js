@@ -67,8 +67,8 @@ let state = load() || {step:1, trends:[], ideas:[], pick:null, canvas:{}, f:{}};
 function load(){ try{return JSON.parse(localStorage.getItem(STORE));}catch(e){return null;} }
 function save(){ try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){} }
 
-const FIELDS = ['problem','why','current','persona','goal','pain','context','constraints','horizon'];
-const LABELS = ['Muammo','Foydalanuvchi','Kelajak','Gʻoyalar','Kanvas'];
+const FIELDS = ['problem','why','current','persona','goal','pain','context','constraints','horizon','signals','world'];
+const LABELS = ['Muammo','Foydalanuvchi','Kelajak sintezi','Gʻoyalar','Artefakt'];
 
 function readFields(){ FIELDS.forEach(id=>{ state.f[id] = $('#'+id).value.trim(); }); }
 function writeFields(){ FIELDS.forEach(id=>{ if(state.f[id]!=null) $('#'+id).value = state.f[id]; }); }
@@ -107,7 +107,9 @@ function buildCanvas(idea){
     forwho: `${who}.\nMaqsadi: ${p.goal||'—'}\nOgʻrigʻi: ${p.pain||'—'}\nKontekst: ${p.context||'—'}`,
     problem: `${p.problem}\nOqibati: ${p.why||'—'}\nHozirgi yechim: ${p.current||'—'}`,
     features: feats.slice(0,5).map((f,i)=>`${i+1}. ${f}`).join('\n'),
-    future: ts.map(t=>`• ${t.name}: ${t.shift}.`).join('\n') + `\n${h} yildan keyin ushbu mahsulot shu dunyoga tabiiy mos tushadi.`,
+    artifact: `Ko'rinishi: ${idea.form.toLowerCase()} — ${who} hayotiga tabiiy singib ketadigan, oddiy va tanish shakl. Material, rang va o'lchamni foydalanuvchi muhitiga moslang.\nHarakati (dinamikasi): ${idea.lensName.toLowerCase()} usulida ishlaydi — vaziyat o'zgarganda o'zi moslashadi.\nVazifasi: "${p.problem}" muammosini kundalik foydalanishda kamaytirish.\nMa'nosi: foydalanuvchiga nazorat va ishonch hissini qaytaradi.`,
+    strategy: `Tadqiqot: signallar — ${p.signals||'hali kiritilmagan'}.\nDizayn: artefaktni ${h} yillik kelajak dunyosiga mos loyihalash va sinash.\nStrategiya: bugun kichik qadam (MVP) → ${h} yilda masshtab. Ta'sirni o'lchang: kimning hayoti qanday yaxshilandi?`,
+    future: (p.world?`Kelajak dunyosi: ${p.world}\n`:'') + ts.map(t=>`• ${t.name}: ${t.shift}.`).join('\n') + `\n${h} yildan keyin ushbu mahsulot shu dunyoga tabiiy mos tushadi.`,
     prototype: `1-hafta: Qogʻoz/Figma eskizi va "sehrgar" (qoʻlda bajariladigan) prototip — ${who} bilan sinash.\n2–4-hafta: Ishlaydigan minimal prototip (MVP) — faqat bitta asosiy funksiya.\n2–3-oy: 10–20 foydalanuvchida dala sinovi, fikr-mulohaza.\nKeyin: ${h} yillik yoʻl xaritasi — ${ts.map(t=>t.name.toLowerCase()).join(', ')} imkoniyatlarini bosqichma-bosqich qoʻshish.`,
     validate: `Gipoteza: ${who} bu muammoni haqiqatan ogʻriqli deb biladi va yangi yechimga oʻtadi.\nSinov: 5–8 ta chuqur suhbat + prototipni ishlatib koʻrish.\nOʻlchov: muammo chastotasining kamayishi, takror foydalanish, "tavsiya qilaman" ulushi.\nMuvaffaqiyat mezoni: sinovchilarning kamida 60%i qayta foydalanadi.`,
     risks: `• Cheklov: ${p.constraints||'aniqlanmagan'}\n• Texnologiya hali yetilmagan boʻlishi mumkin — soddaroq muqobilini tayyorlab qoʻying\n• Foydalanuvchi ishonchi va maxfiylik\n• Narx va ishlab chiqarish imkoniyati`,
@@ -117,7 +119,7 @@ function buildCanvas(idea){
 
 const CV_BOXES = [
   ['promise','Qiymat taklifi',true],['forwho','Kim uchun',false],['problem','Muammo',false],
-  ['features','Asosiy funksiyalar',false],['future','Kelajak stsenariysi',false],
+  ['artifact','Artefakt: ko‘rinishi va vazifasi',true],['features','Asosiy funksiyalar',false],['strategy','Tadqiqot · dizayn · strategiya',false],['future','Kelajak stsenariysi',false],
   ['prototype','Prototip rejasi',true],['validate','Tekshiruv',false],['risks','Xavflar',false],['business','Biznes model',true]
 ];
 
