@@ -10,93 +10,78 @@
 <header class="top">
   <div class="wrap">
     <h1>Kelajak Mahsulot Studiyasi</h1>
-    <p>Kelajak sintezi: tadqiqot, dizayn va strategiyani birlashtirib, muammoni hal qiladigan kelajak artefaktini loyihalang</p>
+    <p>Kelajak sintezi: kelajak maydonini xaritalash → teskari xaritalash → muammoni hal qiladigan artefakt</p>
   </div>
 </header>
 
 <nav class="steps wrap" id="steps"></nav>
 
 <main class="wrap">
-  <!-- 1 -->
+  <!-- 1A -->
   <section class="step" data-step="1">
-    <h2>1. Muammoni aniqlang</h2>
-    <p class="hint">Yaxshi mahsulot yaxshi muammodan boshlanadi. Muammoni aniq, o'lchanadigan va insonga yaqin qilib yozing.</p>
-    <label>Muammo nima?
-      <textarea id="problem" rows="3" placeholder="Masalan: Keksa odamlar dorilarini o'z vaqtida ichishni unutib qo'yadi"></textarea>
-    </label>
-    <label>Bu muammo nega muhim? Oqibati nima?
-      <textarea id="why" rows="2" placeholder="Masalan: Kasallik asoratlari, shifoxonaga murojaatlar ko'payadi"></textarea>
-    </label>
-    <label>Hozir odamlar buni qanday hal qilyapti?
-      <textarea id="current" rows="2" placeholder="Masalan: Qog'ozga yozib qo'yishadi, qarindoshlari qo'ng'iroq qiladi"></textarea>
-    </label>
-    <div class="examples">Namunalar:
-      <button class="chip" data-ex="Shahar aholisi ovqat chiqindisini ko'p tashlaydi|Chiqindi poligonlari to'lib bormoqda|Faqat umumiy chiqindi qutisi">Ovqat chiqindisi</button>
-      <button class="chip" data-ex="Talabalar masofaviy o'qishda diqqatini jamlay olmaydi|O'zlashtirish va motivatsiya pasayadi|Telefon bildirishnomalarini o'chirish">Diqqat</button>
-      <button class="chip" data-ex="Qishloqda toza ichimlik suvi topish qiyin|Kasalliklar va vaqt yo'qotish|Quduq va suv tashish">Toza suv</button>
-    </div>
+    <h2>1. Boshlang'ich nuqta <small>(1A varaq)</small></h2>
+    <p class="hint">Kelajak maydonining markazini yarating. To'rt qatorning har biriga 4 tadan, jami 16 ta doira to'ldiring, so'ng ularni aralashtirib 3 ta boshlang'ich nuqta tuzing. Shaxsiy qiziqishingizga ergashing.</p>
+    <div id="rows"></div>
+    <div class="row"><button id="sample" class="btn ghost">Namuna bilan to'ldirish</button><button id="suggest" class="btn">↻ Aralashtirib taklif qilish</button></div>
+    <h3>Kombinatsiya: 3 ta boshlang'ich nuqta</h3>
+    <p class="hint">Qatorlardan elementlarni birlashtiring. Nuqta juda keng ham, juda tor ham bo'lmasin.</p>
+    <div id="combos"></div>
+    <p class="hint">Eng qiziqini tanlang — u keyingi qadamlarda markaz bo'ladi:</p>
+    <div id="startpick" class="row"></div>
   </section>
 
-  <!-- 2 -->
+  <!-- 1B -->
   <section class="step" data-step="2" hidden>
-    <h2>2. Foydalanuvchini tushuning</h2>
-    <p class="hint">Mahsulot kimga kerak? Bitta aniq insonni tasavvur qiling.</p>
+    <h2>2. Kelajak g'ildiragi <small>(1B varaq)</small></h2>
+    <p class="hint">Markazdan tashqariga xaritalang: 2 ta ijobiy (yashil) va 2 ta salbiy (qizil) 1-tartibli oqibat. Har biridan 2-tartibli (tadqiqot asosida) va 3-tartibli (qo'shni sohalar, izlanishli) oqibatlarga o'ting. Kim, qayerda va qachon ta'sirlanishini o'ylang.</p>
+    <div class="center" id="center"></div>
+    <div id="wheel" class="wheel"></div>
+  </section>
+
+  <!-- 1C -->
+  <section class="step" data-step="3" hidden>
+    <h2>3. Kelajak konusi: tekis <small>(1C varaq)</small></h2>
+    <p class="hint">G'ildirakdagi 10–15 ta tugunni tanlab, har birini kelajak turiga joylang. Imkonsiz kelajakni ham yozing: tarix "imkonsiz" narsalar doim sodir bo'lishini ko'rsatgan.</p>
+    <div class="legend" id="legend"></div>
+    <div id="cone1"></div>
+  </section>
+
+  <!-- 1D -->
+  <section class="step" data-step="4" hidden>
+    <h2>4. Kelajak konusi: loyihalangan <small>(1D varaq)</small></h2>
+    <p class="hint">Tugunlarni vaqtga bog'lang: hozir, yaqin, o'rta yoki uzoq kelajak. Avval boshlang'ich nuqtangizning o'tmishini yozing: nimaning ustiga qurayotganingizni tushunasiz.</p>
+    <label>O'tmish (−1): boshlang'ich nuqtangiz bilan bog'liq qisqa tavsif
+      <textarea data-k="past" rows="3" placeholder="Bu mavzu avval qanday bo'lgan, qanday rivojlangan?"></textarea>
+    </label>
+    <div id="cone2"></div>
+    <div id="matrix"></div>
+  </section>
+
+  <!-- G'oya -->
+  <section class="step" data-step="5" hidden>
+    <h2>5. Teskari xaritalash va g'oyalar</h2>
+    <p class="hint">Xaritangizdan istalgan kelajakni tanlang va undan bugunga qarab yo'l chizing (backcasting). Keyin shu yo'nalishda mahsulot g'oyalarini yarating.</p>
+    <label>Istalgan kelajak (konusdagi tugun)
+      <select data-k="target" id="target"></select>
+    </label>
     <div class="grid2">
-      <label>Kim? (persona)
-        <input id="persona" placeholder="Masalan: 68 yoshli Karima opa, yolg'iz yashaydi">
+      <label>Kim uchun? (foydalanuvchi)
+        <input data-k="persona" placeholder="Masalan: 68 yoshli Karima opa, yolg'iz yashaydi">
       </label>
-      <label>U nimaga erishmoqchi?
-        <input id="goal" placeholder="Masalan: Mustaqil va sog'lom yashash">
-      </label>
-      <label>Asosiy og'rig'i (pain)
-        <input id="pain" placeholder="Masalan: Texnologiyadan qo'rqadi, esdan chiqaradi">
-      </label>
-      <label>Qaerda / qachon muammo yuz beradi?
-        <input id="context" placeholder="Masalan: Uyda, ertalab va kechqurun">
+      <label>Uning asosiy og'rig'i
+        <input data-k="pain" placeholder="Masalan: Texnologiyadan qo'rqadi">
       </label>
     </div>
-    <label>Cheklovlar (byudjet, hudud, qonun, ko'nikma)
-      <input id="constraints" placeholder="Masalan: Arzon bo'lishi kerak, internet doimiy emas">
-    </label>
-  </section>
-
-  <!-- 3 -->
-  <section class="step" data-step="3" hidden>
-    <h2>3. Kelajak sintezi</h2>
-    <p class="hint">Hozirdan tashqarida o'ylang: kelajakka "sayohat qiling". Avval bugungi signallarni yig'ing, kuchlarni tanlang, so'ng o'sha dunyoni tasvirlang.</p>
-    <label>Bugungi signallar (tadqiqot): nimalar o'zgarayotganini ko'ryapsiz?
-      <textarea id="signals" rows="2" placeholder="Masalan: Arzon sensorlar, keksa aholi ulushining o'sishi, uydan masofaviy parvarish"></textarea>
-    </label>
-    <p class="hint">Kelajak kuchlaridan 2–4 tasini tanlang:</p>
-    <div class="trends" id="trends"></div>
-    <label>Qaysi ufqda? 
-      <select id="horizon">
-        <option value="3">3 yil (yaqin kelajak)</option>
-        <option value="5" selected>5 yil</option>
-        <option value="10">10 yil (uzoq kelajak)</option>
-      </select>
-    </label>
-    <label>Istalgan kelajak natijasi (teskari xaritalash nuqtasi): o'sha ufqda muammo qanday hal bo'lgan bo'lishi kerak?
-      <textarea id="vision" rows="2" placeholder="Masalan: Hech bir keksa odam dorisini unutmaydi va o'zini yolg'iz his qilmaydi"></textarea>
-    </label>
-    <label>Kelajak dunyosi: o'sha vaqtda hayot qanday? (2–3 jumla)
-      <textarea id="world" rows="3" placeholder="Masalan: 2035-yilda uylar o'z-o'zini kuzatadi, yolg'iz keksalar yaqinlari bilan sezdirmay bog'langan bo'ladi"></textarea>
-    </label>
-  </section>
-
-  <!-- 4 -->
-  <section class="step" data-step="4" hidden>
-    <h2>4. G'oyalar generatsiyasi</h2>
-    <p class="hint">Muammo + kelajak kuchlari + SCAMPER usullari birlashtirilib, mahsulot konsepsiyalari yaratiladi. Yoqmasa — qayta aralashtiring.</p>
-    <div class="row"><button id="regen" class="btn">↻ Yangi g'oyalar</button>
-    <span id="count" class="hint"></span></div>
+    <h3>Teskari xaritalash yo'li</h3>
+    <div id="back" class="back"></div>
+    <div class="row"><button id="regen" class="btn">↻ Yangi g'oyalar</button><span id="count" class="hint"></span></div>
     <div id="ideas" class="cards"></div>
   </section>
 
-  <!-- 5 -->
-  <section class="step" data-step="5" hidden>
-    <h2>5. Kelajak artefakti</h2>
-    <p class="hint">Tanlangan konsepsiya asosida artefaktning ko'rinishi, vazifasi va strategiyasi. Maydonlarni tahrirlashingiz mumkin.</p>
+  <!-- Artefakt -->
+  <section class="step" data-step="6" hidden>
+    <h2>6. Kelajak artefakti</h2>
+    <p class="hint">Tanlangan konsepsiya: ko'rinishi, vazifasi va strategiyasi. Maydonlarni tahrirlashingiz mumkin.</p>
     <div id="canvas"></div>
     <div class="row">
       <button id="copy" class="btn">Nusxa olish</button>
@@ -112,7 +97,7 @@
   <button id="reset" class="btn link">Boshidan boshlash</button>
 </footer>
 
-<p class="wrap note">Model kelajak mahsulotlarini loyihalash metodologiyasiga asoslangan: muammoni ramkalash → foydalanuvchi → kelajak signallari → g'oya generatsiyasi → prototip va tekshiruv.</p>
+<p class="wrap note">Metodika: Cecilia Tham, "Designing Products of the Future" kursi (Domestika) ish varaqlari asosida: Starting Point, Futures Wheel, Futures Cone. Bu mustaqil o'quv vositasi.</p>
 
 <script src="app.js"></script>
 </body>

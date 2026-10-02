@@ -1,254 +1,247 @@
 'use strict';
 
-const TRENDS = [
-  {id:'ai', name:'Sunʻiy intellekt', brand:'Aql', desc:'Shaxsiylashtirish, bashorat, avtomatik qarorlar',
-   enabler:"sunʻiy intellekt", shift:"har bir inson oʻz shaxsiy AI yordamchisiga ega boʻladi",
-   feats:["Foydalanuvchi odatlarini oʻrganib, shaxsiy tavsiyalar beradi","Muammoni yuz berishidan oldin bashorat qiladi","Oddiy ovoz yoki matn orqali boshqariladi"]},
-  {id:'iot', name:'Aqlli sensorlar / IoT', brand:'Sezgi', desc:'Hamma narsa oʻlchanadi va ulanadi',
-   enabler:"arzon sensorlar va IoT", shift:"kundalik buyumlar atrofni sezadi va bir-biri bilan gaplashadi",
-   feats:["Real vaqtda maʻlumot yigʻadi (sensor)","Telefon/markazga avtomatik signal yuboradi","Batareyasi uzoq, oʻrnatish oson"]},
-  {id:'eco', name:'Doiraviy iqtisod', brand:'Eko', desc:'Chiqindisiz, qayta ishlash, qayta foydalanish',
-   enabler:"doiraviy iqtisod prinsiplari", shift:"chiqindi — yangi xomashyo, mahsulotlar taʻmirlanadi va qaytariladi",
-   feats:["Qayta ishlangan/biologik materialdan tayyorlanadi","Taʻmirlash va qaytarib olish tizimi bor","Uglerod izi foydalanuvchiga koʻrsatiladi"]},
-  {id:'health', name:'Uzoq umr va salomatlik', brand:'Hayot', desc:'Qarish jamiyati, profilaktika, ruhiy salomatlik',
-   enabler:"profilaktik salomatlik texnologiyalari", shift:"aholi keksayadi, odamlar kasallikni oldini olishga eʻtibor beradi",
-   feats:["Salomatlik koʻrsatkichlarini bezovta qilmay kuzatadi","Yaqinlar/shifokor bilan xavfsiz bogʻlanadi","Ruhiy holatni qoʻllab-quvvatlaydi"]},
-  {id:'remote', name:'Masofaviy va gibrid hayot', brand:'Ulan', desc:'Ish, oʻqish va xizmatlar istalgan joydan',
-   enabler:"masofaviy hamkorlik vositalari", shift:"ish va oʻqish joyga bogʻliq boʻlmaydi",
-   feats:["Istalgan joyda, oflayn rejimda ham ishlaydi","Jamoa/oila bilan sinxron hamkorlik","Kontekstga qarab moslashadi"]},
-  {id:'local', name:'Mahalliy ishlab chiqarish (3D)', brand:'Yasa', desc:'3D bosma, mikro-fabrikalar, kastomizatsiya',
-   enabler:"3D bosma va mahalliy mikro-ishlab chiqarish", shift:"mahsulotlar buyurtma boʻyicha, yaqin joyda tayyorlanadi",
-   feats:["Foydalanuvchi oʻlchamiga moslab tayyorlanadi","Ehtiyot qismlari mahalliy bosib chiqariladi","Modulli: qismlarni almashtirish mumkin"]},
-  {id:'access', name:'Inklyuziv dizayn', brand:'Barcha', desc:'Hamma uchun: yosh, imkoniyat, til',
-   enabler:"inklyuziv dizayn tamoyillari", shift:"mahsulot har qanday qobiliyatdagi odam uchun qulay boʻlishi talab etiladi",
-   feats:["Ovoz, tasvir va teginish orqali ishlaydi","Koʻp tilli va oddiy interfeys","Yoʻriqnomasiz, birinchi urinishdayoq tushunarli"]},
-  {id:'energy', name:'Toza energiya', brand:'Quyosh', desc:'Quyosh, batareyalar, energiya mustaqilligi',
-   enabler:"toza va arzon energiya", shift:"energiya mahalliy ishlab chiqariladi va saqlanadi",
-   feats:["Quyosh yoki kinetik energiyadan oʻzi quvvatlanadi","Ozgina energiya sarflaydi","Tarmoqsiz joyda ham ishlaydi"]},
-  {id:'data', name:'Maʻlumot va maxfiylik', brand:'Ishonch', desc:'Shaxsiy maʻlumotga egalik, ishonch',
-   enabler:"maxfiylikni saqlovchi maʻlumot texnologiyalari", shift:"odamlar oʻz maʻlumotiga oʻzlari egalik qilishni talab qiladi",
-   feats:["Maʻlumot qurilmaning oʻzida qayta ishlanadi","Foydalanuvchi nimani ulashishni oʻzi tanlaydi","Shaffof va tushunarli maxfiylik sozlamalari"]},
-  {id:'community', name:'Hamjamiyat va ulashish', brand:'Birga', desc:'Ulashish iqtisodi, mahalla, platformalar',
-   enabler:"hamjamiyat platformalari", shift:"egalik oʻrniga ulashish va birgalikda foydalanish ustun boʻladi",
-   feats:["Qoʻshnilar/hamjamiyat bilan ulashish mumkin","Ishtirokchilar mukofot/obro' oladi","Hamjamiyat mahsulotni birga yaxshilaydi"]}
-];
-
-// SCAMPER-ga asoslangan yondashuvlar
-const LENSES = [
-  {k:'S', name:'Almashtirish', tag:"SCAMPER · Substitute",
-   fmt:(p,t)=>`Mavjud yechimni (${p.current||'hozirgi usul'}) ${t.enabler} bilan almashtiradi. Eskirgan usulni butunlay yangi yondashuvga oʻtkazadi.`,
-   form:'Qurilma + ilova'},
-  {k:'C', name:'Birlashtirish', tag:"SCAMPER · Combine",
-   fmt:(p,t)=>`Bir nechta alohida vazifani (kuzatish, eslatish, hamkorlik) bitta mahsulotda ${t.enabler} orqali birlashtiradi.`,
-   form:'Platforma'},
-  {k:'A', name:'Moslashtirish', tag:"SCAMPER · Adapt",
-   fmt:(p,t)=>`Boshqa sohada isbotlangan modelni (masalan, obuna yoki oʻyin mexanikasi) shu muammoga moslashtiradi, ${t.enabler} bilan kuchaytiradi.`,
-   form:'Xizmat'},
-  {k:'M', name:'Oʻzgartirish', tag:"SCAMPER · Modify",
-   fmt:(p,t)=>`Mahsulot oʻlchami, shakli yoki tajribasini keskin oʻzgartiradi: ${p.persona||'foydalanuvchi'} uchun sezilmas va tabiiy boʻladi.`,
-   form:'Kiyiladigan / ixcham qurilma'},
-  {k:'P', name:'Boshqa maqsadda', tag:"SCAMPER · Put to other use",
-   fmt:(p,t)=>`Allaqachon mavjud infratuzilmani (telefon, maishiy texnika, jamoat joylari) yangi maqsadda ishlatadi — ${t.enabler} yordamida.`,
-   form:'Dasturiy qoʻshimcha'},
-  {k:'E', name:'Olib tashlash', tag:"SCAMPER · Eliminate",
-   fmt:(p,t)=>`Murakkab qadamlarni butunlay yoʻq qiladi: foydalanuvchi hech narsa sozlamaydi, ${t.enabler} hammasini oʻzi bajaradi.`,
-   form:'Avtomatik xizmat'},
-  {k:'R', name:'Teskari qarash', tag:"SCAMPER · Reverse",
-   fmt:(p,t)=>`Rolni teskari qiladi: muammoni hal qilish oʻrniga, uni oldindan oldini oladi; foydalanuvchi emas, tizim tashabbus koʻrsatadi (${t.enabler}).`,
-   form:'Proaktiv tizim'}
-];
-
-const SUFFIX = ['Mate','Lab','Go','Nest','Flow','Pal','Loop','Pod','Ly','Bridge'];
 const $ = s => document.querySelector(s);
-const STORE = 'fps-state-v1';
+const STORE = 'fps-state-v2';
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-let state = load() || {step:1, trends:[], ideas:[], pick:null, canvas:{}, f:{}};
+// 1A varaq qatorlari
+const ROWS = [
+  {k:'tech', name:'Yangi texnologiya', hint:'Kelajak uchun qaysi texnologiyalarni o‘rganmoqchisiz?', ex:'Mashinaviy o‘rganish, Blokcheyn, Sintetik biologiya, Nanotexnologiya, 3D bosma, IoT',
+   sample:['Mashinaviy o‘rganish','IoT sensorlar','3D bosma','Sintetik biologiya']},
+  {k:'problem', name:'Muammo / chaqiriq', hint:'Qaysi muammoni hal qilmoqchisiz? Ijtimoiy yoki ekologik bo‘lishi mumkin.', ex:'Iqlim o‘zgarishi, Diabet, Oziq-ovqat xavfsizligi, Okean plastigi, Gender tengsizligi',
+   sample:['Iqlim o‘zgarishi','Oziq-ovqat xavfsizligi','Yolg‘izlik','Toza suv tanqisligi']},
+  {k:'biz', name:'Biznes imkoniyat', hint:'Qaysi biznes imkoniyatlari va trendlarni ko‘ryapsiz?', ex:'P2P, Obuna, Hamjamiyat a‘zoligi, Ulashish iqtisodi',
+   sample:['Obuna','P2P ulashish','Hamjamiyat a‘zoligi','Masofaviy xizmat']},
+  {k:'future', name:'Kelajaklar', hint:'Qaysi kelajak stsenariylari sizni hayajonlantiradi? Yaqin, o‘rta yoki uzoq bo‘lishi mumkin.', ex:'3 kunlik ish haftasi, ekologik utopiya, planetalararo savdo',
+   sample:['3 kunlik ish haftasi','Ekologik utopiya','Pulsiz dunyo','Ishdan keyingi jamiyat']}
+];
 
-function load(){ try{return JSON.parse(localStorage.getItem(STORE));}catch(e){return null;} }
+const CATS = [
+  {k:'probable', name:'Ehtimol (probable)', d:'Ehtimoli yuqori; hozirgi trendlar davomi', c:'#2f9e6a'},
+  {k:'plausible', name:'Mumkin (plausible)', d:'Bugungi tushunchaga ko‘ra bo‘lishi mumkin', c:'#3b82f6'},
+  {k:'possible', name:'Imkoniyatli (possible)', d:'Hozircha noma’lum narsalarga bog‘liq', c:'#d49a1d'},
+  {k:'impossible', name:'Imkonsiz (impossible)', d:'Bema‘ni yoki sodir bo‘lmaydigan ko‘rinadi', c:'#d1493f'}
+];
+const HORS = [
+  {k:'present', name:'Hozir (0)'},{k:'near', name:'Yaqin kelajak (1)'},
+  {k:'mid', name:'O‘rta kelajak (2)'},{k:'far', name:'Uzoq kelajak (3)'}
+];
+const LABELS = ['Boshlang‘ich nuqta','Kelajak g‘ildiragi','Konus: tekis','Konus: loyihalangan','Teskari xarit. + g‘oya','Artefakt'];
+
+function blank(){
+  const a = {}; ROWS.forEach(r=>a[r.k]=['','','','']);
+  const br = ()=>({t:'',s:'',a:''});
+  return {step:1, a, combos:['','',''], start:'',
+    wheel:{pos:[br(),br()], neg:[br(),br()]}, cat:{}, hor:{}, past:'',
+    target:'', persona:'', pain:'', ideas:[], pick:null, canvas:{}};
+}
+let state = load() || blank();
+function load(){ try{const s=JSON.parse(localStorage.getItem(STORE)); return s&&s.a?s:null;}catch(e){return null;} }
 function save(){ try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){} }
 
-const FIELDS = ['problem','why','current','persona','goal','pain','context','constraints','horizon','signals','world','vision'];
-const LABELS = ['Muammo','Foydalanuvchi','Kelajak sintezi','Gʻoyalar','Artefakt'];
+// yo'l bo'yicha o'qish/yozish: "wheel.pos.0.t"
+function getp(path){ return path.split('.').reduce((o,k)=>o==null?o:o[k],state); }
+function setp(path,v){ const ks=path.split('.'); const last=ks.pop(); ks.reduce((o,k)=>o[k],state)[last]=v; }
+function bind(root){
+  root.querySelectorAll('[data-k]').forEach(el=>{
+    const v = getp(el.dataset.k); if(v!=null && el.tagName!=='SELECT') el.value = v;
+    el.oninput = el.onchange = ()=>{ setp(el.dataset.k, el.value); save(); if(el.dataset.re) render(); };
+  });
+}
 
-function readFields(){ FIELDS.forEach(id=>{ state.f[id] = $('#'+id).value.trim(); }); }
-function writeFields(){ FIELDS.forEach(id=>{ if(state.f[id]!=null) $('#'+id).value = state.f[id]; }); }
+// ---- Tugunlar (g'ildirakdan) ----
+function nodes(){
+  const out=[];
+  [['pos','Ijobiy'],['neg','Salbiy']].forEach(([sg])=>{
+    state.wheel[sg].forEach((b,i)=>{
+      [['t',1],['s',2],['a',3]].forEach(([f,o])=>{
+        if(b[f] && b[f].trim()) out.push({id:`${sg}${i}${f}`, text:b[f].trim(), sign:sg, order:o});
+      });
+    });
+  });
+  return out;
+}
+const nodeById = id => nodes().find(n=>n.id===id);
+const dot = n => `<span class="dot ${n.sign}"></span>`;
 
+// ---- 1: Boshlang'ich nuqta ----
+function renderStart(){
+  $('#rows').innerHTML = ROWS.map(r=>`<div class="rowset"><h4>${r.name}</h4><p class="hint">${r.hint} Masalan: ${r.ex}</p>
+    <div class="four">${[0,1,2,3].map(i=>`<input data-k="a.${r.k}.${i}" placeholder="${i+1}">`).join('')}</div></div>`).join('');
+  $('#combos').innerHTML = [0,1,2].map(i=>`<div class="combo"><b>${i+1}</b><input data-k="combos.${i}" data-re="1" placeholder="Masalan: Mashinaviy o‘rganish + yolg‘izlik + obuna + ekologik utopiya"></div>`).join('');
+  bind($('#rows')); bind($('#combos'));
+  const opts = state.combos.filter(c=>c.trim());
+  $('#startpick').innerHTML = opts.length ? opts.map(c=>`<button class="pick${state.start===c?' sel':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('') : '<span class="hint">Avval kamida bitta kombinatsiyani yozing.</span>';
+  $('#startpick').querySelectorAll('.pick').forEach(b=>b.onclick=()=>{ state.start=b.dataset.c; save(); renderStart(); });
+}
+function pickRand(arr){ const f=arr.filter(x=>x.trim()); return f.length?f[Math.floor(Math.random()*f.length)]:''; }
+function suggestCombos(){
+  state.combos = [0,1,2].map(()=>ROWS.map(r=>pickRand(state.a[r.k])).filter(Boolean).join(' + '));
+  save(); renderStart();
+}
+
+// ---- 2: G'ildirak ----
+const ORD = {t:'1-tartib: aniq oqibat', s:'2-tartib: tadqiqotga asoslangan', a:'3-tartib: qo‘shni sohalar'};
+function renderWheel(){
+  $('#center').textContent = 'Markaz: ' + (state.start||'(1-qadamda boshlang‘ich nuqtani tanlang)');
+  const mk = (sg,i)=>{
+    const lab = sg==='pos'?'Ijobiy':'Salbiy';
+    return `<div class="branch ${sg}"><h4>${lab} oqibat ${i+1}</h4>${['t','s','a'].map(f=>
+      `<label>${ORD[f]}<input data-k="wheel.${sg}.${i}.${f}" data-re="" placeholder="${f==='t'?'Nima sodir bo‘ladi?':'Bundan keyin nima?'}"></label>`).join('')}</div>`;
+  };
+  $('#wheel').innerHTML = mk('pos',0)+mk('neg',0)+mk('pos',1)+mk('neg',1);
+  bind($('#wheel'));
+}
+
+// ---- 3: Tekis konus ----
+function renderCone1(){
+  $('#legend').innerHTML = CATS.map(c=>`<span><span class="dot" style="background:${c.c}"></span><b>${c.name}</b> — ${c.d}</span>`).join('');
+  const ns = nodes();
+  if(!ns.length){ $('#cone1').innerHTML='<div class="empty">Avval 2-qadamda g‘ildirakni to‘ldiring.</div>'; return; }
+  $('#cone1').innerHTML = `<div class="nodes">${ns.map(n=>`<div class="nodebar"><div>${dot(n)}${esc(n.text)}</div>
+    <select data-n="${n.id}"><option value="">— joylashtirmaslik —</option>${CATS.map(c=>`<option value="${c.k}"${state.cat[n.id]===c.k?' selected':''}>${c.name}</option>`).join('')}</select></div>`).join('')}</div>
+    <p class="hint">${Object.values(state.cat).filter(Boolean).length} ta tugun joylandi (tavsiya: 10–15).</p>`;
+  $('#cone1').querySelectorAll('select').forEach(s=>s.onchange=()=>{ state.cat[s.dataset.n]=s.value; save(); renderCone1(); });
+}
+
+// ---- 4: Loyihalangan konus ----
+function placed(){ return nodes().filter(n=>state.cat[n.id]); }
+function renderCone2(){
+  bind($('#cone2').previousElementSibling);
+  const ns = placed();
+  $('#cone2').innerHTML = ns.length ? `<div class="nodes">${ns.map(n=>`<div class="nodebar"><div>${dot(n)}${esc(n.text)} <small>(${CATS.find(c=>c.k===state.cat[n.id]).name})</small></div>
+    <select data-n="${n.id}"><option value="">— vaqtni tanlang —</option>${HORS.map(h=>`<option value="${h.k}"${state.hor[n.id]===h.k?' selected':''}>${h.name}</option>`).join('')}</select></div>`).join('')}</div>`
+    : '<div class="empty">Avval 3-qadamda tugunlarni kelajak turiga joylang.</div>';
+  $('#cone2').querySelectorAll('select').forEach(s=>s.onchange=()=>{ state.hor[s.dataset.n]=s.value; save(); renderCone2(); });
+  renderMatrix(ns);
+}
+function renderMatrix(ns){
+  if(!ns.length){ $('#matrix').innerHTML=''; return; }
+  $('#matrix').innerHTML = `<table class="mx"><tr><th></th>${HORS.map(h=>`<th>${h.name}</th>`).join('')}</tr>${CATS.map(c=>
+    `<tr><th style="border-left:6px solid ${c.c}">${c.name}</th>${HORS.map(h=>`<td>${ns.filter(n=>state.cat[n.id]===c.k&&state.hor[n.id]===h.k).map(n=>`<span class="nd">${dot(n)}${esc(n.text)}</span>`).join('')}</td>`).join('')}</tr>`).join('')}</table>`;
+}
+
+// ---- 5: Teskari xaritalash ----
+function backSteps(){
+  const t = nodeById(state.target);
+  const byH = h => placed().filter(n=>state.hor[n.id]===h && n.id!==state.target).map(n=>'• '+n.text).join('\n');
+  const who = state.persona || 'foydalanuvchi';
+  return [
+    ['Uzoq kelajak (istalgan natija)', t ? t.text : '(tugunni tanlang)'],
+    ['O‘rta kelajak — buning uchun nima bo‘lishi kerak?', byH('mid') || 'Xaritangizda o‘rta kelajak tugunlari yo‘q. Savol: uzoq kelajakdan bir qadam oldin nima sodir bo‘lgan bo‘lishi kerak?'],
+    ['Yaqin kelajak — buning uchun nima bo‘lishi kerak?', byH('near') || 'Yaqin kelajak tugunlari yo‘q. Savol: o‘rta kelajak uchun qaysi sharoitlar yaratilishi kerak?'],
+    ['Hozir', (byH('present') ? byH('present')+'\n' : '') + `Birinchi qadam: ${who} bilan 5 ta suhbat o‘tkazing va eng kichik prototipni tayyorlang.`]
+  ];
+}
+function renderTarget(){
+  const ns = placed();
+  $('#target').innerHTML = '<option value="">— tanlang —</option>' + ns.map(n=>`<option value="${n.id}"${state.target===n.id?' selected':''}>${esc(n.text)} (${CATS.find(c=>c.k===state.cat[n.id]).name})</option>`).join('');
+  $('#target').onchange = ()=>{ state.target=$('#target').value; save(); renderBack(); };
+  bind($('#target').closest('section'));
+  $('#target').onchange = ()=>{ state.target=$('#target').value; save(); renderBack(); };
+}
+function renderBack(){
+  $('#back').innerHTML = backSteps().map(([h,t])=>`<div><b>${esc(h)}</b>${esc(t)}</div>`).join('');
+}
+
+// ---- G'oya generatsiyasi: SCAMPER ----
+const LENSES = [
+  {name:'Almashtirish', form:'Qurilma + ilova', fmt:c=>`Mavjud yechimni ${c.tech} bilan almashtiradi va "${c.problem}" muammosini butunlay yangi yo‘l bilan hal qiladi.`},
+  {name:'Birlashtirish', form:'Platforma', fmt:c=>`${c.tech} va ${c.biz} modelini birlashtirib, "${c.problem}" ga qarshi bitta yagona tizim yaratadi.`},
+  {name:'Moslashtirish', form:'Xizmat', fmt:c=>`Boshqa sohada isbotlangan ${c.biz} modelini "${c.problem}" muammosiga moslashtiradi, ${c.tech} bilan kuchaytiradi.`},
+  {name:'O‘zgartirish', form:'Ixcham / kiyiladigan qurilma', fmt:c=>`Mahsulot shakli va tajribasini o‘zgartiradi: ${c.who} uchun sezilmas bo‘lib, ${c.tech} orqali "${c.problem}" ni kamaytiradi.`},
+  {name:'Boshqa maqsadda', form:'Dasturiy qo‘shimcha', fmt:c=>`Mavjud infratuzilmani yangi maqsadda ishlatadi: ${c.tech} yordamida "${c.problem}" ni hal qiladi.`},
+  {name:'Olib tashlash', form:'Avtomatik xizmat', fmt:c=>`Murakkab qadamlarni yo‘q qiladi: ${c.who} hech narsa sozlamaydi, ${c.tech} hammasini o‘zi bajaradi.`},
+  {name:'Teskari qarash', form:'Proaktiv tizim', fmt:c=>`Muammoni hal qilish o‘rniga uning oldini oladi: tizim tashabbus ko‘rsatadi (${c.tech}), ${c.future} dunyosiga mos.`}
+];
+const SUFFIX = ['Mate','Lab','Go','Nest','Flow','Pal','Loop','Pod','Ly','Bridge'];
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-const trendById = id => TRENDS.find(t=>t.id===id);
+const fill = (arr,def) => { const f=arr.filter(x=>x.trim()); return f.length?f:[def]; };
 
 function makeIdeas(){
-  const p = state.f;
-  const ts = state.trends.map(trendById);
-  const lenses = shuffle(LENSES).slice(0,6);
-  state.ideas = lenses.map((l,i)=>{
-    // har bir gʻoyaga 1–2 ta kelajak kuchi
-    const main = ts[i % ts.length];
-    const second = ts.length>1 ? ts[(i+1+Math.floor(Math.random()*(ts.length-1))) % ts.length] : null;
-    const used = second && second.id!==main.id ? [main,second] : [main];
-    const name = used[0].brand + SUFFIX[Math.floor(Math.random()*SUFFIX.length)];
-    return {
-      id:i, name, lens:l.k, tag:l.tag, lensName:l.name, form:l.form,
-      trends:used.map(t=>t.id),
-      pitch:l.fmt(p,main) + (used[1]?` Shuningdek "${used[1].name}" kuchidan foydalanadi.`:'')
-    };
+  const T = fill(state.a.tech,'yangi texnologiya'), P = fill(state.a.problem,'bu muammo'),
+        B = fill(state.a.biz,'yangi biznes model'), F = fill(state.a.future,'kelajak');
+  const t = state.target && nodeById(state.target);
+  state.ideas = shuffle(LENSES).slice(0,6).map((l,i)=>{
+    const c = {tech:T[i%T.length], problem:P[Math.floor(Math.random()*P.length)], biz:B[Math.floor(Math.random()*B.length)],
+               future:t?t.text:F[Math.floor(Math.random()*F.length)], who:state.persona||'foydalanuvchi'};
+    return {id:i, name:c.tech.split(' ')[0].replace(/[^\p{L}]/gu,'') + SUFFIX[Math.floor(Math.random()*SUFFIX.length)],
+      lens:l.name, form:l.form, c, pitch:l.fmt(c)};
   });
-  state.pick = null;
+  state.pick=null;
+}
+function renderIdeas(){
+  $('#count').textContent = state.ideas.length ? `${state.ideas.length} ta konsepsiya` : '';
+  if(!state.ideas.length){ $('#ideas').innerHTML='<div class="empty">"Yangi g‘oyalar" tugmasini bosing.</div>'; return; }
+  $('#ideas').innerHTML = state.ideas.map(d=>`<div class="card"><span class="tag">SCAMPER · ${esc(d.lens)}</span>
+    <h3>${esc(d.name)} — ${esc(d.form)}</h3><p>${esc(d.pitch)}</p>
+    <p class="hint">Texnologiya: ${esc(d.c.tech)} · Biznes: ${esc(d.c.biz)}</p>
+    <button class="btn" data-i="${d.id}">Shuni tanlash →</button></div>`).join('');
+  $('#ideas').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const d = state.ideas.find(x=>x.id==b.dataset.i); state.pick=d.id; state.canvas=buildCanvas(d); save(); go(6);
+  });
 }
 
-// Teskari xaritalash: kelajakdan bugunga qarab yo'l
-function backcast(p,h,idea,ts){
-  const vision = p.vision || `"${p.problem}" muammosi hal bo'lgan`;
-  const mid = Math.max(1,Math.round(h*2/3)), early = Math.max(1,Math.round(h/3));
-  const t = ts.map(x=>x.name.toLowerCase()).join(', ');
-  return [
-    `${h}-yil (istalgan kelajak): ${vision}.`,
-    `${mid}-yil: ${idea.name} keng tarqaladi; ${t} imkoniyatlari to'liq ishlaydi. Savol: bunga nima yetishmaydi?`,
-    `${early}-yil: Birinchi hamkorlar va foydalanuvchilar jamoasi shakllanadi, mahsulot yetuk versiyaga chiqadi. Savol: buning uchun qaysi sharoitlar kerak?`,
-    `1-yil: Ishlaydigan prototip va dala sinovi, birinchi isbot (kimdir ishlatadi va qaytib keladi).`,
-    `Bugun (birinchi qadam): ${p.persona||'foydalanuvchi'} bilan 5 ta suhbat o'tkazib, eng kichik prototipni tayyorlang.`
-  ].join('\n');
-}
-
-function buildCanvas(idea){
-  const p = state.f, h = +p.horizon||5;
-  const ts = idea.trends.map(trendById);
-  const feats = [];
-  ts.forEach(t=>t.feats.forEach(f=>feats.push(f)));
-  const who = p.persona || 'maqsadli foydalanuvchi';
+// ---- 6: Artefakt ----
+function buildCanvas(d){
+  const c=d.c, who=state.persona||'maqsadli foydalanuvchi', t=nodeById(state.target);
   return {
-    name: idea.name,
-    promise: `${who} uchun "${p.problem}" muammosini ${idea.lensName.toLowerCase()} yondashuvi bilan hal qiluvchi ${idea.form.toLowerCase()}. ${p.goal?`U ${p.goal.toLowerCase()}ga osonroq erishadi.`:''}`,
-    forwho: `${who}.\nMaqsadi: ${p.goal||'—'}\nOgʻrigʻi: ${p.pain||'—'}\nKontekst: ${p.context||'—'}`,
-    problem: `${p.problem}\nOqibati: ${p.why||'—'}\nHozirgi yechim: ${p.current||'—'}`,
-    features: feats.slice(0,5).map((f,i)=>`${i+1}. ${f}`).join('\n'),
-    artifact: `Ko'rinishi: ${idea.form.toLowerCase()} — ${who} hayotiga tabiiy singib ketadigan, oddiy va tanish shakl. Material, rang va o'lchamni foydalanuvchi muhitiga moslang.\nHarakati (dinamikasi): ${idea.lensName.toLowerCase()} usulida ishlaydi — vaziyat o'zgarganda o'zi moslashadi.\nVazifasi: "${p.problem}" muammosini kundalik foydalanishda kamaytirish.\nMa'nosi: foydalanuvchiga nazorat va ishonch hissini qaytaradi.`,
-    backcast: backcast(p,h,idea,ts),
-    strategy: `Tadqiqot: signallar — ${p.signals||'hali kiritilmagan'}.\nDizayn: artefaktni ${h} yillik kelajak dunyosiga mos loyihalash va sinash.\nStrategiya: bugun kichik qadam (MVP) → ${h} yilda masshtab. Ta'sirni o'lchang: kimning hayoti qanday yaxshilandi?`,
-    future: (p.world?`Kelajak dunyosi: ${p.world}\n`:'') + ts.map(t=>`• ${t.name}: ${t.shift}.`).join('\n') + `\n${h} yildan keyin ushbu mahsulot shu dunyoga tabiiy mos tushadi.`,
-    prototype: `1-hafta: Qogʻoz/Figma eskizi va "sehrgar" (qoʻlda bajariladigan) prototip — ${who} bilan sinash.\n2–4-hafta: Ishlaydigan minimal prototip (MVP) — faqat bitta asosiy funksiya.\n2–3-oy: 10–20 foydalanuvchida dala sinovi, fikr-mulohaza.\nKeyin: ${h} yillik yoʻl xaritasi — ${ts.map(t=>t.name.toLowerCase()).join(', ')} imkoniyatlarini bosqichma-bosqich qoʻshish.`,
-    validate: `Gipoteza: ${who} bu muammoni haqiqatan ogʻriqli deb biladi va yangi yechimga oʻtadi.\nSinov: 5–8 ta chuqur suhbat + prototipni ishlatib koʻrish.\nOʻlchov: muammo chastotasining kamayishi, takror foydalanish, "tavsiya qilaman" ulushi.\nMuvaffaqiyat mezoni: sinovchilarning kamida 60%i qayta foydalanadi.`,
-    risks: `• Cheklov: ${p.constraints||'aniqlanmagan'}\n• Texnologiya hali yetilmagan boʻlishi mumkin — soddaroq muqobilini tayyorlab qoʻying\n• Foydalanuvchi ishonchi va maxfiylik\n• Narx va ishlab chiqarish imkoniyati`,
-    business: `Variantlar: obuna · qurilma + xizmat · hamkor tashkilotlar (B2B2C) · hamjamiyat/grant moliyasi.\nBirinchi qadam: kimdir bu uchun pul toʻlaydimi — tezkor sinab koʻring.`
+    name:d.name,
+    promise:`${who} uchun "${c.problem}" muammosini ${d.lens.toLowerCase()} yondashuvi bilan hal qiluvchi ${d.form.toLowerCase()}.`,
+    start:`Boshlang‘ich nuqta: ${state.start||'—'}\nO‘tmish: ${state.past||'—'}`,
+    artifact:`Ko‘rinishi: ${d.form.toLowerCase()}, ${who} hayotiga tabiiy singadigan oddiy shakl. Material, rang va o‘lchamni foydalanuvchi muhitiga moslang.\nHarakati (dinamikasi): ${c.tech} yordamida vaziyat o‘zgarganda o‘zi moslashadi.\nVazifasi: "${c.problem}" ni kundalik foydalanishda kamaytirish.\nMa‘nosi: ${state.pain?`"${state.pain}" og‘rig‘ini yengillashtiradi va `:''}foydalanuvchiga nazorat va ishonch qaytaradi.`,
+    future:`Istalgan kelajak: ${t?t.text:'—'}\nOqibatlar xaritasidan:\n${placed().slice(0,6).map(n=>`${n.sign==='pos'?'[+]':'[−]'} ${n.text} (${CATS.find(x=>x.k===state.cat[n.id]).k})`).join('\n')||'—'}`,
+    backcast:backSteps().map(([h,x])=>`${h}:\n${x}`).join('\n\n'),
+    prototype:`1-hafta: Qog‘oz/Figma eskizi va qo‘lda bajariladigan prototip, ${who} bilan sinash.\n2–4-hafta: Bitta asosiy funksiyali MVP.\n2–3-oy: 10–20 foydalanuvchida dala sinovi.\nKeyin: konusdagi yaqin va o‘rta kelajak tugunlariga mos bosqichma-bosqich rivojlantirish.`,
+    validate:`Gipoteza: ${who} bu muammoni og‘riqli deb biladi va yangi yechimga o‘tadi.\nSinov: 5–8 chuqur suhbat + prototipni ishlatish.\nO‘lchov: takror foydalanish, muammo chastotasining kamayishi.\nMezon: sinovchilarning kamida 60%i qayta foydalanadi.`,
+    risks:`• Salbiy oqibatlar (g‘ildirakdan):\n${nodes().filter(n=>n.sign==='neg').map(n=>'  - '+n.text).join('\n')||'  -'}\n• Texnologiya yetilmagan bo‘lishi mumkin: soddaroq muqobil tayyorlang\n• Ishonch va maxfiylik; narx va ishlab chiqarish`,
+    business:`Biznes imkoniyat: ${c.biz}.\nBirinchi qadam: kimdir bu uchun pul to‘laydimi, tezkor sinab ko‘ring.`
   };
 }
-
-const CV_BOXES = [
-  ['promise','Qiymat taklifi',true],['forwho','Kim uchun',false],['problem','Muammo',false],
-  ['artifact','Artefakt: ko‘rinishi va vazifasi',true],['features','Asosiy funksiyalar',false],['backcast','Teskari xaritalash: kelajakdan bugunga',true],['strategy','Tadqiqot · dizayn · strategiya',false],['future','Kelajak stsenariysi',false],
-  ['prototype','Prototip rejasi',true],['validate','Tekshiruv',false],['risks','Xavflar',false],['business','Biznes model',true]
-];
-
-function renderSteps(){
-  const el = $('#steps'); el.innerHTML='';
-  LABELS.forEach((l,i)=>{
-    const b = document.createElement('button');
-    b.textContent = `${i+1}. ${l}`;
-    b.className = i+1===state.step?'on':(i+1<state.step?'done':'');
-    b.onclick = ()=>go(i+1);
-    el.appendChild(b);
-  });
-}
-
-function renderTrends(){
-  const box = $('#trends'); box.innerHTML='';
-  TRENDS.forEach(t=>{
-    const b = document.createElement('button');
-    b.className = 'trend'+(state.trends.includes(t.id)?' sel':'');
-    b.innerHTML = `<b>${t.name}</b><span>${t.desc}</span>`;
-    b.onclick = ()=>{
-      const i = state.trends.indexOf(t.id);
-      if(i>=0) state.trends.splice(i,1); else state.trends.push(t.id);
-      save(); renderTrends();
-    };
-    box.appendChild(b);
-  });
-}
-
-function renderIdeas(){
-  const box = $('#ideas'); box.innerHTML='';
-  $('#count').textContent = state.ideas.length? `${state.ideas.length} ta konsepsiya` : '';
-  if(!state.ideas.length){ box.innerHTML='<div class="empty">Hozircha gʻoya yoʻq. "Yangi gʻoyalar" tugmasini bosing.</div>'; return; }
-  state.ideas.forEach(d=>{
-    const c = document.createElement('div'); c.className='card';
-    const tn = d.trends.map(id=>trendById(id).name).join(' + ');
-    c.innerHTML = `<span class="tag">${d.tag}</span><h3></h3><p></p><p class="hint"></p><button class="btn">Shuni tanlash →</button>`;
-    c.querySelector('h3').textContent = d.name + ' — ' + d.form;
-    c.querySelector('p').textContent = d.pitch;
-    c.querySelector('.hint').textContent = 'Kuchlar: '+tn;
-    c.querySelector('button').onclick = ()=>{
-      state.pick = d.id; state.canvas = buildCanvas(d); save(); go(5);
-    };
-    box.appendChild(c);
-  });
-}
-
+const CV_BOXES = [['promise','Qiymat taklifi',true],['start','Boshlang‘ich nuqta',false],['future','Kelajak konteksti',false],
+  ['artifact','Artefakt: ko‘rinishi va vazifasi',true],['backcast','Teskari xaritalash',true],['prototype','Prototip rejasi',false],
+  ['validate','Tekshiruv',false],['risks','Xavflar',false],['business','Biznes model',false]];
 function renderCanvas(){
-  const box = $('#canvas');
-  if(state.pick==null){ box.innerHTML='<div class="empty">Avval 4-qadamda konsepsiya tanlang.</div>'; return; }
+  const box=$('#canvas');
+  if(state.pick==null){ box.innerHTML='<div class="empty">Avval 5-qadamda konsepsiya tanlang.</div>'; return; }
   box.innerHTML = '<label>Mahsulot nomi<input id="cvname"></label><div class="cv"></div>';
-  $('#cvname').value = state.canvas.name;
-  $('#cvname').oninput = e=>{ state.canvas.name=e.target.value; save(); };
-  const cv = box.querySelector('.cv');
+  $('#cvname').value=state.canvas.name; $('#cvname').oninput=e=>{state.canvas.name=e.target.value;save();};
+  const cv=box.querySelector('.cv');
   CV_BOXES.forEach(([k,title,wide])=>{
-    const d = document.createElement('div'); d.className='box'+(wide?' wide':'');
-    d.innerHTML = `<h4></h4><div contenteditable="true" spellcheck="false"></div>`;
-    d.querySelector('h4').textContent = title;
-    const ed = d.querySelector('[contenteditable]');
-    ed.textContent = state.canvas[k]||'';
-    ed.oninput = ()=>{ state.canvas[k]=ed.innerText; save(); };
+    const d=document.createElement('div'); d.className='box'+(wide?' wide':'');
+    d.innerHTML='<h4></h4><div contenteditable="true" spellcheck="false"></div>';
+    d.querySelector('h4').textContent=title;
+    const ed=d.querySelector('[contenteditable]'); ed.textContent=state.canvas[k]||'';
+    ed.oninput=()=>{state.canvas[k]=ed.innerText;save();};
     cv.appendChild(d);
   });
 }
+const canvasText = ()=>[`MAHSULOT: ${state.canvas.name}`,'',...CV_BOXES.map(([k,t])=>`## ${t}\n${state.canvas[k]||''}\n`)].join('\n');
 
-function canvasText(){
-  const c = state.canvas;
-  return [`MAHSULOT: ${c.name}`,'',...CV_BOXES.map(([k,t])=>`## ${t}\n${c[k]||''}\n`)].join('\n');
-}
-
-function validate(step){
-  if(step===1 && state.step===1 && !state.f.problem){ alert("Avval muammoni yozing."); return false; }
-  return true;
-}
-
+// ---- Navigatsiya ----
 function go(n){
-  if(state.step===1||state.step===2||state.step===3) readFields();
-  if(n>state.step && !validate(state.step)) return;
-  if(n>=4 && !state.f.problem){ alert("Avval muammoni yozing."); n=1; }
-  if(n===4){
-    if(!state.trends.length){ alert("Kamida bitta kelajak kuchini tanlang."); n=3; }
-    else if(!state.ideas.length){ makeIdeas(); }
-  }
-  state.step = n; save(); render();
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(n>=2 && !state.start){ alert('Avval 1-qadamda boshlang‘ich nuqtani tanlang.'); n=1; }
+  else if(n>=3 && !nodes().length){ alert('Avval g‘ildirakni to‘ldiring.'); n=2; }
+  else if(n>=5 && !placed().length){ alert('Avval tugunlarni konusga joylang.'); n=3; }
+  state.step=n; save(); render(); window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function render(){
-  document.querySelectorAll('.step').forEach(s=>s.hidden = +s.dataset.step!==state.step);
-  renderSteps();
-  if(state.step===3) renderTrends();
-  if(state.step===4) renderIdeas();
-  if(state.step===5) renderCanvas();
-  $('#prev').style.visibility = state.step===1?'hidden':'visible';
-  $('#next').style.display = state.step===5?'none':'';
+  document.querySelectorAll('.step').forEach(s=>s.hidden=+s.dataset.step!==state.step);
+  $('#steps').innerHTML = LABELS.map((l,i)=>`<button class="${i+1===state.step?'on':(i+1<state.step?'done':'')}" data-s="${i+1}">${i+1}. ${l}</button>`).join('');
+  $('#steps').querySelectorAll('button').forEach(b=>b.onclick=()=>go(+b.dataset.s));
+  ({1:renderStart,2:renderWheel,3:renderCone1,4:renderCone2,5:()=>{renderTarget();renderBack();renderIdeas();},6:renderCanvas})[state.step]();
+  bind($('#cone2').parentElement);
+  $('#prev').style.visibility=state.step===1?'hidden':'visible';
+  $('#next').style.display=state.step===6?'none':'';
 }
 
-// Hodisalar
-$('#next').onclick = ()=>go(state.step+1);
-$('#prev').onclick = ()=>go(state.step-1);
-$('#regen').onclick = ()=>{ makeIdeas(); save(); renderIdeas(); };
-$('#reset').onclick = ()=>{ if(confirm("Hamma maʻlumot oʻchiriladi. Davom etamizmi?")){ localStorage.removeItem(STORE); location.reload(); } };
-$('#copy').onclick = async ()=>{ try{ await navigator.clipboard.writeText(canvasText()); alert('Nusxa olindi'); }catch(e){ alert('Nusxa olib boʻlmadi'); } };
-$('#print').onclick = ()=>window.print();
-$('#download').onclick = ()=>{
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([canvasText()],{type:'text/plain;charset=utf-8'}));
-  a.download = (state.canvas.name||'mahsulot')+'.txt'; a.click(); URL.revokeObjectURL(a.href);
-};
-document.querySelectorAll('.chip[data-ex]').forEach(b=>b.onclick=()=>{
-  const [p,w,c] = b.dataset.ex.split('|');
-  $('#problem').value=p; $('#why').value=w; $('#current').value=c;
-});
-FIELDS.forEach(id=>$('#'+id).addEventListener('input',readFields));
-
-writeFields();
+$('#next').onclick=()=>go(state.step+1);
+$('#prev').onclick=()=>go(state.step-1);
+$('#regen').onclick=()=>{ makeIdeas(); save(); renderIdeas(); };
+$('#suggest').onclick=suggestCombos;
+$('#sample').onclick=()=>{ ROWS.forEach(r=>state.a[r.k]=r.sample.slice()); save(); renderStart(); };
+$('#reset').onclick=()=>{ if(confirm('Hamma ma‘lumot o‘chiriladi. Davom etamizmi?')){ localStorage.removeItem(STORE); location.reload(); } };
+$('#copy').onclick=async()=>{ try{ await navigator.clipboard.writeText(canvasText()); alert('Nusxa olindi'); }catch(e){ alert('Nusxa olib bo‘lmadi'); } };
+$('#print').onclick=()=>window.print();
+$('#download').onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([canvasText()],{type:'text/plain;charset=utf-8'})); a.download=(state.canvas.name||'mahsulot')+'.txt'; a.click(); URL.revokeObjectURL(a.href); };
 render();
