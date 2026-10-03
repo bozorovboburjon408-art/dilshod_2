@@ -1,9 +1,16 @@
 import type { Catalog } from './types';
 
+/** Live API when a server is present; otherwise a read-only snapshot (catalog.json) so the static demo works. */
 export async function fetchCatalog(machine = 'EKG-10'): Promise<Catalog> {
-  const r = await fetch(`/api/catalog?machine=${encodeURIComponent(machine)}`);
-  if (!r.ok) throw new Error(`API ${r.status}`);
-  return r.json();
+  try {
+    const r = await fetch(`/api/catalog?machine=${encodeURIComponent(machine)}`);
+    if (r.ok && (r.headers.get('content-type') || '').includes('json')) return await r.json();
+  } catch { /* fall through to snapshot */ }
+  const snap: Catalog = await (await fetch('catalog.json')).json();
+  const rel = (u: string | null) => (u && u.startsWith('/files/') ? u.slice(1) : u);
+  snap.store = 'static-demo';
+  snap.documents.forEach((d) => { d.file_url = rel(d.file_url); });
+  return snap;
 }
 
 const TOKEN_KEY = 'ekg-admin-token';
