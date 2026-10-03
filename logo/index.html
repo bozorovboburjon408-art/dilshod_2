@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurum — Premium logotip studiyasi</title>
+<meta name="description" content="Brendingiz uchun premium logotip yarating: 17 ikon, 7 ramka, 10 palitra, 12 shrift. SVG va PNG yuklab oling.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f6dc8f'/%3E%3Cstop offset='1' stop-color='%239a6b1c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='%230b0b0d'/%3E%3Cpath d='M50 16 80 80H64L50 46 36 80H20Z' fill='url(%23g)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fontlink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Aurum">
+    <svg viewBox="0 0 100 100" width="30" height="30" aria-hidden="true"><defs><linearGradient id="nb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc8f"/><stop offset="1" stop-color="#9a6b1c"/></linearGradient></defs><path d="M50 10 88 90H68L50 52 32 90H12Z" fill="url(#nb)"/></svg>
+    <span>AURUM</span>
+  </a>
+  <nav>
+    <a href="#studio">Studiya</a>
+    <a href="#concepts">G'oyalar</a>
+    <a href="#mockups">Mockuplar</a>
+    <a href="#saved">Saqlanganlar</a>
+  </nav>
+  <a class="btn btn-gold sm" href="#studio">Boshlash</a>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Premium logotip studiyasi</p>
+      <h1>Brendingizga <em>munosib</em> logotip — bir necha soniyada</h1>
+      <p class="lede">Nomni yozing — Aurum o'nlab nafis konseptlarni yaratadi. Ikon, ramka, rang va shriftni o'zingiz sozlang, so'ng SVG yoki yuqori sifatli PNG sifatida yuklab oling.</p>
+      <form class="hero-form" id="heroForm">
+        <input id="heroName" type="text" placeholder="Brend nomini yozing…" maxlength="28" autocomplete="off" aria-label="Brend nomi">
+        <button class="btn btn-gold" type="submit">Logo yaratish</button>
+      </form>
+      <ul class="facts">
+        <li><b>17</b> ikon</li><li><b>7</b> ramka</li><li><b>10</b> palitra</li><li><b>12</b> shrift</li>
+      </ul>
+    </div>
+    <div class="hero-show" id="heroShow" aria-hidden="true"></div>
+  </section>
+
+  <section id="studio" class="section">
+    <div class="sec-head">
+      <p class="eyebrow">01 — Studiya</p>
+      <h2>Logotipingizni <em>yarating</em></h2>
+    </div>
+
+    <div class="studio">
+      <div class="preview-col">
+        <div class="stage" id="stage" data-bg="dark">
+          <div class="stage-inner" id="preview"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-gold" id="dlSvg">SVG yuklab olish</button>
+          <button class="btn btn-line" id="dlPng">PNG yuklab olish</button>
+          <button class="btn btn-line" id="copySvg">SVG nusxalash</button>
+          <button class="btn btn-line" id="saveBtn">♡ Saqlash</button>
+          <button class="btn btn-ghost" id="shuffleBtn">⟳ Tasodifiy</button>
+        </div>
+        <p class="note" id="exportNote">Shriftlar SVG ichiga joylanadi — fayl istalgan joyda bir xil ko'rinadi.</p>
+      </div>
+
+      <aside class="panel" id="panel">
+        <div class="field">
+          <label for="name">Brend nomi</label>
+          <input id="name" type="text" maxlength="28" value="Aurelia" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="tagline">Shior (ixtiyoriy)</label>
+          <input id="tagline" type="text" maxlength="44" value="Atelier & Jewelry" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label>Ikon</label>
+          <div class="grid glyphs" id="glyphGrid"></div>
+        </div>
+        <div class="field">
+          <label>Ramka</label>
+          <div class="grid frames" id="frameGrid"></div>
+          <div class="switches">
+            <label class="sw"><input type="checkbox" id="filled"><span></span>To'ldirilgan ramka</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Palitra</label>
+          <div class="swatches" id="palGrid"></div>
+        </div>
+        <div class="field">
+          <label>Shrift</label>
+          <div class="fonts" id="fontGrid"></div>
+        </div>
+        <div class="field">
+          <label>Maket</label>
+          <div class="chips" id="layoutGrid"></div>
+        </div>
+        <div class="field">
+          <label>Fon</label>
+          <div class="chips" id="bgGrid"></div>
+        </div>
+
+        <div class="field sliders">
+          <div class="rng"><span>Ikon o'lchami</span><input type="range" id="iconScale" min="50" max="150" step="1"><output></output></div>
+          <div class="rng"><span>Matn o'lchami</span><input type="range" id="textScale" min="50" max="150" step="1"><output></output></div>
+          <div class="rng"><span>Harf oralig'i</span><input type="range" id="spacing" min="-3" max="40" step="1"><output></output></div>
+        </div>
+        <div class="field switches">
+          <label class="sw"><input type="checkbox" id="upper"><span></span>BOSH HARFLAR</label>
+          <label class="sw"><input type="checkbox" id="gradient"><span></span>Gradient</label>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="concepts" class="section">
+    <div class="sec-head row">
+      <div>
+        <p class="eyebrow">02 — G'oyalar</p>
+        <h2>Nomingiz uchun <em>konseptlar</em></h2>
+      </div>
+      <button class="btn btn-line" id="moreConcepts">⟳ Yangi variantlar</button>
+    </div>
+    <div class="concepts" id="conceptGrid"></div>
+  </section>
+
+  <section id="mockups" class="section">
+    <div class="sec-head">
+      <p class="eyebrow">03 — Mockuplar</p>
+      <h2>Amalda <em>qanday ko'rinadi</em></h2>
+    </div>
+    <div class="mocks">
+      <figure class="mock m-card">
+        <div class="card-wrap">
+          <div class="bcard back" id="mkCardBack"></div>
+          <div class="bcard front" id="mkCardFront"></div>
+        </div>
+        <figcaption>Vizitka</figcaption>
+      </figure>
+      <figure class="mock m-sign">
+        <div class="sign-wall"><div class="sign" id="mkSign"></div></div>
+        <figcaption>Peshtaxta</figcaption>
+      </figure>
+      <figure class="mock m-app">
+        <div class="app-row">
+          <div class="app-icon" id="mkApp1"></div>
+          <div class="app-icon round" id="mkApp2"></div>
+          <div class="app-icon light" id="mkApp3"></div>
+        </div>
+        <figcaption>Ilova ikonasi va avatar</figcaption>
+      </figure>
+      <figure class="mock m-banner">
+        <div class="banner" id="mkBanner"></div>
+        <figcaption>Ijtimoiy tarmoq muqovasi</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="saved" class="section">
+    <div class="sec-head">
+      <p class="eyebrow">04 — Kolleksiya</p>
+      <h2>Saqlangan <em>logotiplar</em></h2>
+    </div>
+    <div class="saved" id="savedGrid"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span class="brand-s">AURUM</span>
+  <span>Logotip studiyasi · barcha logotiplar brauzeringizda yaratiladi va sizniki bo'ladi</span>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
