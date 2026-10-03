@@ -170,3 +170,43 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,30px);background:#1b1b22;border:1px solid var(--g2);color:var(--tx);padding:12px 22px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.35s;z-index:99}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ── studiya v2 ── */
+[hidden]{display:none!important}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.tb-left{display:flex;gap:8px}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line2);background:rgba(255,255,255,.02);cursor:pointer;font-size:18px;line-height:1;transition:.2s}
+.icon-btn:hover:not(:disabled){border-color:var(--g2);color:var(--g1)}
+.icon-btn:disabled{opacity:.3;cursor:default}
+.actions.sub{margin-top:8px}
+.more-fmt{margin-top:14px;border:1px solid var(--line);border-radius:16px;padding:12px 16px}
+.more-fmt summary{cursor:pointer;font-size:13.5px;color:var(--mut)}
+.more-fmt .chips{margin-top:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two .field input{min-width:0}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{border:0;background:none;border-radius:10px;padding:9px 0;font-size:13px;cursor:pointer;color:var(--mut);transition:.2s}
+.tabs button.on{background:var(--gold);color:#1a1205;font-weight:500}
+.pane{display:grid;gap:22px}
+.cnt{color:var(--dim);letter-spacing:.05em;text-transform:none;margin-left:6px;font-weight:300}
+.scroll{max-height:268px;overflow:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+.glyphs.scroll{grid-template-columns:repeat(6,1fr)}
+.fonts.scroll{max-height:320px;margin-top:10px}
+.panel{max-height:calc(100vh - 110px)}
+.layouts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.lay{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer;text-align:center;font-size:12.5px;color:var(--mut);transition:.2s}
+.lay svg{width:100%;height:56px;display:block;margin-bottom:6px}
+.lay:hover{border-color:var(--line2)}
+.lay.on{border-color:var(--g2);color:var(--g1);background:rgba(212,168,67,.09)}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.clr{display:grid;gap:6px;justify-items:center;font-size:11.5px;color:var(--mut);cursor:pointer}
+.clr input{-webkit-appearance:none;appearance:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--line2);padding:0;background:none;cursor:pointer}
+.clr input::-webkit-color-swatch-wrapper{padding:0}
+.clr input::-webkit-color-swatch{border:0;border-radius:50%}
+.clr input::-moz-color-swatch{border:0;border-radius:50%}
+.switches.col{flex-direction:column;gap:16px;margin-top:0}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap}
+.cc .sim{position:absolute;left:10px;top:10px;border:1px solid var(--line2);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;cursor:pointer;opacity:0;transition:.25s}
+.cc:hover .sim{opacity:1}
+@media(hover:none){.cc .sim{opacity:.85}}
+@media(max-width:520px){.two{grid-template-columns:1fr}.tabs button{font-size:12px}}

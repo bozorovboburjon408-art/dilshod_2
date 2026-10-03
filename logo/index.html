@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aurum — Premium logotip studiyasi</title>
-<meta name="description" content="Brendingiz uchun premium logotip yarating: 17 ikon, 7 ramka, 10 palitra, 12 shrift. SVG va PNG yuklab oling.">
+<meta name="description" content="Brendingiz uchun premium logotip yarating: 70 dan ortiq ikon, emblema maketi, 45 shrift, o'z ranglaringiz, effektlar va brend taxtasi.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f6dc8f'/%3E%3Cstop offset='1' stop-color='%239a6b1c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='%230b0b0d'/%3E%3Cpath d='M50 16 80 80H64L50 46 36 80H20Z' fill='url(%23g)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="fontlink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,13 +32,13 @@
     <div class="hero-copy">
       <p class="eyebrow">Premium logotip studiyasi</p>
       <h1>Brendingizga <em>munosib</em> logotip — bir necha soniyada</h1>
-      <p class="lede">Nomni yozing — Aurum o'nlab nafis konseptlarni yaratadi. Ikon, ramka, rang va shriftni o'zingiz sozlang, so'ng SVG yoki yuqori sifatli PNG sifatida yuklab oling.</p>
+      <p class="lede">Nomni yozing — Aurum o'nlab nafis konseptlarni yaratadi. Ikon, ramka, rang, shrift va effektlarni o'zingiz sozlang, so'ng SVG, PNG yoki to'liq brend taxtasi sifatida yuklab oling.</p>
       <form class="hero-form" id="heroForm">
         <input id="heroName" type="text" placeholder="Brend nomini yozing…" maxlength="28" autocomplete="off" aria-label="Brend nomi">
         <button class="btn btn-gold" type="submit">Logo yaratish</button>
       </form>
       <ul class="facts">
-        <li><b>17</b> ikon</li><li><b>7</b> ramka</li><li><b>10</b> palitra</li><li><b>12</b> shrift</li>
+        <li><b>0</b> ikon</li><li><b>0</b> ramka</li><li><b>0</b> palitra</li><li><b>0</b> shrift</li>
       </ul>
     </div>
     <div class="hero-show" id="heroShow" aria-hidden="true"></div>
@@ -46,71 +46,137 @@
 
   <section id="studio" class="section">
     <div class="sec-head">
-      <p class="eyebrow">01 — Studiya</p>
+      <p class="eyebrow">Studiya</p>
       <h2>Logotipingizni <em>yarating</em></h2>
     </div>
 
     <div class="studio">
       <div class="preview-col">
+        <div class="toolbar">
+          <div class="tb-left">
+            <button class="icon-btn" id="undoBtn" title="Bekor qilish (Ctrl+Z)" aria-label="Bekor qilish">↶</button>
+            <button class="icon-btn" id="redoBtn" title="Qaytarish (Ctrl+Shift+Z)" aria-label="Qaytarish">↷</button>
+          </div>
+          <div class="chips tb-right" id="bgGrid" aria-label="Fon"></div>
+        </div>
         <div class="stage" id="stage" data-bg="dark">
           <div class="stage-inner" id="preview"></div>
         </div>
         <div class="actions">
           <button class="btn btn-gold" id="dlSvg">SVG yuklab olish</button>
           <button class="btn btn-line" id="dlPng">PNG yuklab olish</button>
-          <button class="btn btn-line" id="copySvg">SVG nusxalash</button>
+          <button class="btn btn-line" id="dlSheet">Brend taxtasi</button>
           <button class="btn btn-line" id="saveBtn">♡ Saqlash</button>
-          <button class="btn btn-ghost" id="shuffleBtn">⟳ Tasodifiy</button>
         </div>
-        <p class="note" id="exportNote">Shriftlar SVG ichiga joylanadi — fayl istalgan joyda bir xil ko'rinadi.</p>
+        <div class="actions sub">
+          <button class="btn btn-ghost" id="shuffleBtn">⟳ Tasodifiy</button>
+          <button class="btn btn-ghost" id="mutateBtn">✦ Variatsiya</button>
+          <button class="btn btn-ghost" id="copySvg">SVG nusxalash</button>
+        </div>
+        <details class="more-fmt">
+          <summary>Boshqa formatlar</summary>
+          <div class="chips" id="fmtGrid">
+            <button class="chip" data-x="png512">PNG 512</button>
+            <button class="chip" data-x="png1024">PNG 1024</button>
+            <button class="chip" data-x="png4096">PNG 4096</button>
+            <button class="chip" data-x="pngT">Shaffof PNG</button>
+            <button class="chip" data-x="svgBlack">Qora SVG</button>
+            <button class="chip" data-x="svgWhite">Oq SVG</button>
+            <button class="chip" data-x="favicon">Favicon 256</button>
+          </div>
+        </details>
+        <p class="note">Shriftlar SVG ichiga joylanadi, shuning uchun fayl istalgan joyda bir xil ko'rinadi.</p>
       </div>
 
       <aside class="panel" id="panel">
-        <div class="field">
-          <label for="name">Brend nomi</label>
-          <input id="name" type="text" maxlength="28" value="Aurelia" autocomplete="off">
-        </div>
-        <div class="field">
-          <label for="tagline">Shior (ixtiyoriy)</label>
-          <input id="tagline" type="text" maxlength="44" value="Atelier & Jewelry" autocomplete="off">
-        </div>
-
-        <div class="field">
-          <label>Ikon</label>
-          <div class="grid glyphs" id="glyphGrid"></div>
-        </div>
-        <div class="field">
-          <label>Ramka</label>
-          <div class="grid frames" id="frameGrid"></div>
-          <div class="switches">
-            <label class="sw"><input type="checkbox" id="filled"><span></span>To'ldirilgan ramka</label>
+        <div class="two">
+          <div class="field">
+            <label for="name">Brend nomi</label>
+            <input id="name" type="text" maxlength="28" value="Aurelia" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="tagline">Shior</label>
+            <input id="tagline" type="text" maxlength="44" value="Atelier & Jewelry" autocomplete="off">
           </div>
         </div>
-        <div class="field">
-          <label>Palitra</label>
-          <div class="swatches" id="palGrid"></div>
-        </div>
-        <div class="field">
-          <label>Shrift</label>
-          <div class="fonts" id="fontGrid"></div>
-        </div>
-        <div class="field">
-          <label>Maket</label>
-          <div class="chips" id="layoutGrid"></div>
-        </div>
-        <div class="field">
-          <label>Fon</label>
-          <div class="chips" id="bgGrid"></div>
+
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-tab="icon" class="on">Ikon</button>
+          <button role="tab" data-tab="text">Matn</button>
+          <button role="tab" data-tab="color">Rang</button>
+          <button role="tab" data-tab="layout">Maket</button>
+          <button role="tab" data-tab="fx">Effekt</button>
         </div>
 
-        <div class="field sliders">
-          <div class="rng"><span>Ikon o'lchami</span><input type="range" id="iconScale" min="50" max="150" step="1"><output></output></div>
-          <div class="rng"><span>Matn o'lchami</span><input type="range" id="textScale" min="50" max="150" step="1"><output></output></div>
-          <div class="rng"><span>Harf oralig'i</span><input type="range" id="spacing" min="-3" max="40" step="1"><output></output></div>
+        <div class="pane" data-pane="icon">
+          <div class="field">
+            <label>Ikon <span class="cnt" id="glyphCnt"></span></label>
+            <div class="grid glyphs scroll" id="glyphGrid"></div>
+          </div>
+          <div class="field">
+            <label>Ramka</label>
+            <div class="grid frames" id="frameGrid"></div>
+            <div class="switches"><label class="sw"><input type="checkbox" id="filled"><span></span>To'ldirilgan ramka</label></div>
+          </div>
+          <div class="field sliders">
+            <div class="rng"><span>Ikon o'lchami</span><input type="range" id="iconScale" min="40" max="170" step="1"><output></output></div>
+            <div class="rng"><span>Ikon burilishi</span><input type="range" id="rotate" min="-180" max="180" step="5"><output></output></div>
+          </div>
         </div>
-        <div class="field switches">
-          <label class="sw"><input type="checkbox" id="upper"><span></span>BOSH HARFLAR</label>
-          <label class="sw"><input type="checkbox" id="gradient"><span></span>Gradient</label>
+
+        <div class="pane" data-pane="text" hidden>
+          <div class="field">
+            <label>Shrift <span class="cnt" id="fontCnt"></span></label>
+            <div class="chips" id="fontCats"></div>
+            <div class="fonts scroll" id="fontGrid"></div>
+          </div>
+          <div class="field">
+            <label>Qalinlik</label>
+            <div class="chips" id="weightGrid"></div>
+          </div>
+          <div class="field sliders">
+            <div class="rng"><span>Matn o'lchami</span><input type="range" id="textScale" min="40" max="170" step="1"><output></output></div>
+            <div class="rng"><span>Harf oralig'i</span><input type="range" id="spacing" min="-3" max="40" step="1"><output></output></div>
+          </div>
+          <div class="field switches">
+            <label class="sw"><input type="checkbox" id="upper"><span></span>BOSH HARFLAR</label>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="color" hidden>
+          <div class="field">
+            <label>Palitra</label>
+            <div class="swatches" id="palGrid"></div>
+          </div>
+          <div class="field">
+            <label>O'z ranglaringiz</label>
+            <div class="colors">
+              <label class="clr"><input type="color" id="c1" value="#d4a843"><span>Ikon 1</span></label>
+              <label class="clr"><input type="color" id="c2" value="#9a6b1c"><span>Ikon 2</span></label>
+              <label class="clr"><input type="color" id="cT" value="#f4ead0"><span>Matn</span></label>
+              <label class="clr"><input type="color" id="cBg" value="#0b0b0d"><span>Fon</span></label>
+            </div>
+            <button class="btn btn-line sm" id="resetColors" type="button">Palitraga qaytish</button>
+          </div>
+          <div class="field switches">
+            <label class="sw"><input type="checkbox" id="gradient"><span></span>Gradient ikon</label>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="layout" hidden>
+          <div class="field">
+            <label>Maket</label>
+            <div class="layouts" id="layoutGrid"></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="fx" hidden>
+          <div class="field switches col">
+            <label class="sw"><input type="checkbox" id="shadow"><span></span>Soya</label>
+            <label class="sw"><input type="checkbox" id="shine"><span></span>Yaltirash (ikonda)</label>
+            <label class="sw"><input type="checkbox" id="textGrad"><span></span>Gradient matn</label>
+            <label class="sw"><input type="checkbox" id="outline"><span></span>Konturli matn</label>
+          </div>
         </div>
       </aside>
     </div>
@@ -119,17 +185,20 @@
   <section id="concepts" class="section">
     <div class="sec-head row">
       <div>
-        <p class="eyebrow">02 — G'oyalar</p>
+        <p class="eyebrow">G'oyalar</p>
         <h2>Nomingiz uchun <em>konseptlar</em></h2>
       </div>
-      <button class="btn btn-line" id="moreConcepts">⟳ Yangi variantlar</button>
+      <div class="row-btns">
+        <button class="btn btn-line" id="moreConcepts">⟳ Yangi to'plam</button>
+        <button class="btn btn-line" id="addConcepts">+ Yana 12 ta</button>
+      </div>
     </div>
     <div class="concepts" id="conceptGrid"></div>
   </section>
 
   <section id="mockups" class="section">
     <div class="sec-head">
-      <p class="eyebrow">03 — Mockuplar</p>
+      <p class="eyebrow">Mockuplar</p>
       <h2>Amalda <em>qanday ko'rinadi</em></h2>
     </div>
     <div class="mocks">
@@ -161,7 +230,7 @@
 
   <section id="saved" class="section">
     <div class="sec-head">
-      <p class="eyebrow">04 — Kolleksiya</p>
+      <p class="eyebrow">Kolleksiya</p>
       <h2>Saqlangan <em>logotiplar</em></h2>
     </div>
     <div class="saved" id="savedGrid"></div>
