@@ -402,9 +402,15 @@ async function renderSaved() {
 }
 
 /* ───────── eksport ───────── */
-function download(blob, filename) {
+async function download(blob, filename) {
+  // Artifact ko'rinishida yuklash faqat "downloads" imkoniyati orqali ishlaydi.
+  try {
+    const d = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+    if (d) { await d.save({ filename, data: blob }); return true; }
+  } catch (e) { if (e && e.code === 'declined') return false; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  return true;
 }
 async function busy(btn, fn) {
   const t = btn.textContent; btn.disabled = true; btn.textContent = 'Tayyorlanmoqda…';
@@ -413,7 +419,7 @@ async function busy(btn, fn) {
 function bindActions() {
   $('#dlSvg').addEventListener('click', e => busy(e.currentTarget, async () => {
     await ensureFonts(state); const r = await exportSvg(state);
-    download(new Blob([r.svg], { type: 'image/svg+xml' }), slug(state.name) + '-logo.svg'); toast('SVG yuklab olindi');
+    if (await download(new Blob([r.svg], { type: 'image/svg+xml' }), slug(state.name) + '-logo.svg')) toast('SVG yuklab olindi');
   }));
   $('#dlPng').addEventListener('click', e => busy(e.currentTarget, async () => {
     await ensureFonts(state); const r = await exportSvg(state);
@@ -423,10 +429,10 @@ function bindActions() {
     const cv = document.createElement('canvas'); cv.width = Math.round(r.w * k); cv.height = Math.round(r.h * k);
     cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url);
     const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
-    download(blob, slug(state.name) + '-logo.png'); toast('PNG yuklab olindi' + (state.bg === 'transparent' ? ' (shaffof fon)' : ''));
+    if (await download(blob, slug(state.name) + '-logo.png')) toast('PNG yuklab olindi' + (state.bg === 'transparent' ? ' (shaffof fon)' : ''));
   }));
   $('#copySvg').addEventListener('click', e => busy(e.currentTarget, async () => {
-    const r = await exportSvg(state); await navigator.clipboard.writeText(r.svg); toast('SVG kodi nusxalandi');
+    const r = await exportSvg(state); await navigator.clipboard.writeText(r.svg).catch(() => { throw new Error('nusxalash taqiqlangan'); }); toast('SVG kodi nusxalandi');
   }));
   $('#saveBtn').addEventListener('click', () => {
     const a = loadSaved(); a.unshift({ ...state }); storeSaved(a.slice(0, 24)); renderSaved(); toast('Kolleksiyaga saqlandi');
