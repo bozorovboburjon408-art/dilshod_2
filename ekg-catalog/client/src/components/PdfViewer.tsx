@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import * as pdfjs from 'pdfjs-dist';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 
-pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+// Single-file build embeds the worker source in <script id="pdf-worker">; otherwise it is served by Vite.
+const embedded = typeof document !== 'undefined' ? document.getElementById('pdf-worker')?.textContent : null;
+pdfjs.GlobalWorkerOptions.workerSrc = embedded
+  ? URL.createObjectURL(new Blob([embedded.replace(/<\\\/script/g, '</script')], { type: 'text/javascript' }))
+  : new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
+const toSource = (url: string) => {
+  if (!url.startsWith('data:')) return { url };
+  const bin = atob(url.slice(url.indexOf(',') + 1));
+  return { data: Uint8Array.from(bin, (c) => c.charCodeAt(0)) };
+};
 
 export function PdfViewer({ url, page: initial = 1, onClose, title }: { url: string; page?: number; onClose?: () => void; title?: string }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -14,7 +23,7 @@ export function PdfViewer({ url, page: initial = 1, onClose, title }: { url: str
 
   useEffect(() => {
     let dead = false; setDoc(null); setErr(null);
-    pdfjs.getDocument(url).promise.then((d) => { if (!dead) { setDoc(d); setPage(Math.min(Math.max(initial, 1), d.numPages)); } }, (e) => !dead && setErr(String(e?.message ?? e)));
+    pdfjs.getDocument(toSource(url)).promise.then((d) => { if (!dead) { setDoc(d); setPage(Math.min(Math.max(initial, 1), d.numPages)); } }, (e) => !dead && setErr(String(e?.message ?? e)));
     return () => { dead = true; };
   }, [url, initial]);
 
@@ -41,7 +50,7 @@ export function PdfViewer({ url, page: initial = 1, onClose, title }: { url: str
         <button className="btn" disabled={!doc || page >= doc.numPages} onClick={() => setPage((p) => p + 1)}>›</button>
         <button className="btn" onClick={() => setScale((s) => Math.max(0.5, s - 0.2))}>−</button>
         <button className="btn" onClick={() => setScale((s) => Math.min(3, s + 0.2))}>＋</button>
-        <a className="btn" href={url} target="_blank" rel="noreferrer">Yangi oynada</a>
+        {!url.startsWith('data:') && <a className="btn" href={url} target="_blank" rel="noreferrer">Yangi oynada</a>}
         {onClose && <button className="btn btn-on" onClick={onClose}>✕ Yopish</button>}
       </div>
       <div className="flex-1 overflow-auto p-4 text-center">

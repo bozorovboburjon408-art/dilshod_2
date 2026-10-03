@@ -2,6 +2,8 @@ import type { Catalog } from './types';
 
 /** Live API when a server is present; otherwise a read-only snapshot (catalog.json) so the static demo works. */
 export async function fetchCatalog(machine = 'EKG-10'): Promise<Catalog> {
+  const inline = document.getElementById('catalog-data'); // single-file demo build: data is embedded, no network
+  if (inline?.textContent) { const c: Catalog = JSON.parse(inline.textContent); c.store = 'static-demo'; return c; }
   try {
     const r = await fetch(`/api/catalog?machine=${encodeURIComponent(machine)}`);
     if (r.ok && (r.headers.get('content-type') || '').includes('json')) return await r.json();
