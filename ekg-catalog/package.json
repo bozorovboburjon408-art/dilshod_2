@@ -1,0 +1,14 @@
+{
+  "name": "ekg-catalog",
+  "private": true,
+  "version": "0.1.0",
+  "description": "EKG-10 interactive 3D digital spare parts catalog",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "db:schema": "npm run db:schema -w server"
+  },
+  "devDependencies": { "concurrently": "^9.0.1" }
+}

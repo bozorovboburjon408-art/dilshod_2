@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { /* light: white + metal gray */
+  --bg: 244 245 247; --panel: 255 255 255; --raised: 236 238 241; --line: 208 212 218;
+  --ink: 28 31 36; --mute: 105 112 122; --accent: 232 106 10;
+}
+.dark { /* dark graphite */
+  --bg: 22 24 27; --panel: 30 33 37; --raised: 41 45 51; --line: 58 63 71;
+  --ink: 235 237 240; --mute: 142 149 160; --accent: 255 122 26;
+}
+html, body, #root { height: 100%; }
+body { @apply bg-bg text-ink font-sans antialiased; overscroll-behavior: none; }
+canvas { touch-action: none; outline: none; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgb(var(--line)); border-radius: 4px; }
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-1.5 rounded border border-line bg-panel/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:border-accent hover:text-accent select-none; }
+  .btn-on { @apply border-accent bg-accent text-white hover:text-white; }
+  .btn-primary { @apply rounded bg-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white hover:opacity-90; }
+  .input { @apply w-full rounded border border-line bg-raised px-3 py-2 text-sm outline-none focus:border-accent; }
+  .label { @apply mb-1 block text-[10px] font-semibold uppercase tracking-wider text-mute; }
+  .th { @apply px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-mute; }
+  .td { @apply px-3 py-2 text-sm; }
+  .chip { @apply inline-block rounded border border-line px-1.5 py-0.5 font-mono text-[10px] text-mute; }
+}
