@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onlayn imtihon</title>
+<link rel="stylesheet" href="exam.css">
+</head>
+<body>
+<header class="top"><b>🖥 Onlayn imtihon</b><span id="timer" hidden></span></header>
+
+<main id="setup" class="card">
+  <h1>Mavzu kiriting — test tuziladi</h1>
+  <label>Mavzu
+    <input id="topic" placeholder="Masalan: Fotosintez, O'zbekiston tarixi, Informatika…" autofocus>
+  </label>
+  <div class="row">
+    <label>Savollar soni <input id="count" type="number" min="5" max="40" value="10"></label>
+    <label>Vaqt (daqiqa) <input id="minutes" type="number" min="1" max="180" value="10"></label>
+  </div>
+  <button id="gen" class="primary">Test tuzish</button>
+  <p id="msg" class="msg"></p>
+  <details>
+    <summary>O'z savollarimni kiritaman</summary>
+    <p class="hint">Har savol bo'sh qator bilan ajratiladi:<br><code>Savol matni?<br>A) variant<br>B) variant<br>C) variant<br>D) variant<br>Javob: B</code></p>
+    <textarea id="paste" rows="8"></textarea>
+    <button id="usePaste">Shu savollar bilan boshlash</button>
+  </details>
+</main>
+
+<main id="ready" class="card" hidden>
+  <h1 id="rTitle"></h1>
+  <p id="rInfo"></p>
+  <ul class="rules"><li>Har savolda bitta to'g'ri javob bor.</li><li>Savollar orasida erkin o'tishingiz va javobni o'zgartirishingiz mumkin.</li><li>Vaqt tugasa imtihon avtomatik yakunlanadi.</li></ul>
+  <button id="start" class="primary">Imtihonni boshlash</button>
+  <button id="back">Orqaga</button>
+</main>
+
+<div id="exam" class="exam" hidden>
+  <section class="qbox card">
+    <div class="qhead"><span id="qnum"></span><button id="flag">🚩 Belgilash</button></div>
+    <h2 id="qtext"></h2>
+    <div id="opts" role="radiogroup"></div>
+    <div class="nav">
+      <button id="prev">← Oldingi</button>
+      <button id="next" class="primary">Keyingi →</button>
+    </div>
+  </section>
+  <aside class="pal card">
+    <h3>Savollar</h3>
+    <div id="grid"></div>
+    <p class="legend"><i class="a"></i>javob berilgan <i class="f"></i>belgilangan <i class="c"></i>joriy</p>
+    <p id="prog"></p>
+    <button id="finish" class="danger">Imtihonni yakunlash</button>
+  </aside>
+</div>
+
+<main id="result" class="card" hidden>
+  <h1>Natija</h1>
+  <div class="score"><div id="pct"></div><div id="detail"></div><div id="grade"></div></div>
+  <div class="row"><button id="again" class="primary">Yangi test</button><button id="retry">Shu testni qayta topshirish</button></div>
+  <h2>Javoblar tahlili</h2>
+  <div id="review"></div>
+</main>
+
+<div id="dlg" class="overlay" hidden><div class="card"><p id="dlgText"></p><div class="row"><button id="dlgNo">Yo'q</button><button id="dlgYes" class="danger">Ha</button></div></div></div>
+<script src="bank.js"></script>
+<script src="exam.js"></script>
+</body>
+</html>

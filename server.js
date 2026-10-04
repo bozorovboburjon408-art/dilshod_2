@@ -106,10 +106,42 @@ async function forge(body) {
   try { return JSON.parse(out); } catch { throw Object.assign(new Error("Model javobini o'qib bo'lmadi"), { status: 502 }); }
 }
 
+// ---- IMTIHON: mavzu bo'yicha test savollarini Claude tuzadi ----
+const EXAM_SYSTEM = `Siz tajribali o'qituvchi va test tuzuvchisiz. Berilgan mavzu bo'yicha imtihon testi tuzing.
+Qoidalar: savollar o'zbek tilida (lotin); har savolda aynan 4 ta variant va faqat bitta to'g'ri javob; variantlar ishonarli va bir xil uzunlikda; to'g'ri javob o'rni (correct: 0-3) aralash bo'lsin; savollar oson, o'rta va qiyin darajada aralash; takrorlanmasin; faqat aniq, tekshirilgan faktlar; explanation — to'g'ri javobning 1 gaplik izohi.`;
+
+async function exam(body) {
+  const topic = String(body.topic || '').trim().slice(0, 200);
+  const count = Math.min(Math.max(parseInt(body.count) || 10, 5), 40);
+  if (!topic) throw Object.assign(new Error('Mavzu kiritilmagan'), { status: 400 });
+  const schema = { type: 'object', additionalProperties: false, required: ['questions'], properties: { questions: { type: 'array', items: {
+    type: 'object', additionalProperties: false, required: ['q', 'options', 'correct', 'explanation'],
+    properties: { q: { type: 'string' }, options: { type: 'array', items: { type: 'string' } }, correct: { type: 'integer' }, explanation: { type: 'string' } } } } } };
+  const msg = await client.messages.create({
+    model: 'claude-opus-5-5',
+    max_tokens: 16000,
+    system: EXAM_SYSTEM,
+    output_config: { format: { type: 'json_schema', schema } },
+    messages: [{ role: 'user', content: `Mavzu: ${topic}\nSavollar soni: ${count}` }],
+  });
+  if (msg.stop_reason === 'refusal') throw Object.assign(new Error("Model so'rovni rad etdi"), { status: 422 });
+  let data;
+  try { data = JSON.parse(msg.content.filter(b => b.type === 'text').map(b => b.text).join('')); } catch { throw Object.assign(new Error("Model javobini o'qib bo'lmadi"), { status: 502 }); }
+  const questions = (data.questions || []).filter(x => x.q && Array.isArray(x.options) && x.options.length === 4 && x.correct >= 0 && x.correct < 4);
+  if (!questions.length) throw Object.assign(new Error('Savollar tuzilmadi'), { status: 502 });
+  return { topic, questions };
+}
+
 http.createServer(async (req, res) => {
   const send = (code, obj) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };
   try {
     if (req.method === 'GET' && req.url === '/api/status') return send(200, { ai: !!process.env.ANTHROPIC_API_KEY });
+    if (req.method === 'POST' && req.url === '/api/exam') {
+      if (!process.env.ANTHROPIC_API_KEY) return send(503, { error: 'ANTHROPIC_API_KEY o\u2018rnatilmagan' });
+      let raw = '';
+      for await (const c of req) { raw += c; if (raw.length > 1e5) return send(413, { error: 'So\u2018rov juda katta' }); }
+      return send(200, await exam(JSON.parse(raw)));
+    }
     if (req.method === 'POST' && req.url === '/api/forge') {
       if (!process.env.ANTHROPIC_API_KEY) return send(503, { error: 'ANTHROPIC_API_KEY o\u2018rnatilmagan' });
       let raw = ''; let size = 0;
