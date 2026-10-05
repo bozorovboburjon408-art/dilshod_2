@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Egiluvchan yog'och generatori</title>
+<link rel="stylesheet" href="flex.css">
+</head>
+<body>
+<header class="top">
+  <h1>Egiluvchan yog'och generatori</h1>
+  <p>Lazer bilan kesish uchun "living hinge" naqshlari: bilaguzuk, quti, lampa, korpus. SVG va DXF yuklab oling.</p>
+</header>
+
+<main class="layout">
+  <section class="panel">
+    <h2>Naqsh</h2>
+    <div id="patterns" class="patterns"></div>
+
+    <h2>O'lchamlar (mm)</h2>
+    <label>Kenglik (egilish yo'nalishi) <output id="o-w"></output>
+      <input id="w" type="range" min="40" max="600" step="1" value="190"></label>
+    <label>Balandlik <output id="o-h"></output>
+      <input id="h" type="range" min="15" max="300" step="1" value="40"></label>
+    <label>Chekka bo'sh joy <output id="o-m"></output>
+      <input id="m" type="range" min="0" max="20" step="0.5" value="4"></label>
+
+    <h2>Kesim parametrlari</h2>
+    <label>Kesik uzunligi <output id="o-L"></output>
+      <input id="L" type="range" min="3" max="60" step="0.5" value="14"></label>
+    <label>Ko'prik (kesilmaydigan oraliq) <output id="o-g"></output>
+      <input id="g" type="range" min="0.5" max="10" step="0.1" value="2.5"></label>
+    <label>Qatorlar oralig'i <output id="o-s"></output>
+      <input id="s" type="range" min="1" max="12" step="0.1" value="3.2"></label>
+    <label id="row-a">Kesik kengligi / amplituda <output id="o-a"></output>
+      <input id="a" type="range" min="0.3" max="8" step="0.1" value="2"></label>
+    <label id="row-wl">To'lqin uzunligi <output id="o-wl"></output>
+      <input id="wl" type="range" min="4" max="40" step="0.5" value="14"></label>
+
+    <h2>Qo'shimcha</h2>
+    <label class="chk"><input id="frame" type="checkbox" checked> Tashqi kontur (kesish)</label>
+    <label class="chk"><input id="holes" type="checkbox" checked> Mahkamlash teshiklari</label>
+    <label class="chk"><input id="mirror" type="checkbox"> Hamma qatorni bir xil siljitish (shaxmatsiz)</label>
+
+    <div class="btns">
+      <button id="dl-svg">SVG yuklab olish</button>
+      <button id="dl-dxf" class="alt">DXF yuklab olish</button>
+    </div>
+  </section>
+
+  <section class="view">
+    <div class="stage" id="stage"></div>
+    <div class="stats" id="stats"></div>
+    <div class="tip" id="tip"></div>
+  </section>
+</main>
+<script src="flex.js"></script>
+</body>
+</html>

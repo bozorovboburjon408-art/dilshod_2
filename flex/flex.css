@@ -1,0 +1,25 @@
+:root{--bg:#f6f1e9;--card:#fff;--ink:#2b2118;--mut:#7a6a58;--acc:#a8602a;--line:#e0d4c3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+.top{padding:20px 16px;background:#3a2a1c;color:#f6e9d6}
+.top h1{margin:0 0 4px;font-size:22px}.top p{margin:0;opacity:.8}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px;max-width:1300px;margin:auto}
+.panel,.view{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:16px 0 8px}
+.panel h2:first-child{margin-top:0}
+label{display:block;margin:8px 0;font-size:14px}
+label output{float:right;color:var(--acc);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.chk{display:flex;gap:8px;align-items:center}
+.patterns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.patterns button{padding:8px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font:inherit;text-align:left}
+.patterns button.on{border-color:var(--acc);background:#fbefe2;font-weight:600}
+.btns{display:flex;gap:8px;margin-top:16px}
+.btns button{flex:1;padding:12px;border:0;border-radius:8px;background:var(--acc);color:#fff;font:600 14px inherit;cursor:pointer}
+.btns .alt{background:#3a2a1c}
+.stage{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fdf8f0;padding:10px}
+.stage svg{display:block;width:100%;height:auto;max-height:70vh}
+.stats{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;color:var(--mut)}
+.stats b{color:var(--ink)}
+.tip{margin-top:10px;padding:10px 12px;background:#fbefe2;border-radius:8px;font-size:13px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}
