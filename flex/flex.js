@@ -181,7 +181,10 @@ function render() {
   $('tip').textContent = p.tip + " Burchakni o'zgartirib egilish yo'nalishini tanlang: yog'och kesiklarga ko'ndalang egiladi. Yupqa (2–4 mm) fanera yoki MDF ishlating; ko'prik kichik bo'lsa egiluvchan, lekin mo'rt.";
 }
 
-function download(name, text, type) {
+async function download(name, text, type) {
+  let dl = null;
+  try { dl = window.claude && await window.claude.use('downloads'); } catch (e) {}
+  if (dl) { try { await dl.save({ filename: name, data: text }); } catch (e) {} return; }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type }));
   a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -195,5 +198,5 @@ $('file').addEventListener('change', async e => {
   render();
 });
 $('dl-svg').onclick = () => { const G = generate(); if (!G.empty) download(`flex-${pattern}.svg`, toSVG(G, false), 'image/svg+xml'); };
-$('dl-dxf').onclick = () => { const G = generate(); if (!G.empty) download(`flex-${pattern}.dxf`, toDXF(G), 'application/dxf'); };
+$('dl-dxf').onclick = () => { const G = generate(); if (!G.empty) download(`flex-${pattern}.${window.claude ? 'dxf.txt' : 'dxf'}`, toDXF(G), 'application/dxf'); };
 render();
