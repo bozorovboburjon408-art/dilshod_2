@@ -1,0 +1,7 @@
+select,input[type=text]{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+label select{margin-top:4px}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs button{padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.tabs button.on{border-color:var(--acc);background:var(--hl);font-weight:600}
+.stage svg{max-height:75vh}
+.stage text{font-family:system-ui,sans-serif}

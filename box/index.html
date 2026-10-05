@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lazer idish konstruktori</title>
+<link rel="stylesheet" href="../flex/flex.css">
+<link rel="stylesheet" href="box.css">
+</head>
+<body>
+<header class="top">
+  <h1>Lazer idish konstruktori</h1>
+  <p>Zinapoyali stend, konfet va quruq meva idishi, zargarlik qutisi: o'lchamni kiriting, lazer uchun qismlar (qulf-tishli) va yig'ilgan ko'rinish tayyor bo'ladi.</p>
+</header>
+
+<main class="layout">
+  <section class="panel">
+    <h2>Tayyor namunalar</h2>
+    <div id="presets" class="patterns"></div>
+
+    <h2>Tuzilishi</h2>
+    <label>Zinapoya pog'onalari <output id="o-T"></output>
+      <input id="T" type="range" min="1" max="6" step="1" value="3"></label>
+    <label>Har pog'onadagi bo'limlar <output id="o-C"></output>
+      <input id="C" type="range" min="1" max="10" step="1" value="4"></label>
+
+    <h2>O'lchamlar (mm)</h2>
+    <label>Ichki kenglik <output id="o-W"></output>
+      <input id="W" type="range" min="80" max="600" step="5" value="300"></label>
+    <label>Pog'ona chuqurligi <output id="o-D"></output>
+      <input id="D" type="range" min="30" max="200" step="1" value="70"></label>
+    <label>Old devor balandligi <output id="o-H"></output>
+      <input id="H" type="range" min="25" max="150" step="1" value="60"></label>
+    <label>Pog'onalar farqi (ko'tarilish) <output id="o-R"></output>
+      <input id="R" type="range" min="10" max="100" step="1" value="40"></label>
+
+    <h2>Orqa devor</h2>
+    <select id="back">
+      <option value="rect">To'g'ri</option>
+      <option value="arch" selected>Yarim doira (arka)</option>
+      <option value="perf">Arka + teshikli naqsh</option>
+    </select>
+    <label>Orqa devor ortiqcha balandligi <output id="o-backEx"></output>
+      <input id="backEx" type="range" min="2" max="120" step="1" value="30"></label>
+    <label id="row-ar">Arka balandligi <output id="o-ar"></output>
+      <input id="ar" type="range" min="20" max="150" step="1" value="60"></label>
+
+    <h2>Material va kesim</h2>
+    <label>Material qalinligi
+      <select id="t"><option>3</option><option>4</option><option>6</option></select></label>
+    <label>Qulf (tish) uzunligi <output id="o-tabw"></output>
+      <input id="tabw" type="range" min="6" max="30" step="1" value="12"></label>
+    <label>Kesim kengligi (kerf) <output id="o-kf"></output>
+      <input id="kf" type="range" min="0" max="0.4" step="0.05" value="0.1"></label>
+    <label>Varaq kengligi <output id="o-Sw"></output>
+      <input id="Sw" type="range" min="300" max="1200" step="10" value="600"></label>
+
+    <h2>Yozuv (logotip)</h2>
+    <label class="chk"><input id="engOn" type="checkbox" checked> Old devorga o'yib yozish</label>
+    <input id="engText" type="text" value="Mazali Mo" maxlength="30">
+
+    <div class="btns">
+      <button id="dl-svg">SVG yuklab olish</button>
+      <button id="dl-dxf" class="alt">DXF yuklab olish</button>
+    </div>
+  </section>
+
+  <section class="view">
+    <div class="tabs">
+      <button id="tab-asm" class="on">Yig'ilgan ko'rinish</button>
+      <button id="tab-flat">Kesish uchun qismlar</button>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div class="stats" id="stats"></div>
+    <div class="tip" id="tip"></div>
+  </section>
+</main>
+<script src="box.js"></script>
+</body>
+</html>
