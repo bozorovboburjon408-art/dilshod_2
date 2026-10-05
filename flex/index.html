@@ -9,7 +9,7 @@
 <body>
 <header class="top">
   <h1>Egiluvchan yog'och generatori</h1>
-  <p>Lazer bilan kesish uchun "living hinge" naqshlari: bilaguzuk, quti, lampa, korpus. SVG va DXF yuklab oling.</p>
+  <p>Istalgan tekis 2D yuzani (to'rtburchak, doira, o'z shaklingiz) egiluvchan qiling: naqsh shakl ichiga joylanadi. SVG va DXF yuklab oling.</p>
 </header>
 
 <main class="layout">
@@ -17,13 +17,22 @@
     <h2>Naqsh</h2>
     <div id="patterns" class="patterns"></div>
 
+    <h2>Yuza shakli</h2>
+    <div id="shapes" class="patterns"></div>
+    <label id="row-file">O'z shaklingiz (SVG fayl)
+      <input id="file" type="file" accept=".svg,image/svg+xml"></label>
+
     <h2>O'lchamlar (mm)</h2>
-    <label>Kenglik (egilish yo'nalishi) <output id="o-w"></output>
-      <input id="w" type="range" min="40" max="600" step="1" value="190"></label>
-    <label>Balandlik <output id="o-h"></output>
-      <input id="h" type="range" min="15" max="300" step="1" value="40"></label>
+    <label>Kenglik <output id="o-w"></output>
+      <input id="w" type="range" min="40" max="800" step="1" value="200"></label>
+    <label id="row-h">Balandlik <output id="o-h"></output>
+      <input id="h" type="range" min="15" max="400" step="1" value="60"></label>
+    <label id="row-r">Burchak radiusi <output id="o-r"></output>
+      <input id="r" type="range" min="0" max="60" step="1" value="10"></label>
     <label>Chekka bo'sh joy <output id="o-m"></output>
       <input id="m" type="range" min="0" max="20" step="0.5" value="4"></label>
+    <label>Naqsh burchagi (egilish yo'nalishi) <output id="o-ang"></output>
+      <input id="ang" type="range" min="0" max="180" step="1" value="0"></label>
 
     <h2>Kesim parametrlari</h2>
     <label>Kesik uzunligi <output id="o-L"></output>
@@ -39,7 +48,6 @@
 
     <h2>Qo'shimcha</h2>
     <label class="chk"><input id="frame" type="checkbox" checked> Tashqi kontur (kesish)</label>
-    <label class="chk"><input id="holes" type="checkbox" checked> Mahkamlash teshiklari</label>
     <label class="chk"><input id="mirror" type="checkbox"> Hamma qatorni bir xil siljitish (shaxmatsiz)</label>
 
     <div class="btns">

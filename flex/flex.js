@@ -1,124 +1,184 @@
-// Egiluvchan (living hinge) naqshlar generatori. Hamma shakl nuqtalar ketma-ketligi (polyline) sifatida
-// saqlanadi, shuning uchun SVG va DXF bir xil geometriyadan chiqadi.
+// Istalgan tekis 2D shaklni egiluvchan qiluvchi (living hinge) naqsh generatori.
+// Hamma narsa polyline sifatida saqlanadi: SVG va DXF bir xil geometriyadan chiqadi.
 const $ = id => document.getElementById(id);
 const PATTERNS = {
-  straight: { name: 'To\'g\'ri kesiklar', tip: 'Eng oddiy va kuchli naqsh. Kesiklar egilish o\'qiga parallel, qatorlar shaxmat tartibida.' },
-  wave:     { name: 'To\'lqinsimon', tip: 'Silliq to\'lqinli kesiklar: egiluvchanlik yuqori, ko\'rinishi chiroyli.', wave: true },
-  zigzag:   { name: 'Zigzag', tip: 'Sinuvchi chiziqlar. Amplituda kattalashsa cho\'ziluvchanlik ham oshadi.', wave: true },
-  lens:     { name: 'Baliq ko\'zi (lens)', tip: 'Rasmdagi kabi ochiq lens shakllari: yorug\'lik o\'tadi, lampa uchun juda mos.', width: true },
-  slot:     { name: 'Yumaloq uchli pazlar', tip: 'Uchlari yumaloq pazlar: kuchlanish uchlarda to\'planmaydi, yog\'och kam yoriladi.', width: true },
-  diamond:  { name: 'Romb to\'ri', tip: 'Romb shaklidagi teshiklar: cho\'ziladigan to\'rsimon sirt.', width: true },
+  straight: { name: "To'g'ri kesiklar", tip: "Eng oddiy va kuchli naqsh. Kesiklar egilish o'qiga parallel, qatorlar shaxmat tartibida." },
+  wave:     { name: "To'lqinsimon", tip: "Silliq to'lqinli kesiklar: egiluvchanlik yuqori, ko'rinishi chiroyli.", wave: true },
+  zigzag:   { name: 'Zigzag', tip: "Sinuvchi chiziqlar. Amplituda kattalashsa cho'ziluvchanlik ham oshadi.", wave: true },
+  lens:     { name: "Baliq ko'zi (lens)", tip: "Ochiq lens shakllari: yorug'lik o'tadi, lampa va bezak uchun mos.", closed: true },
+  slot:     { name: 'Yumaloq uchli pazlar', tip: "Uchlari yumaloq pazlar: kuchlanish uchlarda to'planmaydi, yog'och kam yoriladi.", closed: true },
+  diamond:  { name: "Romb to'ri", tip: "Romb teshiklar: cho'ziladigan to'rsimon sirt.", closed: true },
 };
-let pattern = 'lens';
+const SHAPES = { rect: "To'rtburchak", round: 'Yumaloq burchakli', ellipse: 'Doira / ellips', custom: "O'z shaklim (SVG)" };
+let pattern = 'lens', shape = 'rect', custom = null; // custom: {pts, w, h} (xom birlikda)
 
-const sliders = ['w','h','m','L','g','s','a','wl'];
+const sliders = ['w', 'h', 'r', 'm', 'ang', 'L', 'g', 's', 'a', 'wl'];
 const val = id => parseFloat($(id).value);
-const units = { w:' mm',h:' mm',m:' mm',L:' mm',g:' mm',s:' mm',a:' mm',wl:' mm' };
+const unit = id => id === 'ang' ? '°' : ' mm';
 
 function buildButtons() {
-  $('patterns').innerHTML = '';
-  for (const [k, p] of Object.entries(PATTERNS)) {
-    const b = document.createElement('button');
-    b.textContent = p.name; b.dataset.k = k;
-    b.onclick = () => { pattern = k; render(); };
-    $('patterns').appendChild(b);
-  }
-}
-
-// --- geometriya ---
-function cutsForColumn(c, x, p, O) {
-  const out = [];
-  const period = O.L + O.g;
-  const shift = O.mirror ? 0 : (c % 2) * period / 2;
-  const y0 = O.m, y1 = O.h - O.m;
-  for (let ys = y0 - period + shift; ys < y1; ys += period) {
-    const ye = ys + O.L;
-    const wave = p.wave;
-    if (wave || !p.width) { // chiziqli kesiklar (kesib olinadi)
-      const a = Math.max(ys, y0), b = Math.min(ye, y1);
-      if (b - a < Math.min(2, O.L / 2)) continue;
-      const pts = [], n = Math.max(2, Math.ceil((b - a) / 0.5));
-      for (let i = 0; i <= n; i++) {
-        const y = a + (b - a) * i / n;
-        let dx = 0;
-        if (pattern === 'wave') dx = O.a * Math.sin(2 * Math.PI * y / O.wl);
-        if (pattern === 'zigzag') { const t = ((y / O.wl) % 1 + 1) % 1; dx = O.a * (t < .5 ? 4 * t - 1 : 3 - 4 * t); }
-        pts.push([x + dx, y]);
-      }
-      out.push({ pts, closed: false });
-    } else { // yopiq shakllar: to'liq sig'sagina qoldiriladi
-      if (ys < y0 || ye > y1) continue;
-      const hw = O.a / 2, n = 24, pts = [];
-      const half = t => {
-        if (pattern === 'lens') return hw * Math.sin(Math.PI * t);
-        if (pattern === 'slot') { const r = Math.min(hw, O.L / 2), d = Math.min(t, 1 - t) * O.L; return d >= r ? hw : Math.sqrt(Math.max(0, hw * hw - Math.pow(hw * (r - d) / r, 2))) ; }
-        if (pattern === 'diamond') return hw * (1 - Math.abs(2 * t - 1));
-        return hw;
-      };
-      for (let i = 0; i <= n; i++) { const t = i / n; pts.push([x + half(t), ys + t * O.L]); }
-      for (let i = n; i >= 0; i--) { const t = i / n; pts.push([x - half(t), ys + t * O.L]); }
-      out.push({ pts, closed: true });
+  for (const [id, list, set] of [['patterns', PATTERNS, k => pattern = k], ['shapes', SHAPES, k => shape = k]]) {
+    for (const [k, v] of Object.entries(list)) {
+      const b = document.createElement('button');
+      b.textContent = v.name || v; b.dataset.k = k; b.dataset.g = id;
+      b.onclick = () => { set(k); render(); };
+      $(id).appendChild(b);
     }
   }
-  return out;
 }
 
+// ---------- kontur ----------
+function arc(pts, cx, cy, r, a0, a1, n = 12) {
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+}
+function outline(w, h, r) {
+  const P = [];
+  if (shape === 'rect') return [[0, 0], [w, 0], [w, h], [0, h]];
+  if (shape === 'round') {
+    r = Math.min(r, w / 2, h / 2);
+    if (r < 0.1) return [[0, 0], [w, 0], [w, h], [0, h]];
+    arc(P, w - r, r, r, -Math.PI / 2, 0); arc(P, w - r, h - r, r, 0, Math.PI / 2);
+    arc(P, r, h - r, r, Math.PI / 2, Math.PI); arc(P, r, r, r, Math.PI, 1.5 * Math.PI);
+    return P;
+  }
+  if (shape === 'ellipse') {
+    for (let i = 0; i < 180; i++) { const a = i * Math.PI / 90; P.push([w / 2 + w / 2 * Math.cos(a), h / 2 + h / 2 * Math.sin(a)]); }
+    return P;
+  }
+  const k = w / custom.w;
+  return custom.pts.map(q => [q[0] * k, q[1] * k]);
+}
+function pip(p, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
+  }
+  return c;
+}
+function dist2(p, poly) {
+  let m = Infinity;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[j], b = poly[i], dx = b[0] - a[0], dy = b[1] - a[1];
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1)));
+    const ex = a[0] + t * dx - p[0], ey = a[1] + t * dy - p[1];
+    m = Math.min(m, ex * ex + ey * ey);
+  }
+  return m;
+}
+
+// ---------- naqsh ----------
 function generate() {
-  const O = { w: val('w'), h: val('h'), m: val('m'), L: val('L'), g: val('g'), s: val('s'), a: val('a'), wl: val('wl'), mirror: $('mirror').checked };
-  const p = PATTERNS[pattern], shapes = [];
-  const margin = Math.max(O.m, 0) + (p.wave ? O.a : p.width ? O.a / 2 : 0);
-  let c = 0;
-  for (let x = margin + O.s / 2; x <= O.w - margin; x += O.s, c++) shapes.push(...cutsForColumn(c, x, p, O));
-  if ($('holes').checked) {
-    const r = 1.5, inset = Math.max(O.m / 2, 2.5);
-    for (const x of [inset, O.w - inset]) for (const y of [O.h * .25, O.h * .75]) {
-      const pts = []; for (let i = 0; i < 20; i++) pts.push([x + r * Math.cos(i * Math.PI / 10), y + r * Math.sin(i * Math.PI / 10)]);
-      shapes.push({ pts, closed: true, hole: true });
+  let w = val('w'), h = val('h');
+  if (shape === 'custom') { if (!custom) return { O: { w, h: 0 }, shapes: [], frame: null, empty: true }; h = custom.h * w / custom.w; }
+  const poly = outline(w, h, val('r'));
+  const O = { w, h, m: val('m'), L: val('L'), g: val('g'), s: val('s'), a: val('a'), wl: val('wl'), mirror: $('mirror').checked };
+  const p = PATTERNS[pattern], ang = val('ang') * Math.PI / 180, ca = Math.cos(ang), sa = Math.sin(ang);
+  const cx = w / 2, cy = h / 2, R = Math.hypot(w, h) / 2;
+  const m2 = O.m * O.m;
+  const world = ([x, y]) => [cx + x * ca - y * sa, cy + x * sa + y * ca];
+  const ok = q => q[0] >= O.m && q[1] >= O.m && q[0] <= w - O.m && q[1] <= h - O.m && pip(q, poly) && (O.m === 0 || dist2(q, poly) >= m2);
+  const period = O.L + O.g, minLen = Math.min(2, O.L / 2), shapes = [];
+
+  for (let c = 0, x = -R + O.s / 2; x < R; x += O.s, c++) {
+    const shift = O.mirror ? 0 : (c % 2) * period / 2;
+    for (let ys = -R - period + shift; ys < R; ys += period) {
+      const ye = ys + O.L;
+      if (!p.closed) {
+        const n = Math.max(2, Math.ceil(O.L / 1)), run = [];
+        const flush = () => { if (run.length > 1 && Math.hypot(run[run.length - 1][0] - run[0][0], run[run.length - 1][1] - run[0][1]) >= minLen) shapes.push({ pts: run.slice(), closed: false }); run.length = 0; };
+        for (let i = 0; i <= n; i++) {
+          const y = ys + O.L * i / n; let dx = 0;
+          if (pattern === 'wave') dx = O.a * Math.sin(2 * Math.PI * y / O.wl);
+          if (pattern === 'zigzag') { const t = ((y / O.wl) % 1 + 1) % 1; dx = O.a * (t < .5 ? 4 * t - 1 : 3 - 4 * t); }
+          const q = world([x + dx, y]);
+          if (ok(q)) run.push(q); else flush();
+        }
+        flush();
+      } else {
+        const hw = O.a / 2, n = 16, loc = [];
+        const half = t => {
+          if (pattern === 'lens') return hw * Math.sin(Math.PI * t);
+          if (pattern === 'diamond') return hw * (1 - Math.abs(2 * t - 1));
+          const r = Math.min(hw, O.L / 2), d = Math.min(t, 1 - t) * O.L;
+          return d >= r ? hw : hw * Math.sqrt(1 - Math.pow((r - d) / r, 2));
+        };
+        for (let i = 0; i <= n; i++) { const t = i / n; loc.push([x + half(t), ys + t * O.L]); }
+        for (let i = n; i >= 0; i--) { const t = i / n; loc.push([x - half(t), ys + t * O.L]); }
+        const pts = loc.map(world);
+        if (pts.every(ok)) shapes.push({ pts, closed: true });
+      }
     }
   }
-  const frame = $('frame').checked ? { pts: [[0,0],[O.w,0],[O.w,O.h],[0,O.h]], closed: true, frame: true } : null;
-  return { O, shapes, frame };
+  const frame = $('frame').checked ? { pts: poly, closed: true, frame: true } : null;
+  return { O, shapes, frame, poly };
 }
 
 const f = n => +n.toFixed(3);
 const pathD = s => 'M' + s.pts.map(q => f(q[0]) + ' ' + f(q[1])).join('L') + (s.closed ? 'Z' : '');
 
 function toSVG(G, preview) {
-  const { O, shapes, frame } = G;
-  const all = (frame ? [frame] : []).concat(shapes);
+  const { O, shapes, frame, poly } = G;
   const sw = preview ? 0.35 : 0.1;
-  const bg = preview ? `<rect width="${O.w}" height="${O.h}" fill="#e3bd8a"/>` : '';
   const stroke = preview ? '#3a2a1c' : '#ff0000';
-  const fill = preview ? '#fdf8f0' : 'none';
-  const paths = all.map(s => `<path d="${pathD(s)}" ${s.frame ? 'fill="none"' : `fill="${fill}"`}/>`).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${O.w}mm" height="${O.h}mm" viewBox="0 0 ${O.w} ${O.h}">${bg}<g stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round">${paths}</g></svg>`;
+  const wood = preview ? `<path d="${pathD({ pts: poly, closed: true })}" fill="#e3bd8a" stroke="none"/>` : '';
+  const all = (frame ? [frame] : []).concat(shapes);
+  const paths = all.map(s => `<path d="${pathD(s)}" fill="${s.frame || !preview ? 'none' : '#fdf8f0'}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${f(O.w)}mm" height="${f(O.h)}mm" viewBox="0 0 ${f(O.w)} ${f(O.h)}">${wood}<g stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round">${paths}</g></svg>`;
 }
 
 function toDXF(G) {
-  const { O, shapes, frame } = G;
-  const all = (frame ? [frame] : []).concat(shapes);
+  const all = (G.frame ? [G.frame] : []).concat(G.shapes);
   let d = '0\nSECTION\n2\nENTITIES\n';
   for (const s of all) {
     d += `0\nLWPOLYLINE\n8\nCUT\n90\n${s.pts.length}\n70\n${s.closed ? 1 : 0}\n`;
-    for (const q of s.pts) d += `10\n${f(q[0])}\n20\n${f(O.h - q[1])}\n`;
+    for (const q of s.pts) d += `10\n${f(q[0])}\n20\n${f(G.O.h - q[1])}\n`;
   }
   return d + '0\nENDSEC\n0\nEOF\n';
 }
 
+// ---------- SVG fayldan o'z shakli ----------
+function loadSVG(text) {
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const root = doc.documentElement;
+  if (!root || root.nodeName.toLowerCase() !== 'svg') throw new Error('SVG emas');
+  const host = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  host.style.cssText = 'position:absolute;left:-9999px;width:0;height:0';
+  document.body.appendChild(host);
+  let best = null;
+  try {
+    for (const el of root.querySelectorAll('path,polygon,rect,circle,ellipse')) {
+      const c = document.importNode(el, true); host.appendChild(c);
+      const len = c.getTotalLength(); if (!len) continue;
+      const n = Math.max(60, Math.min(600, Math.round(len / 2))), pts = [];
+      for (let i = 0; i < n; i++) { const q = c.getPointAtLength(len * i / n); pts.push([q.x, q.y]); }
+      const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+      const area = (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys));
+      if (!best || area > best.area) best = { pts, area };
+    }
+  } finally { host.remove(); }
+  if (!best) throw new Error('SVG ichida shakl topilmadi');
+  const x0 = Math.min(...best.pts.map(q => q[0])), y0 = Math.min(...best.pts.map(q => q[1]));
+  const pts = best.pts.map(q => [q[0] - x0, q[1] - y0]);
+  return { pts, w: Math.max(...pts.map(q => q[0])) || 1, h: Math.max(...pts.map(q => q[1])) || 1 };
+}
+
 function render() {
-  for (const id of sliders) $('o-' + id).textContent = $(id).value + units[id];
+  for (const id of sliders) $('o-' + id).textContent = $(id).value + unit(id);
   const p = PATTERNS[pattern];
-  document.querySelectorAll('#patterns button').forEach(b => b.classList.toggle('on', b.dataset.k === pattern));
+  document.querySelectorAll('.patterns button').forEach(b => b.classList.toggle('on', b.dataset.k === (b.dataset.g === 'shapes' ? shape : pattern)));
   $('row-a').style.display = pattern === 'straight' ? 'none' : '';
   $('row-wl').style.display = p.wave ? '' : 'none';
+  $('row-r').style.display = shape === 'round' ? '' : 'none';
+  $('row-h').style.display = shape === 'custom' ? 'none' : '';
+  $('row-file').style.display = shape === 'custom' ? '' : 'none';
   const G = generate();
+  if (G.empty) { $('stage').innerHTML = '<p style="padding:30px;color:#7a6a58">SVG fayl yuklang: eng katta kontur yog\'och shakli sifatida olinadi.</p>'; $('stats').innerHTML = ''; $('tip').textContent = ''; return; }
   $('stage').innerHTML = toSVG(G, true);
   let len = 0;
-  for (const s of G.shapes) { for (let i = 1; i < s.pts.length; i++) len += Math.hypot(s.pts[i][0] - s.pts[i-1][0], s.pts[i][1] - s.pts[i-1][1]); }
-  const O = G.O;
-  $('stats').innerHTML = `<span>Kesiklar: <b>${G.shapes.length}</b></span><span>Umumiy kesim: <b>${(len / 1000).toFixed(2)} m</b></span>` +
-    `<span>Halqa diametri: <b>≈ ${(O.w / Math.PI).toFixed(1)} mm</b></span><span>Bilak aylanasi: <b>${O.w} mm</b></span>`;
-  $('tip').textContent = p.tip + ' Maslahat: yupqa (2–4 mm) fanera yoki MDF ishlating; ko\'prik qancha kichik bo\'lsa, shuncha egiluvchan, lekin mo\'rt.';
+  for (const s of G.shapes) for (let i = 1; i < s.pts.length; i++) len += Math.hypot(s.pts[i][0] - s.pts[i - 1][0], s.pts[i][1] - s.pts[i - 1][1]);
+  $('stats').innerHTML = `<span>O'lcham: <b>${f(G.O.w)} × ${f(G.O.h)} mm</b></span><span>Kesiklar: <b>${G.shapes.length}</b></span><span>Umumiy kesim: <b>${(len / 1000).toFixed(2)} m</b></span>`;
+  $('tip').textContent = p.tip + " Burchakni o'zgartirib egilish yo'nalishini tanlang: yog'och kesiklarga ko'ndalang egiladi. Yupqa (2–4 mm) fanera yoki MDF ishlating; ko'prik kichik bo'lsa egiluvchan, lekin mo'rt.";
 }
 
 function download(name, text, type) {
@@ -128,7 +188,12 @@ function download(name, text, type) {
 }
 
 buildButtons();
-for (const id of [...sliders, 'frame', 'holes', 'mirror']) $(id).addEventListener('input', render);
-$('dl-svg').onclick = () => download(`flex-${pattern}.svg`, toSVG(generate(), false), 'image/svg+xml');
-$('dl-dxf').onclick = () => download(`flex-${pattern}.dxf`, toDXF(generate()), 'application/dxf');
+for (const id of [...sliders, 'frame', 'mirror']) $(id).addEventListener('input', render);
+$('file').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try { custom = loadSVG(await file.text()); } catch (err) { alert(err.message); custom = null; }
+  render();
+});
+$('dl-svg').onclick = () => { const G = generate(); if (!G.empty) download(`flex-${pattern}.svg`, toSVG(G, false), 'image/svg+xml'); };
+$('dl-dxf').onclick = () => { const G = generate(); if (!G.empty) download(`flex-${pattern}.dxf`, toDXF(G), 'application/dxf'); };
 render();
