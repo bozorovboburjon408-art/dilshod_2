@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EKG-15 Maket — lazer kesish studiyasi</title>
+<meta name="description" content="Elektr karyer ekskavatori EKG-15 maketi: 3 mm fanera, lazer kesish. Buyurtma bering yoki SVG chizmalarni yuklab oling.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top"><span class="logo">EKG</span> LaserMaket</a>
+  <nav>
+    <a href="#haqida">Maket haqida</a>
+    <a href="#detallar">Detallar</a>
+    <a href="#chizmalar">Chizmalar</a>
+    <a href="#yigish">Yig'ish</a>
+    <a href="#buyurtma" class="btn small">Buyurtma</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-text">
+      <p class="tag">3 mm fanera · lazer kesish</p>
+      <h1>Elektr karyer ekskavatori <em>EKG-15</em> maketi</h1>
+      <p class="lead">Kabina, aylanma platforma, ferma strela, kovsh va zanjirli gusenitsa — hammasi o'zaro kirishadigan detallardan. Elim ham, mix ham kerak emas: yig'ing va stolingizga qo'ying.</p>
+      <div class="cta">
+        <a href="#buyurtma" class="btn">Maketni buyurtma qilish</a>
+        <a href="#chizmalar" class="btn ghost">SVG chizmalarni ko'rish</a>
+      </div>
+      <ul class="facts">
+        <li><b>420 mm</b>uzunlik</li>
+        <li><b>180 mm</b>balandlik</li>
+        <li><b>160 mm</b>kenglik</li>
+        <li><b>5 varaq</b>300×200 mm</li>
+      </ul>
+    </div>
+    <div class="hero-img" role="img" aria-label="EKG-15 fanera maketi"></div>
+  </section>
+
+  <section id="haqida" class="sec">
+    <h2>Maket haqida</h2>
+    <div class="grid3">
+      <article class="card"><h3>Haqiqiy prototip</h3><p>Karyerlarda ishlatiladigan elektr kanat ekskavatori (EKG) ning masshtabli nusxasi: temir panjara, zina, oynali kabina va kanatlar.</p></article>
+      <article class="card"><h3>Harakatlanuvchi qismlar</h3><p>Platforma aylanadi, strela ko'tariladi, kovsh kanat orqali tushadi, gusenitsa zanjiri harakatlanadi.</p></article>
+      <article class="card"><h3>Ekologik material</h3><p>3 mm tabiiy fanera (березовая). Lazer bilan kesilgan, silliq cheti; xohlasangiz lak yoki bo'yoq bilan qoplang.</p></article>
+    </div>
+    <div class="dims">
+      <h3>O'lchamlari (tayyor maket)</h3>
+      <div class="dimrow"><span>Uzunlik</span><i style="--w:100%"></i><b>420 mm</b></div>
+      <div class="dimrow"><span>Balandlik</span><i style="--w:43%"></i><b>180 mm</b></div>
+      <div class="dimrow"><span>Kenglik</span><i style="--w:38%"></i><b>160 mm</b></div>
+    </div>
+  </section>
+
+  <section id="detallar" class="sec alt">
+    <h2>Asosiy detallar</h2>
+    <div class="parts" id="parts"></div>
+  </section>
+
+  <section id="chizmalar" class="sec">
+    <h2>Lazer kesish chizmalari (SVG layout)</h2>
+    <p class="sub">5 ta varaq, har biri 300 × 200 mm, 3 mm fanera. Qizil chiziq — kesish kontури. Chizmani yuklab, o'z lazer stanogingizda kesishingiz mumkin.</p>
+    <div class="tabs" id="tabs"></div>
+    <div class="sheet-wrap">
+      <div id="sheet" class="sheet"></div>
+      <div class="sheet-info">
+        <h3 id="sheetTitle"></h3>
+        <p id="sheetDesc"></p>
+        <p class="meta" id="sheetMeta"></p>
+        <button class="btn" id="dlOne">Shu varaqni yuklab olish (.svg)</button>
+        <button class="btn ghost" id="dlAll">Hammasini yuklab olish</button>
+        <p class="note">Eslatma: bu sayt yaratadigan chizma — namunaviy joylashuv. Ishlab chiqarishdan oldin kerf (kesish kengligi) va fanera qalinligiga qarab pazlarni sinab ko'ring.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="yigish" class="sec alt">
+    <h2>Yig'ish bosqichlari</h2>
+    <ol class="steps" id="steps"></ol>
+  </section>
+
+  <section class="sec">
+    <h2>Rasm</h2>
+    <img class="full" src="assets/maket.png" alt="EKG-15 maketi: o'lchamlar, detallar, chizmalar va yig'ish bosqichlari" loading="lazy">
+  </section>
+
+  <section id="buyurtma" class="sec alt">
+    <h2>Buyurtma</h2>
+    <div class="order">
+      <form id="orderForm" novalidate>
+        <label>Variant
+          <select id="variant">
+            <option value="kit">Yig'ish to'plami (kesilgan detallar)</option>
+            <option value="built">Tayyor yig'ilgan maket</option>
+            <option value="svg">Faqat SVG fayllar (o'zingiz kesasiz)</option>
+          </select>
+        </label>
+        <label>Qoplama
+          <select id="finish">
+            <option value="raw">Tabiiy fanera</option>
+            <option value="lacquer">Lak bilan</option>
+            <option value="paint">Bo'yalgan (sariq/qora)</option>
+          </select>
+        </label>
+        <label>Soni
+          <input type="number" id="qty" min="1" max="100" value="1">
+        </label>
+        <label>Ismingiz
+          <input type="text" id="name" placeholder="Ism Familiya" required>
+        </label>
+        <label>Telefon
+          <input type="tel" id="phone" placeholder="+998 90 123 45 67" required>
+        </label>
+        <label>Izoh
+          <textarea id="note" rows="3" placeholder="Masalan: korpusga logotip kesib bering"></textarea>
+        </label>
+        <button class="btn" type="submit">Buyurtmani yuborish</button>
+        <p class="hint" id="formMsg" role="status"></p>
+      </form>
+      <aside class="summary">
+        <h3>Hisob</h3>
+        <dl>
+          <dt>Narx (1 dona)</dt><dd id="unit">—</dd>
+          <dt>Soni</dt><dd id="sumQty">1</dd>
+          <dt>Chegirma</dt><dd id="disc">0%</dd>
+        </dl>
+        <p class="total"><span>Jami</span><b id="total">—</b></p>
+        <p class="note">3 dona va undan ko'p — 10%, 10 dona va undan ko'p — 20% chegirma. Narxlar namunaviy; <code>app.js</code> dagi <code>PRICES</code> ni o'zgartiring.</p>
+        <p class="orders-count" id="saved"></p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div><span class="logo">EKG</span> LaserMaket · Fanera maketlar studiyasi</div>
+  <div>Toshkent · <a href="tel:+998900000000">+998 90 000 00 00</a> · <a href="https://t.me/lasermaket">@lasermaket</a></div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
