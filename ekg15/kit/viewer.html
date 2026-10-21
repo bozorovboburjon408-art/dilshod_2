@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EKG-15 — 3D maket</title>
+<style>
+html,body{margin:0;height:100%;background:#2b2e36;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
+#c{width:100%;height:100%;display:block;touch-action:none}
+.ui{position:fixed;left:12px;top:12px;background:rgba(20,24,32,.8);padding:12px 14px;border-radius:12px;font-size:14px;max-width:240px}
+.ui h1{font-size:16px;margin:0 0 6px}.ui label{display:block;margin-top:8px}.ui input{width:100%}
+.ui small{color:#b8c0cf;display:block;margin-top:8px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui"><h1>EKG-15 · 3 mm fanera</h1>
+<label>Strela burchagi: <b id="av">35</b>°<input id="ang" type="range" min="15" max="60" value="35"></label>
+<label>Platforma aylanishi: <b id="rv">0</b>°<input id="rot" type="range" min="-90" max="90" value="0"></label>
+<label>Kovsh balandligi: <b id="hv">30</b> mm<input id="bh" type="range" min="5" max="120" value="30"></label>
+<small>Sichqoncha/barmoq — aylantirish, g'ildirak — yaqinlashtirish. O'lchamlar mm. SVG kesish fayllari: <code>sheet-1.svg</code></small></div>
+<script src="three.min.js"></script>
+<script>
+const R=document.getElementById('c'),ren=new THREE.WebGLRenderer({canvas:R,antialias:true});
+ren.setPixelRatio(devicePixelRatio);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x2b2e36);
+const cam=new THREE.PerspectiveCamera(40,1,1,3000);
+scene.add(new THREE.HemisphereLight(0xfff3e0,0x555566,.9));
+const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(300,500,400);scene.add(dl);
+const grid=new THREE.GridHelper(600,30,0x555a66,0x3a3f4a);scene.add(grid);
+const wood=new THREE.MeshStandardMaterial({color:0xd9a65f,roughness:.8}),dark=new THREE.MeshStandardMaterial({color:0xb9843f,roughness:.8}),
+ glass=new THREE.MeshStandardMaterial({color:0x223344,roughness:.3});
+const T=3;
+function box(w,h,d,m=wood,x=0,y=0,z=0,p=scene){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);p.add(o);return o}
+function cyl(r,h,m=wood,x=0,y=0,z=0,p=scene,ax='y'){const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,32),m);o.position.set(x,y,z);if(ax==='z')o.rotation.x=Math.PI/2;p.add(o);return o}
+function extr(shape,m=wood,p=scene){const g=new THREE.ExtrudeGeometry(shape,{depth:T,bevelEnabled:false});g.translate(0,0,-T/2);const o=new THREE.Mesh(g,m);p.add(o);return o}
+function line(a,b){const g=new THREE.BufferGeometry().setFromPoints([a,b]);const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x111111}));scene.add(l);return l}
+function truss(L,h1,h2,n){const hh=x=>h1-(h1-h2)*x/L,top=x=>(h1-hh(x))/2,s=new THREE.Shape();
+ s.moveTo(0,-h1/2+0);s.moveTo(0,-h1/2+top(0));
+ const Y=y=>y-h1/2;s.moveTo(0,Y(top(0)));s.lineTo(L,Y(top(L)));s.lineTo(L,Y(top(L)+hh(L)));s.lineTo(0,Y(h1));s.lineTo(0,Y(top(0)));
+ const seg=L/n,bar=4.5;
+ for(let i=0;i<n;i++){const x0=i*seg+bar*.7,x1=(i+1)*seg-bar*.7,xm=(x0+x1)/2,tp=x=>top(x)+bar,bt=x=>top(x)+hh(x)-bar,h=new THREE.Path();
+  const P=i%2?[[x0,tp(x0)],[x1,tp(x1)],[xm,bt(xm)]]:[[x0,bt(x0)],[x1,bt(x1)],[xm,tp(xm)]];
+  h.moveTo(P[0][0],Y(P[0][1]));h.lineTo(P[1][0],Y(P[1][1]));h.lineTo(P[2][0],Y(P[2][1]));h.closePath();s.holes.push(h)}
+ return s}
+// ---- gusenitsa
+const body=new THREE.Group();scene.add(body);
+for(const z of[-66,66]){box(220-28,28,28,dark,0,14,z);cyl(14,28,dark,-96,14,z,scene,'z');cyl(14,28,dark,96,14,z,scene,'z');
+ for(let i=0;i<5;i++)cyl(9,30,wood,-80+i*40,10,z,scene,'z');
+ box(206,4,30,dark,0,29,z);box(206,4,30,dark,0,-0+0.5,z)}
+// ---- aylanma qism
+const up=new THREE.Group();scene.add(up);
+cyl(46,6,wood,0,31,0,up);cyl(40,6,dark,0,37,0,up);
+// korpus
+box(190,50,100,wood,0,43+25,0,up);
+for(let i=0;i<3;i++)for(const z of[-50.5,50.5])box(28,22,1,glass,-45+i*45,43+25+4,z,up);
+box(190,3,100,dark,0,43+51.5,0,up);
+// panjara
+for(const z of[-48,48])box(190,10,2,dark,0,43+58,z,up);box(2,10,96,dark,-93,43+58,0,up);box(2,10,96,dark,93,43+58,0,up);
+// kabina
+box(46,36,46,wood,42,94+18,0,up);for(const z of[-23.5,23.5])box(26,15,1,glass,42,94+22,z,up);box(50,3,50,dark,42,94+37.5,0,up);
+// orqa og'irlik
+box(90,40,20,dark,-80,94-3,0,up).scale.set(.5,1,4.6);
+// A-ramka
+const af=new THREE.Shape();af.moveTo(-30,0);af.lineTo(-16,90);af.lineTo(16,90);af.lineTo(30,0);af.closePath();
+for(const z of[-24,24]){const o=extr(af,wood,up);o.position.set(-35,94,z);} 
+// ---- strela
+const pivot=new THREE.Group();pivot.position.set(75,75,0);up.add(pivot);
+for(const z of[-27,27]){const o=extr(truss(280,36,20,8),wood,pivot);o.position.set(0,0,z)}
+for(const x of[70,140,210])box(3,14,54,dark,x,0,0,pivot);
+const sheave=cyl(18,3,dark,0,0,0,pivot,'z');sheave.position.set(282,0,0);
+// ---- kanat, kovsh
+const bucket=new THREE.Group();scene.add(bucket);
+const sp=new THREE.Shape();sp.moveTo(0,6);sp.lineTo(8,0);sp.lineTo(56,0);sp.lineTo(66,56);sp.lineTo(10,56);sp.lineTo(0,44);sp.closePath();
+for(const z of[-21.5,21.5]){const o=extr(sp,wood,bucket);o.position.set(-33,-28,z)}
+box(3,38,40,dark,-30,-9,0,bucket);box(52,3,40,dark,-6,-26.5,0,bucket);
+for(let i=0;i<5;i++){const t=new THREE.Shape();t.moveTo(-3,0);t.lineTo(3,0);t.lineTo(0,-14);t.closePath();const o=extr(t,dark,bucket);o.rotation.y=Math.PI/2;o.position.set(21,-28,-16+i*8)}
+const l1=line(new THREE.Vector3(),new THREE.Vector3()),l2=line(new THREE.Vector3(),new THREE.Vector3()),l3=line(new THREE.Vector3(),new THREE.Vector3()),l4=line(new THREE.Vector3(),new THREE.Vector3());
+const $=id=>document.getElementById(id);
+function update(){
+ const a=+$('ang').value*Math.PI/180,r=+$('rot').value*Math.PI/180,h=+$('bh').value;
+ $('av').textContent=$('ang').value;$('rv').textContent=$('rot').value;$('hv').textContent=h;
+ up.rotation.y=r;pivot.rotation.z=a;up.updateMatrixWorld(true);
+ const tip=new THREE.Vector3(282,0,0);pivot.localToWorld(tip);
+ bucket.position.set(tip.x+10,Math.max(34,h+28)+0,tip.z);bucket.rotation.y=r;
+ // kanatlar
+ const top=new THREE.Vector3(-35,94+90,0);up.localToWorld(top);
+ for(const[l,z,s]of[[l1,-24,-1],[l2,24,1]]){const t=new THREE.Vector3(-35,184,z);up.localToWorld(t);const e=new THREE.Vector3(282,0,z);pivot.localToWorld(e);l.geometry.setFromPoints([t,e])}
+ const hp=bucket.position;
+ for(const[l,z]of[[l3,-21],[l4,21]]){const e=new THREE.Vector3(282,0,z);pivot.localToWorld(e);l.geometry.setFromPoints([e,new THREE.Vector3(hp.x+5,hp.y+14,hp.z+z)])}
+}
+['ang','rot','bh'].forEach(i=>$(i).addEventListener('input',update));update();
+// kamera
+let th=-0.6,ph=1.15,d=720,tgt=new THREE.Vector3(60,90,0),drag=null;
+function cm(){cam.position.set(tgt.x+d*Math.sin(ph)*Math.cos(th),tgt.y+d*Math.cos(ph),tgt.z+d*Math.sin(ph)*Math.sin(th));cam.lookAt(tgt)}
+R.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];R.setPointerCapture(e.pointerId)});
+R.addEventListener('pointerup',()=>drag=null);
+R.addEventListener('pointermove',e=>{if(!drag)return;th-=(e.clientX-drag[0])*.007;ph=Math.min(1.5,Math.max(.2,ph-(e.clientY-drag[1])*.007));drag=[e.clientX,e.clientY]});
+R.addEventListener('wheel',e=>{e.preventDefault();d=Math.min(1600,Math.max(250,d*(1+e.deltaY*.001)))},{passive:false});
+function rs(){ren.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',rs);rs();
+(function loop(){cm();ren.render(scene,cam);requestAnimationFrame(loop)})();
+</script></body></html>
