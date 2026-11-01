@@ -1,0 +1,32 @@
+{
+  "name": "laser-model-texture-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "3D → 2D coloured unfolding and laser-cut file generator (SVG/DXF/PDF/PNG/TIFF)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "start": "node server/index.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "fixtures": "python3 tests/fixtures/make_fixtures.py /tmp/lms-fixtures",
+    "e2e": "node tests/e2e/run.cjs /tmp/lms-fixtures /tmp/lms-e2e-out && node tests/e2e/run2.cjs /tmp/lms-e2e-out"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0",
+    "utif": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
