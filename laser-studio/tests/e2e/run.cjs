@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const [fx, dl, url = 'http://localhost:4173/'] = process.argv.slice(2);
+const [fx, dl, url = 'http://localhost:4173/studio.html'] = process.argv.slice(2);
 fs.mkdirSync(dl, { recursive: true });
 let fails = 0;
 const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };

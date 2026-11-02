@@ -5,9 +5,17 @@ UI tillari: **O‘zbekcha · Русский · English**.
 
 ```bash
 npm install
-npm run build && npm start      # http://localhost:4173
+npm run build && npm start      # http://localhost:4173  (bosh sahifa)  ·  /studio.html (ilova)
 # yoki ishlab chiqish rejimi:  npm run dev
 ```
+
+## Sayt sifatida joylash
+
+Sayt: `index.html` (bosh sahifa, uz/ru/en) + `studio.html` (ilova). Build — to‘liq statik (`dist/`, nisbiy yo‘llar), shuning uchun istalgan hostingga qo‘yish mumkin:
+
+- **Statik hosting** (Netlify, Cloudflare Pages, nginx…): `npm run build`, `dist/` papkasini yuklang.
+- **GitHub Pages**: `.github/workflows/pages.yml` (main ga push qilinganda quradi; Settings → Pages → Source: GitHub Actions).
+- **Docker / Node**: `docker build -t laser-studio . && docker run -p 4173:4173 laser-studio` — `server/index.mjs` xavfsizlik sarlavhalari (CSP) bilan beradi.
 
 ## Imkoniyatlar
 

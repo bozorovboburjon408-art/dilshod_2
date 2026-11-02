@@ -27,7 +27,11 @@ export default function App() {
   const [snap, setSnap] = useState<string | null>(null);
 
   // demo model on first start
-  useEffect(() => { if (!getState().model) loadDemo('house'); }, []);
+  useEffect(() => {
+    if (getState().model) return;
+    const d = new URLSearchParams(window.location.search).get('demo');
+    loadDemo(d && ['house', 'factory', 'tower', 'cube'].includes(d) ? d : 'house');
+  }, []);
   useEffect(() => { document.documentElement.lang = s.lang; document.title = t('app.title'); }, [s.lang]);
 
   // paint preview rasters whenever anything that affects colour changes
@@ -60,7 +64,7 @@ export default function App() {
   return (
     <div className="app" data-testid="app">
       <header className="top">
-        <div className="brand"><span className="logo">◩</span><div><h1>{t('app.title')}</h1><small>{t('app.tagline')}</small></div></div>
+        <a className="brand" href="./" aria-label="Home" style={{ color: "inherit", textDecoration: "none" }}><span className="logo">◩</span><div><h1>{t('app.title')}</h1><small>{t('app.tagline')}</small></div></a>
         <div className="top-actions">
           <select className="lang" value={s.lang} aria-label={t('hdr.lang')} onChange={(e) => setState({ lang: e.target.value as typeof s.lang })} data-testid="lang">
             {LANGS.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}

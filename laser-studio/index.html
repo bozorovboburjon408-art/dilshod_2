@@ -3,11 +3,76 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="3D → 2D coloured wrap and laser-cut files (SVG, DXF, PDF, PNG, TIFF)" />
     <title>Laser Model Texture Studio</title>
+    <meta name="description" content="3D → 2D rangli qoplama va lazer kesish fayllari (SVG, DXF, PDF, PNG, TIFF). Brauzerda, fayllar serverga yuklanmaydi." />
+    <meta property="og:title" content="Laser Model Texture Studio" />
+    <meta property="og:description" content="3D → 2D coloured wrap & laser-cut files in your browser." />
+    <meta property="og:image" content="./screenshot.jpg" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header class="nav">
+      <a class="brand" href="./"><span class="logo">◩</span> Laser Model Texture Studio</a>
+      <nav>
+        <a href="#features" data-i18n="nav.features">Imkoniyatlar</a>
+        <a href="#how" data-i18n="nav.how">Qanday ishlaydi</a>
+        <a href="#formats" data-i18n="nav.formats">Formatlar</a>
+        <select id="lang" aria-label="Language"><option value="uz">O'zbekcha</option><option value="ru">Русский</option><option value="en">English</option></select>
+        <a class="btn primary" href="./studio.html" data-i18n="cta.open">Ilovani ochish</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-text">
+          <h1 data-i18n="hero.title">3D maketdan lazerda kesishga tayyor rangli yoyilma</h1>
+          <p data-i18n="hero.sub">Modelni yuklang — dastur uni avtomatik yoyadi, yelim tablari, buklama chiziqlari va raqamlarni qo'yadi, rangli teksturani joylaydi va SVG, DXF, PDF, PNG, TIFF fayllarini tayyorlaydi.</p>
+          <div class="cta">
+            <a class="btn primary big" href="./studio.html" data-i18n="cta.open">Ilovani ochish</a>
+            <a class="btn big" href="./studio.html?demo=house" data-i18n="cta.demo">Demo modelni sinash</a>
+          </div>
+          <p class="note" data-i18n="hero.note">🔒 Fayllaringiz brauzerda qayta ishlanadi — serverga yuklanmaydi va saqlanmaydi.</p>
+        </div>
+        <img class="shot" src="./screenshot.jpg" alt="Laser Model Texture Studio" width="1500" height="900" />
+      </section>
+
+      <section id="features" class="block">
+        <h2 data-i18n="f.title">Imkoniyatlar</h2>
+        <div class="grid">
+          <article><h3 data-i18n="f1.t">Avtomatik yoyish</h3><p data-i18n="f1.d">Tekis yuzalar birlashtiriladi, detallar ustma-ust tushmasligi tekshiriladi, qo'lda kesish qirralarini belgilash mumkin.</p></article>
+          <article><h3 data-i18n="f2.t">Tablar va buklamalar</h3><p data-i18n="f2.d">3–8 mm yelim tablari, tog' va vodiy buklamalari, yuza raqamlari va yig'ish tartibi.</p></article>
+          <article><h3 data-i18n="f3.t">Rangli qoplama</h3><p data-i18n="f3.d">Material kutubxonasi, PNG/JPG/TIFF teksturalar, logotip va yozuv, 1–2 mm bleed.</p></article>
+          <article><h3 data-i18n="f4.t">Avtomatik joylash</h3><p data-i18n="f4.d">A4, A3, A2 yoki o'zingizning o'lchamingiz; kamida 5 mm xavfsiz chekka; kerak bo'lsa bir nechta varaq.</p></article>
+          <article><h3 data-i18n="f5.t">Lazer qatlamlari</h3><p data-i18n="f5.d">CUT, FOLD, ENGRAVE, PRINT va REGISTRATION qatlamlari, X0/Y0 nol nuqta, har varaqda registratsiya belgilari.</p></article>
+          <article><h3 data-i18n="f6.t">Haqiqiy vektor eksport</h3><p data-i18n="f6.d">SVG va DXF mm va 1:1 masshtabda; PDF va rasmlar 300 DPI; yig'ish yo'riqnomasi.</p></article>
+        </div>
+      </section>
+
+      <section id="how" class="block alt">
+        <h2 data-i18n="h.title">Qanday ishlaydi</h2>
+        <ol class="steps">
+          <li data-i18n="h1">Model yuklang yoki demo tanlang</li>
+          <li data-i18n="h2">O'lcham (mm) va varaq formatini belgilang</li>
+          <li data-i18n="h3">Yuzalarga tekstura va dekorlar qo'shing</li>
+          <li data-i18n="h4">2D va 3D previewni tekshiring</li>
+          <li data-i18n="h5">Fayllarni yuklab oling va lazerda kesing</li>
+        </ol>
+      </section>
+
+      <section id="formats" class="block">
+        <h2 data-i18n="fm.title">Formatlar</h2>
+        <div class="chips">
+          <div><b data-i18n="fm.in">Kirish</b><span>STL</span><span>OBJ + MTL</span><span>GLB / glTF</span><span>FBX</span><span>PNG</span><span>JPG</span><span>TIFF</span></div>
+          <div><b data-i18n="fm.out">Chiqish</b><span>SVG</span><span>DXF</span><span>PDF</span><span>PNG</span><span>TIFF</span><span>ZIP</span></div>
+        </div>
+      </section>
+
+      <section class="block cta-final">
+        <h2 data-i18n="end.title">Boshlashga tayyormisiz?</h2>
+        <a class="btn primary big" href="./studio.html" data-i18n="cta.open">Ilovani ochish</a>
+      </section>
+    </main>
+    <footer><span data-i18n="foot">Laser Model Texture Studio — hisoblash to'liq brauzerda bajariladi.</span></footer>
+    <script type="module" src="/src/landing.ts"></script>
   </body>
 </html>
