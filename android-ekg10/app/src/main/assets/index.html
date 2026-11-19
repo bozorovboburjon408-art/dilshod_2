@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101b2d">
+<meta name="description" content="EKG-10 ekskavatori uchun reys hisobi va elektron texnik jurnallar tizimi">
+<title>EKG-10 | Reys hisobi va elektron jurnallar — v3</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121e30;--panel2:#18263b;--line:#263750;--text:#edf4ff;--muted:#91a4bd;--green:#35d07f;--green2:#159957;--amber:#f5b942;--red:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#152944 0,#0b1220 48%,#080e18 100%);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+.wrap{width:min(760px,100%);margin:auto;padding:20px 16px calc(34px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:58px;height:48px;border-radius:15px;background:linear-gradient(145deg,#35d07f,#168e56);display:grid;place-items:center;padding:5px;box-shadow:0 8px 28px #15995744}
+.logo svg{width:100%;height:100%;display:block}h1{font-size:20px;letter-spacing:.08em;margin:0;font-weight:850}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.pill{border:1px solid #286b50;background:#123526;color:#7ef0b1;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:750;white-space:nowrap}
+.hero{background:linear-gradient(135deg,#193c36,#13283a 75%);border:1px solid #2d654f;border-radius:24px;padding:22px;position:relative;overflow:hidden;box-shadow:0 18px 45px #0003}
+.hero:after{content:"";position:absolute;width:190px;height:190px;border:1px solid #ffffff12;border-radius:50%;right:-70px;top:-85px;box-shadow:0 0 0 22px #ffffff08,0 0 0 44px #ffffff05}
+.hero-label{font-size:12px;color:#b9d9cc;letter-spacing:.12em;font-weight:700}.count{font-size:68px;line-height:1.1;font-weight:900;letter-spacing:-.05em;margin:8px 0 3px}.count-foot{font-size:13px;color:#b9d9cc}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.stat,.card{background:linear-gradient(180deg,#142238,#101b2b);border:1px solid var(--line);border-radius:18px;padding:16px}
+.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:25px;font-weight:850;margin-top:4px;font-variant-numeric:tabular-nums}.stat-note{font-size:11px;color:var(--muted);margin-top:3px}
+.card{margin-top:14px}.section-title{font-weight:800;font-size:16px;margin:0 0 13px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+label{display:block;font-size:13px;color:#c3d0e1;font-weight:650;margin-bottom:7px}
+input{width:100%;background:#0b1524;border:1px solid #34465f;border-radius:13px;padding:15px 14px;color:var(--text);font:inherit;font-size:17px;outline:none}
+input:focus{border-color:var(--green);box-shadow:0 0 0 3px #35d07f20}
+.primary{width:100%;border:0;border-radius:16px;padding:19px 14px;margin-top:14px;background:linear-gradient(180deg,#3ee18b,#1eae67);color:#052414;font-size:18px;font-weight:900;letter-spacing:.015em;box-shadow:0 8px 22px #1eae6740;cursor:pointer;min-height:66px}
+.primary:disabled{opacity:.45;cursor:not-allowed}.hint{font-size:12px;color:var(--muted);margin:10px 2px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.truck-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.truck-pick{width:100%;min-height:104px;text-align:left;border:2px solid #286b50;background:linear-gradient(135deg,#174b39,#142b43);color:#f0fff6;border-radius:20px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 20px #0002;transition:transform .08s,border-color .08s}.truck-pick:active{transform:scale(.985);border-color:#75f0ac}.truck-pick .plate{font-size:clamp(23px,6vw,32px);font-weight:950;letter-spacing:.02em;line-height:1.1;overflow-wrap:anywhere}.truck-pick .subcount{font-size:13px;color:#b5d9c6;margin-top:8px}.truck-pick .tap{font-size:14px;font-weight:950;color:#8cf5b7;white-space:nowrap;background:#0c291f;padding:10px 12px;border-radius:12px}.truck-row{position:relative}.remove-truck{position:absolute;right:7px;top:7px;width:28px;height:28px;border:1px solid #79505a;background:#2a1b29;color:#ffb0b0;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;z-index:1}.add-details{margin-top:16px;border-top:1px solid var(--line);padding-top:13px}.add-details summary{color:#b9c9dd;font-size:13px;font-weight:750;cursor:pointer;padding:5px 0}.add-inner{padding-top:12px}.smallbtn{border:1px solid #354862;background:#19283d;color:#dce8f7;border-radius:11px;padding:10px 12px;font-weight:700;font-size:12px;cursor:pointer}
+.shift-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}.shift-btn{min-height:64px;border:2px solid #3b506b;background:#18283e;color:#eaf2ff;border-radius:15px;font-size:17px;font-weight:900;cursor:pointer}.shift-btn.day{border-color:#b7832b;background:linear-gradient(135deg,#493619,#24334a)}.shift-btn.night{border-color:#526da5;background:linear-gradient(135deg,#202e58,#17263d)}.shift-btn:disabled{opacity:.4}.shift-status{padding:13px;border-radius:14px;background:#0c1726;border:1px solid #34465f;margin-bottom:12px}.shift-status strong{font-size:17px}.truck-pick:disabled{opacity:.38;filter:grayscale(.7);cursor:not-allowed}.list{display:flex;flex-direction:column;gap:9px}.trip{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;background:#0c1726;border:1px solid #263850;border-radius:14px}.truck{font-weight:800;font-size:15px}.time{color:var(--muted);font-size:12px;margin-top:3px}.number{color:#85e6b3;font-weight:850;font-size:13px;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:24px 10px;font-size:13px}
+footer{text-align:center;color:#647993;font-size:11px;padding:22px 0 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e7fff1;color:#06351d;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:0 8px 30px #0005;transition:.2s;z-index:5;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:600px){.wrap{padding-top:30px}.hero{padding:28px}.count{font-size:78px}}
+
+.sms-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sms-option{padding:13px;border:1px solid #354862;border-radius:13px;background:#0c1726;font-size:13px}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-grid>div{min-width:0}
+select{width:100%;background:#0b1524;border:1px solid #34465f;border-radius:12px;padding:12px;color:var(--text);font:inherit}
+.trip-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.trip-actions button{padding:7px 9px;font-size:11px}
+.status-select{margin-top:8px;font-size:12px;padding:8px}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{padding:12px;background:#0c1726;border:1px solid #263850;border-radius:13px}
+.metric b{display:block;font-size:22px;margin-top:3px}
+.metric small{color:var(--muted)}
+.pending-sms{padding:12px;border:1px solid #98752c;background:#302817;border-radius:13px;margin-top:10px}
+@media(max-width:420px){.field-grid{grid-template-columns:1fr}.trip{align-items:flex-start}.trip-actions{max-width:120px}.truck-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#countingScreen .truck-pick{min-height:122px;padding:12px 9px}#countingScreen .truck-pick .plate{font-size:clamp(18px,5vw,24px)}#countingScreen .truck-pick .tap{font-size:11px;padding:8px 6px}}
+#countingScreen .status-select,#countingScreen .remove-truck{display:none!important}
+#countingScreen .truck-pick{min-height:112px;align-items:center}
+#countingScreen .truck-pick .subcount{display:flex!important;flex-direction:column;align-items:flex-start;gap:5px;font-size:12px;line-height:1.45;color:#c4e6d2;margin-top:9px;white-space:normal;text-align:left}
+#countingScreen .truck-pick .hourly-count{display:block;color:#ffe06a;font-size:20px;line-height:1.25;font-weight:950;letter-spacing:.2px}
+#countingScreen .truck-pick .shift-total{display:block;color:#ffd34e;font-size:16px;line-height:1.3;font-weight:900}
+#countingScreen .truck-pick .hourly-details{display:block;color:#d0dfd7;font-size:12px;line-height:1.5}
+#countingScreen .truck-row{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0}
+#countingScreen .truck-row .truck-pick{flex:1;min-width:0}
+#countingScreen .truck-row .minus-trip{display:flex!important;align-items:center;justify-content:center;align-self:stretch;flex:0 0 38px;width:100%;height:38px;border:1px solid #f0b84a;border-radius:14px;background:#3b2b12;color:#ffd36a;font-size:30px;font-weight:900;line-height:1}
+#countingScreen .truck-row .minus-trip:disabled{opacity:.35}
+
+#countingScreen .truck-pick .tap{font-size:12px;flex-shrink:0}
+#countingScreen .truck-pick .plate{font-size:clamp(21px,5.5vw,29px)}
+/* Katta reys belgilash rejimi */
+#countingScreen.large-mode .truck-grid{grid-template-columns:1fr}\n#countingScreen.large-mode .truck-row{gap:7px}
+#countingScreen.large-mode .truck-row .truck-pick{min-height:190px;flex-direction:column;justify-content:center;align-items:stretch;text-align:center;padding:18px 14px;gap:10px}
+#countingScreen.large-mode .truck-pick .plate{font-size:clamp(34px,10vw,48px);display:block}
+#countingScreen.large-mode .truck-pick .subcount{align-items:center;margin-top:4px}
+#countingScreen.large-mode .truck-pick .hourly-count{font-size:18px}
+#countingScreen.large-mode .truck-pick .shift-total{font-size:20px}
+#countingScreen.large-mode .truck-pick .hourly-details{font-size:11px}
+#countingScreen.large-mode .truck-pick .tap{display:block;width:100%;box-sizing:border-box;font-size:23px;padding:15px 10px;border-radius:14px;background:#0b3929;border:1px solid #39b77d}
+#countingScreen.large-mode .truck-row .minus-trip{flex-basis:42px;width:100%;height:42px}
+.mode-active{background:#176b49!important;border-color:#42d895!important;color:#fff!important}
+
+#advancedContent{margin-top:14px}
+
+.report-item{padding:13px;background:#0c1726;border:1px solid #34465f;border-radius:14px}
+.report-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:850}
+.report-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.report-number{padding:9px;border-radius:10px;background:#17283b}
+.report-number small{display:block;color:#a9b9cd;font-size:11px}
+.report-number b{display:block;color:#ffd85c;font-size:22px;line-height:1.3}
+.compare-rank{color:#ffd85c;font-weight:900}
+
+
+
+
+#shiftReminderCard{margin-top:14px;border:1px solid #b8872b;background:linear-gradient(145deg,#302716,#172231);border-radius:15px;padding:14px}
+#shiftReminderCard .reminder-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#shiftReminderCard .reminder-title{font-size:17px;font-weight:900;color:#ffe2a1}
+#shiftReminderCard .reminder-progress{font-size:12px;color:#f5d38b;font-weight:800}
+#shiftReminderCard .reminder-list{display:grid;gap:8px;margin-top:12px}
+#shiftReminderCard .reminder-item{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,.055);color:#f1f5f9;font-size:14px;line-height:1.35}
+#shiftReminderCard .reminder-item input{width:20px;height:20px;flex:0 0 20px;margin:0;accent-color:#22c55e}
+#shiftReminderCard .reminder-item.done span{text-decoration:line-through;color:#9ca3af}
+#shiftReminderCard .reminder-actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+#shiftReminderCard .reminder-actions button{min-height:38px}
+@media print{#shiftReminderCard{display:none!important}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <div class="brand"><div class="logo"><svg viewBox="0 0 120 80" role="img" aria-label="Sariq gusenitsali ekskavator" xmlns="http://www.w3.org/2000/svg"><g stroke="#172536" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 57h66a9 9 0 0 1 0 16H24a9 9 0 0 1-7-16Z" fill="#26384b"/><path d="M27 59h53a6 6 0 0 1 0 12H27a6 6 0 0 1 0-12Z" fill="#657789"/><path d="M34 57V43h38l9 14Z" fill="#f6bd35"/><path d="M43 43V27h25l8 16Z" fill="#f5c443"/><path d="M47 30h16l6 11H47Z" fill="#8ed3e8"/><path d="M70 36 83 24l12 5-13 14-8 1Z" fill="#f5c443"/><path d="m94 29 13 10-4 5-17-9Z" fill="#f5c443"/><path d="m101 43 12 4-9 10-10-5Z" fill="#d99b24"/><path d="M34 44 25 34 19 39l11 13" fill="#f5c443"/><path d="M18 39 9 46l7 5 8-8" fill="#d99b24"/></g><circle cx="35" cy="65" r="3" fill="#dce7ef"/><circle cx="69" cy="65" r="3" fill="#dce7ef"/></svg></div><div><h1>REYS HISOBI</h1><div class="sub">EKG-10 · Ekskavator ish jurnali</div></div></div>
+ <div class="pill">● OFFLINE · v3</div>
+</header>
+
+<section id="homeScreen" class="card" style="text-align:center;padding:28px 20px;margin-top:18px">
+ <div style="width:150px;height:100px;margin:0 auto 10px;display:grid;place-items:center"><svg viewBox="0 0 120 80" role="img" aria-label="Sariq gusenitsali ekskavator" xmlns="http://www.w3.org/2000/svg"><g stroke="#172536" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 57h66a9 9 0 0 1 0 16H24a9 9 0 0 1-7-16Z" fill="#26384b"/><path d="M27 59h53a6 6 0 0 1 0 12H27a6 6 0 0 1 0-12Z" fill="#657789"/><path d="M34 57V43h38l9 14Z" fill="#f6bd35"/><path d="M43 43V27h25l8 16Z" fill="#f5c443"/><path d="M47 30h16l6 11H47Z" fill="#8ed3e8"/><path d="M70 36 83 24l12 5-13 14-8 1Z" fill="#f5c443"/><path d="m94 29 13 10-4 5-17-9Z" fill="#f5c443"/><path d="m101 43 12 4-9 10-10-5Z" fill="#d99b24"/><path d="M34 44 25 34 19 39l11 13" fill="#f5c443"/><path d="M18 39 9 46l7 5 8-8" fill="#d99b24"/></g><circle cx="35" cy="65" r="3" fill="#dce7ef"/><circle cx="69" cy="65" r="3" fill="#dce7ef"/></svg></div>
+ <h2 style="font-size:24px;margin:0 0 8px">EKG-10 REYS HISOBI</h2>
+ <p class="hint" style="font-size:14px;margin:0 0 22px">Yuk mashinasi yuklanib chiqib ketganda uning raqamini bir marta bosing. Reys avtomatik sanaladi.</p>
+ <div style="text-align:left;margin:0 0 12px">
+  <div class="hint" id="autoShiftNamePreview" style="margin:0 0 10px">Smena nomi avtomatik sana va vaqt bilan belgilanadi.</div>
+  <label for="newShiftType" class="field-label">Smena turi</label>
+  <select id="newShiftType" style="width:100%;margin:6px 0 12px">
+   <option value="Kunduzgi">☀️ Kunduzgi smena</option>
+   <option value="Tungi">🌙 Tungi smena</option>
+  </select>
+  <label for="shiftExcavatorName" class="field-label">🚜 EKSKAVATOR NOMI / RAQAMI</label>
+  <input id="shiftExcavatorName" type="text" maxlength="40" autocomplete="off" value="EKG-10" placeholder="Masalan: EKG-10 yoki EKG-15" style="width:100%;box-sizing:border-box;margin:6px 0 12px;padding:12px;border:1px solid #49617d;border-radius:11px;background:#0b1524;color:#edf4ff;font:inherit">
+  <div class="hint" style="font-size:12px;margin:-5px 0 12px">Smena boshlashdan oldin ishlayotgan ekskavator nomini kiriting.</div>
+  <div id="homeTruckRoster" style="margin:10px 0 14px;padding:12px;border:1px solid #344862;border-radius:14px;background:#0c1726;text-align:left">
+   <div style="font-weight:800;margin-bottom:8px">🚚 Smenada ishlaydigan mashinalar</div>
+   <div id="homeTruckRosterList" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+   <div style="display:flex;gap:8px;margin-top:12px;align-items:stretch">
+    <input id="homeNewTruckNumber" maxlength="24" autocomplete="off" placeholder="Yangi mashina raqami" style="flex:1;min-width:0;margin:0">
+    <button id="homeAddTruckBtn" type="button" class="smallbtn" style="border-color:#239b68;background:#174b39;color:#a9ffd0;font-weight:900;padding:10px 14px">＋ QO‘SHISH</button>
+   </div>
+   <div class="hint" style="font-size:12px;margin-top:8px">＋ orqali mashina qo‘shing, × orqali faol ro‘yxatdan chiqaring. Oldingi smena hisobotlari saqlanadi.</div>
+  </div>
+  <div id="attendanceBox" style="margin:10px 0 14px;padding:12px;border:1px solid #347b61;border-radius:14px;background:#0d211d;text-align:left">
+   <label for="shiftAttendees" style="font-weight:900;color:#a9ffd0">👷 SMENAGA KELGAN XODIMLAR</label>
+   <div class="hint" style="font-size:12px;margin:5px 0 8px">Har bir xodimning F.I.Sh.ini alohida qatordan yozing. Bu ro‘yxat smena spravkasiga avtomatik kiritiladi.</div>
+   <textarea id="shiftAttendees" rows="4" placeholder="Masalan:
+Aliyev Alisher
+Karimov Bahodir
+Rasulov Akmal" style="width:100%;box-sizing:border-box;min-height:105px;padding:12px;border:1px solid #3d6d5b;border-radius:11px;background:#081713;color:#eafff3;font:inherit;resize:vertical"></textarea>
+   <div class="hint" id="attendanceCount" style="font-size:12px;margin-top:6px">Xodimlar soni: 0</div>
+  </div>
+ </div>
+ <button id="beginNewShift" class="primary" style="margin-top:0">＋ YANGI SMENA BOSHLASH</button>
+ <div id="homeActiveShiftBox" style="display:none;text-align:left;margin-top:14px;padding:14px;border:1px solid #287a5a;border-radius:14px;background:rgba(28,190,117,.09)">
+  <div style="font-weight:700;color:#38d996;margin-bottom:5px">● JORIY SMENA FAOL</div>
+  <div id="homeActiveShiftInfo" class="hint" style="margin:0 0 10px"></div>
+  <button id="finishShiftHome" type="button" style="width:100%;min-height:54px;border:0;border-radius:12px;background:#dc4545;color:white;font-size:17px;font-weight:800">■ JORIY SMENANI TUGATISH</button>
+  <div class="hint" style="margin:8px 0 0">Tugatgandan so‘ng reyslar saqlanadi va chek-ma’lumotnoma ochiladi.</div>
+ </div>
+ <label style="display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;border:1px solid #299bd6;border-radius:13px;background:#10283a;color:#ccecff">
+  <input id="telegramAutoShare" type="checkbox" checked style="width:20px;height:20px;flex:0 0 20px;accent-color:#229ed9">
+  <span><b>📲 Smena tugaganda Telegram ulashish oynasini avtomatik ochish</b><small style="display:block;color:#91a4bd;font-weight:400;margin-top:3px">Telefon Telegramni tanlash va qabul qiluvchi chatni belgilashni so‘raydi.</small></span>
+ </label>
+ <label style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:12px;border:1px solid #299b75;border-radius:13px;background:#102d25;color:#caffdf">
+  <input id="telegramHourlyEnabled" type="checkbox" checked style="width:20px;height:20px;flex:0 0 20px;accent-color:#20bd7b">
+  <span><b>⏱ Har 60 daqiqada Telegram hisoboti</b><small style="display:block;color:#9bcab4;font-weight:400;margin-top:3px">Oxirgi 60 daqiqa reyslari va smena boshidan jami reyslar. Dastur ochiq turganida hisobot tayyorlanadi.</small></span>
+ </label>
+ <div id="telegramHourlyStatus" class="hint" style="margin-top:7px">Soatlik hisobot: yoqilgan</div>
+ <button id="sendHourlyTelegramBtn" class="smallbtn" type="button" style="display:none;width:100%;margin-top:8px;min-height:52px;border-color:#20bd7b;color:#a9ffd0;font-weight:900">✈ SOATLIK HISOBOTNI TELEGRAMGA YUBORISH</button>
+ <button id="sendTelegramBtn" class="smallbtn" type="button" style="display:none;width:100%;margin-top:10px;min-height:52px;border-color:#299bd6;color:#8bd5ff;font-weight:800">✈ TELEGRAMGA PDF HISOBOT YUBORISH</button>
+ <button id="openCounting" class="smallbtn" style="width:100%;margin-top:10px;min-height:46px">▶ REYS SANASH</button>
+ <button id="openAdvanced" class="smallbtn" style="width:100%;margin-top:12px;min-height:46px">Boshqa bo‘limlar / Sozlamalar</button>
+</section>
+
+<section id="countingScreen" style="display:none">
+ <button id="backHome" class="smallbtn" style="width:100%;min-height:42px;margin:12px 0">← Bosh sahifaga qaytish</button>
+ <section class="hero" style="margin-top:8px">
+  <div class="hero-label">HAR BIR MASHINA BO‘YICHA HISOB</div>
+  <div class="count-foot" id="simpleShiftLabel">Smena boshlandi</div>
+  <div class="hint" style="margin-top:8px">Har bir mashinaning soatlik va smena davomida bajargan reyslari alohida ko‘rsatiladi.</div>
+ </section>
+ <section id="shiftReminderCard" aria-label="Smena ishlari eslatmasi">
+  <div class="reminder-head">
+   <div class="reminder-title">🔔 Smena davomida bajariladigan ishlar</div>
+   <div class="reminder-progress" id="reminderProgress">0 / 8</div>
+  </div>
+  <div class="hint" style="font-size:12px;margin-top:5px;color:#e8d7b4">Bajarilgan ishlarni belgilab boring. Belgilar joriy smena bilan birga saqlanadi.</div>
+  <div class="reminder-list" id="shiftReminderList"></div>
+  <div class="reminder-actions">
+   <button id="toggleReminderList" type="button" class="smallbtn">Eslatmalarni yig‘ish</button>
+   <button id="resetReminderList" type="button" class="smallbtn">Belgilarni tozalash</button>
+  </div>
+ </section>
+ <section class="card" style="margin-top:14px;border:1px solid #287a5a">
+  <h2 class="section-title">🎙 Ovoz orqali reys qo‘shish</h2>
+  <div class="hint" id="voiceStatus" style="margin:0 0 10px">Ovozli boshqaruv o‘chiq. Tugmani bosib tinglashni boshlang.</div>
+  <button id="voiceToggle" type="button" class="primary" style="width:100%;min-height:54px">🎙 DOIMIY TINGLASHNI BOSHLASH</button>
+  <div class="hint" style="margin-top:9px">Masalan: “806”, “500 ga bir reys qo‘sh”, “806 ga uch reys qo‘sh”. Buyruq tanilgach reys saqlanadi va tasdiqlash signali chalinadi.</div>
+ </section>
+ <section class="card" style="margin-top:14px">
+  <h2 class="section-title">Yuk mashinasini tanlang</h2>
+  <p class="hint" style="margin:0 0 12px">O‘zingizga qulay reys belgilash usulini tanlang.</p>
+  <div id="countModeSwitch" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px">
+   <button id="normalModeBtn" type="button" class="smallbtn" style="min-height:48px;font-size:14px">☰ ODDIY</button>
+   <button id="largeModeBtn" type="button" class="smallbtn" style="min-height:48px;font-size:14px">▣ KATTA</button>
+  </div>
+  <div id="truckTemplates" class="truck-grid">
+   <div class="empty">Hozircha mashina qo‘shilmagan.</div>
+  </div>
+  <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:15px">
+   <h3 style="font-size:15px;margin:0 0 10px">＋ Yangi mashina qo‘shish</h3>
+   <label for="quickTruckInput">Mashina raqami</label>
+   <input id="quickTruckInput" maxlength="24" autocomplete="off" placeholder="Masalan: 01 A 123 BC">
+   <button id="addTruckQuick" class="primary" style="margin-top:10px;min-height:54px">＋ MASHINA QO‘SHISH</button>
+  </div>
+ </section>
+</section>
+
+
+
+<div id="advancedContent" style="display:none">
+<div style="position:sticky;top:8px;z-index:20;margin:0 0 14px">
+ <button id="advancedBackHome" class="primary" style="width:100%;min-height:52px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:1px solid #60a5fa">⌂ ASOSIY MENYUGA QAYTISH</button>
+</div>
+
+<style>
+.journal-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.journal-nav button{min-height:58px;text-align:left;padding:10px 12px;border:1px solid #3b526d;border-radius:13px;background:#17283d;color:#eaf2ff;font-weight:800;font-size:13px}
+.journal-nav button.active{border-color:#39d88a;background:#164531;color:#dffff0}
+.journal-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.journal-form .wide{grid-column:1/-1}
+.journal-form input,.journal-form select,.journal-form textarea{width:100%;background:#0b1524;border:1px solid #34465f;border-radius:11px;padding:12px;color:#edf4ff;font:inherit}
+.journal-form textarea{min-height:76px;resize:vertical}
+.journal-record{padding:12px;border:1px solid #30445e;border-radius:13px;background:#0c1726;margin-top:8px}
+.journal-record strong{color:#8de8b5}.journal-meta{font-size:11px;color:#91a4bd;margin-top:4px}.journal-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+@media(max-width:430px){.journal-form{grid-template-columns:1fr}}
+</style>
+<section class="card" id="fleetJournalPanel">
+ <h2 class="section-title">EKSKAVATORLAR VA JURNALLAR <span class="pill">YANGI</span></h2>
+ <label for="journalMachine">Faol ekskavator</label>
+ <div class="field-grid"><div><select id="journalMachine" aria-label="Ekskavator tanlash"></select></div><div><input id="newMachineName" placeholder="Masalan: EKG-15"></div></div>
+ <button class="smallbtn" id="addMachineBtn" style="width:100%;margin-top:8px;min-height:44px">＋ EKSKAVATOR QO‘SHISH</button>
+ <div class="hint">Hozir EKG-10 faol. Keyinchalik boshqa ekskavatorlar qo‘shilganda har birining jurnali alohida saqlanadi.</div>
+ <div class="journal-nav" id="journalNav">
+  <button data-journal="rope" class="active">🪢 Po‘lat arqon jurnali</button>
+  <button data-journal="shiftwork">📋 Smena ishlari jurnali</button>
+  <button data-journal="lubrication">🛢 Smazka va moylar</button>
+  <button data-journal="request">📝 Zayavka jurnali</button>
+  <button data-journal="geology">⛰ Geologiya jurnali</button>
+  <button data-journal="parts">⚙ Ehtiyot qismlar</button>
+  <button data-journal="stock">🧴 Moylash materiallari ombori</button>
+ </div>
+ <div id="journalModuleTitle" class="section-title">Po‘lat arqon jurnali</div>
+ <div class="journal-form">
+  <div><label for="jrDate">Sana</label><input id="jrDate" type="date"></div>
+  <div><label for="jrShift">Smena</label><select id="jrShift"><option>Kunduzgi</option><option>Tungi</option></select></div>
+  <div><label for="jrSubject" id="jrSubjectLabel">Arqon / detal nomi</label><input id="jrSubject" placeholder="Nomi yoki turi"></div>
+  <div><label for="jrQuantity">Miqdor / ko‘rsatkich</label><input id="jrQuantity" placeholder="Masalan: 1, 25 m, 3 kg"></div>
+  <div class="wide"><label for="jrDetails">Holati, bajarilgan ish yoki izoh</label><textarea id="jrDetails" placeholder="Batafsil ma’lumot kiriting..."></textarea></div>
+  <div><label for="jrPerson">Mas’ul xodim</label><input id="jrPerson" placeholder="F.I.Sh."></div>
+  <div><label for="jrStatus">Holati</label><select id="jrStatus"><option>Qayd etildi</option><option>Bajarildi</option><option>Kutilmoqda</option><option>Almashtirildi</option><option>Nosoz</option></select></div>
+ </div>
+ <button class="primary" id="saveJournalBtn" style="margin-top:10px">＋ JURNALGA QO‘SHISH</button>
+ <div class="actions" style="margin-top:9px"><button class="smallbtn" id="journalCsvBtn">⇩ Excel uchun CSV</button><button class="smallbtn" id="journalPrintBtn">▤ Chop etish / PDF</button></div>
+ <div id="journalRecords" style="margin-top:12px"><div class="empty">Hozircha yozuv yo‘q.</div></div>
+</section>
+<section class="card" id="inventoryPanel">
+ <h2 class="section-title">OMBOR QOLDIQLARI</h2>
+ <div class="hint">Ehtiyot qismlar va moylash materiallari kirim-chiqimini qayd eting. Qoldiq avtomatik hisoblanadi.</div>
+ <div class="field-grid" style="margin-top:10px">
+  <div><label for="invType">Turi</label><select id="invType"><option value="parts">Ehtiyot qismi</option><option value="oil">Moylash materiali</option></select></div>
+  <div><label for="invName">Nomi</label><input id="invName" placeholder="Detal yoki moy nomi"></div>
+  <div><label for="invUnit">O‘lchov birligi</label><input id="invUnit" placeholder="dona, kg, litr, metr"></div>
+  <div><label for="invQty">Miqdor</label><input id="invQty" type="number" step="0.01" min="0" placeholder="0"></div>
+  <div><label for="invAction">Amal</label><select id="invAction"><option value="in">Kirim (+)</option><option value="out">Chiqim (−)</option></select></div>
+  <div><label for="invNote">Izoh</label><input id="invNote" placeholder="Qayerga / nima uchun"></div>
+ </div>
+ <button class="primary" id="saveInventoryBtn" style="margin-top:10px">OMBOR HARAKATINI SAQLASH</button>
+ <div id="inventoryList" style="margin-top:12px"><div class="empty">Ombor ma’lumotlari yo‘q.</div></div>
+</section>
+
+<section class="card" id="operatorPanel" style="margin:0 0 14px">
+ <h2 class="section-title">Operator profili <span class="pill" id="operatorBadge">Kiritilmagan</span></h2>
+ <div class="field-grid">
+  <div><label for="operatorName">Operator F.I.Sh.</label><input id="operatorName" placeholder="Ism Familiya"></div>
+  <div><label for="operatorCode">Operator ID / tabel raqami</label><input id="operatorCode" placeholder="Masalan: 0145"></div>
+ </div>
+ <label for="operatorPhone" style="margin-top:10px">Operator telefoni (ixtiyoriy)</label>
+ <input id="operatorPhone" type="tel" placeholder="+998 90 123 45 67">
+ <button class="smallbtn" id="saveOperator" style="width:100%;margin-top:10px;min-height:44px">Profilni saqlash</button>
+</section>
+
+<section class="card" id="shiftPanel" style="margin:0 0 14px">
+ <h2 class="section-title">Smena boshqaruvi <span class="pill" id="shiftState">Smena boshlanmagan</span></h2>
+ <div class="shift-status" id="shiftStatus">Reyslarni hisoblash uchun avval kunduzgi yoki tungi smenani boshlang.</div>
+ <div class="shift-controls">
+  <button class="shift-btn day" id="startDay">☀️ KUNDUZGI<br><small>12 soat</small></button>
+  <button class="shift-btn night" id="startNight">🌙 TUNGI<br><small>12 soat</small></button>
+ </div>
+ <button class="smallbtn" id="finishShift" style="width:100%;margin-top:10px;min-height:48px" disabled>■ Smenani yakunlash</button>
+ <div class="hint">Smena boshlanish va tugash vaqti avtomatik saqlanadi. Tungi smena yarim tundan o‘tsa ham bitta smena sifatida hisoblanadi.</div>
+</section>
+<section class="hero">
+ <div class="hero-label">JORIY SMENADAGI REYSLAR</div>
+ <div class="count" id="todayCount">0</div>
+ <div class="count-foot" id="todayDate">Smena hali boshlanmagan</div>
+</section>
+
+<div class="stats">
+ <div class="stat"><div class="stat-label">Smenadagi jami reys</div><div class="stat-value" id="totalCount">0</div></div>
+ <div class="stat"><div class="stat-label">Oxirgi 60 daqiqada</div><div class="stat-value" id="hourCount">0</div><div class="stat-note">reys</div></div>
+ <div class="stat"><div class="stat-label">O‘rtacha tezlik</div><div class="stat-value" id="hourRate">—</div><div class="stat-note">reys / soat (joriy smena)</div></div>
+ <div class="stat"><div class="stat-label">Smena davomiyligi</div><div class="stat-value" id="lastTrip">—</div></div>
+</div>
+
+<section class="card" id="truckReportPanel">
+ <h2 class="section-title">Har bir mashina bo‘yicha hisobot <span class="pill" id="reportShiftBadge">Smena tanlanmagan</span></h2>
+ <div class="hint" id="reportShiftInfo" style="margin:0 0 12px">Joriy yoki oxirgi smena bo‘yicha hisobot.</div>
+ <div id="truckReportList" class="list"><div class="empty">Hisobot uchun ma’lumot yo‘q.</div></div>
+ <h3 style="font-size:14px;margin:18px 0 8px">Mashinalarni taqqoslash</h3>
+ <div id="truckComparison" class="list"><div class="empty">Taqqoslash uchun ma’lumot yo‘q.</div></div>
+ <div class="actions" style="margin-top:14px">
+  <button class="smallbtn" id="reportExcelBtn">⇩ Excel hisobot</button>
+  <button class="smallbtn" id="reportPdfBtn">⇩ PDF hisobot</button>
+  <button class="smallbtn" id="shiftReceiptBtn">▤ Smena cheki / spravka</button>
+ </div>
+ <div class="hint">PDF tugmasi chop etish oynasini ochadi. Undan “PDF sifatida saqlash”ni tanlang.</div>
+</section>
+
+<section class="card">
+ <h2 class="section-title">Saqlangan mashinalar <span class="pill" id="templateCount">0 ta</span></h2>
+ <p class="hint" style="margin:0 0 14px">Reys tugashi bilan shu mashinaning katta tugmasini bir marta bosing. Vaqt avtomatik yoziladi.</p>
+
+ <details class="add-details">
+  <summary>＋ Mashina raqamlarini qo‘shish yoki boshqarish</summary>
+  <div class="add-inner">
+   <label for="truck">Mashina raqami</label>
+   <input id="truck" maxlength="24" autocomplete="off" placeholder="Masalan: 01 A 123 BC">
+   <button class="smallbtn" id="saveTemplateBtn" style="width:100%;margin-top:10px;min-height:48px">＋ Mashinani ro‘yxatga qo‘shish</button>
+  </div>
+ </details>
+</section>
+
+
+<section class="card" id="periodStats">
+ <h2 class="section-title">Kunlik va oylik statistika</h2>
+ <div class="metric-grid">
+  <div class="metric"><small>Bugungi reyslar</small><b id="dailyTrips">0</b></div>
+  <div class="metric"><small>Joriy oydagi reyslar</small><b id="monthlyTrips">0</b></div>
+  <div class="metric"><small>Bugun ishlagan mashinalar</small><b id="dailyTrucks">0</b></div>
+  <div class="metric"><small>Joriy oy smenalari</small><b id="monthlyShifts">0</b></div>
+ </div>
+ <div class="hint" id="periodNote">Statistika ushbu qurilmada saqlangan barcha reyslardan hisoblanadi.</div>
+</section>
+
+<section class="card" id="smsPanel">
+ <h2 class="section-title">SMS hisoboti <span class="pill" id="smsState">Sozlanmoqda</span></h2>
+ <label for="smsPhone">Hisobotni qabul qiluvchi telefon raqami</label>
+ <input id="smsPhone" type="tel" inputmode="tel" autocomplete="tel" value="+998" placeholder="+998 90 123 45 67">
+ <div class="hint">Telefon raqamini to‘liq kiriting. Hisobot oddiy telefonning SMS ilovasida tayyorlanadi.</div>
+ <div class="sms-grid" style="margin-top:12px">
+  <label class="sms-option"><input id="smsHourly" type="checkbox" checked style="width:auto;margin-right:7px"> Har soatda eslatma</label>
+  <label class="sms-option"><input id="smsShiftEnd" type="checkbox" checked style="width:auto;margin-right:7px"> Smena yakunida</label>
+ </div>
+ <div id="pendingSms" class="pending-sms" hidden>
+  <b>SMS hisoboti tayyor</b>
+  <div class="hint" id="pendingSmsText">Hisobotni yuborish uchun SMS ilovasini oching.</div>
+  <button class="smallbtn" id="sendPendingSms" style="width:100%;margin-top:9px;min-height:44px">✉ Tayyor hisobotni SMS orqali yuborish</button>
+ </div>
+ <button class="smallbtn" id="saveSmsSettings" style="width:100%;margin-top:12px;min-height:46px">Sozlamalarni saqlash</button>
+ <button class="smallbtn" id="sendSmsNow" style="width:100%;margin-top:8px;min-height:50px">✉ SMS hisobotini yuborish</button>
+ <div class="hint">Eslatma: tugma telefoningizdagi SMS ilovasini ochadi. Yuborishni tasdiqlash kerak bo‘ladi. Sayt yopiq turganda avtomatik SMS yuborish uchun server va SMS xizmati kerak.</div>
+</section>
+
+<section class="card">
+ <h2 class="section-title">Reyslar tarixi <span class="pill" id="historyBadge">0 ta</span></h2>
+ <div class="actions" style="margin-bottom:12px">
+  <button class="smallbtn" id="exportBtn">⇩ Excel / CSV hisobot</button>
+  <button class="smallbtn" id="refreshBtn">↻ Yangilash</button>
+ </div>
+ <div class="card" style="padding:12px;margin:0 0 14px;background:#0d1a2b;border:1px solid #40536b">
+  <b style="display:block;margin-bottom:7px">Eski smenalar tarixini arxivlash</b>
+  <div class="hint" style="margin:0 0 10px">Avval eski reyslar tarixini PDF qilib saqlang. Keyin alohida tugma orqali eski reyslar va yakunlangan smenalarni o‘chirishingiz mumkin. Joriy faol smena ma’lumotlari saqlanib qoladi.</div>
+  <div class="actions">
+   <button class="smallbtn" id="oldHistoryPdfBtn">⇩ Eski tarixni PDF qilish</button>
+   <button class="smallbtn" id="clearOldHistoryBtn" style="border-color:#a8434a;color:#ffd7d7">⌫ PDF saqlangach eski tarixni o‘chirish</button>
+  </div>
+  <div class="hint" id="oldHistoryInfo" style="margin:9px 0 0">Eski tarix tekshirilmoqda…</div>
+ </div>
+ <div class="list" id="history"><div class="empty">Hozircha reyslar yo‘q.<br>Birinchi reysni qayd qiling.</div></div>
+</section>
+<section class="card" id="backupPanel" style="margin-top:14px">
+ <h2 class="section-title">Zaxira nusxa va ma’lumotlarni tiklash</h2>
+ <div class="hint">Telefon almashtirilsa yoki brauzer ma’lumotlari o‘chib ketsa, JSON zaxira fayli orqali reyslar, smenalar, mashinalar va operator ma’lumotlarini tiklash mumkin.</div>
+ <div class="actions" style="margin-top:12px">
+  <button class="smallbtn" id="backupBtn" type="button">⬇ ZAXIRA NUSXA OLISH</button>
+  <button class="smallbtn" id="restoreBtn" type="button">⬆ ZAXIRADAN TIKLASH</button>
+  <input id="restoreFile" type="file" accept=".json,application/json" style="display:none">
+ </div>
+ <div class="hint" style="margin-top:9px">Zaxira faylini telefoningizga saqlang. Tiklash joriy ma’lumotlarni zaxira faylidagi ma’lumotlar bilan almashtiradi.</div>
+</section>
+<footer>REYS HISOBI · EKG-10 · Ma’lumotlar ushbu qurilmada saqlanadi</footer>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+const KEY='reys-hisobi-ekg10-v1';
+const $=id=>document.getElementById(id);
+const SHIFT_KEY='reys-hisobi-ekg10-shifts-v1';
+const TEMPLATE_KEY='reys-hisobi-ekg10-truck-templates-v1';
+const SMS_KEY='reys-hisobi-ekg10-sms-settings-v2';
+const TELEGRAM_AUTO_KEY='reys-hisobi-ekg10-telegram-auto-v1';
+const TELEGRAM_HOURLY_KEY='reys-hisobi-ekg10-telegram-hourly-v1';
+const STATUS_KEY='reys-hisobi-ekg10-truck-status-v1';
+const OPERATOR_KEY='reys-hisobi-ekg10-operator-v1';
+let trips=[],truckTemplates=[],shifts=[],currentShift=null;
+let smsSettings={phone:'+998',hourly:true,shiftEnd:true};
+let truckStatuses={},operator={name:'',code:'',phone:''};
+let pendingSmsReason='';
+let telegramAutoShare=true;
+let telegramHourlyEnabled=true;
+let lastHourlyNotice=new Date().toISOString().slice(0,13);
+
+function safeRead(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch(e){return fallback}}
+function load(){
+ trips=safeRead(KEY,[]);truckTemplates=safeRead(TEMPLATE_KEY,[]);shifts=safeRead(SHIFT_KEY,[]);
+ currentShift=shifts.find(x=>x.status==='active')||null;
+ smsSettings={...{phone:'+998',hourly:true,shiftEnd:true},...(safeRead(SMS_KEY,{}))};
+  telegramAutoShare=safeRead(TELEGRAM_AUTO_KEY,true)!==false;
+  telegramHourlyEnabled=safeRead(TELEGRAM_HOURLY_KEY,true)!==false;
+  if($('telegramAutoShare'))$('telegramAutoShare').checked=telegramAutoShare;
+  if($('telegramHourlyEnabled'))$('telegramHourlyEnabled').checked=telegramHourlyEnabled;
+  renderHourlyTelegramStatus();
+ truckStatuses=safeRead(STATUS_KEY,{});
+ operator={...{name:'',code:'',phone:''},...(safeRead(OPERATOR_KEY,{}))};
+ $('smsPhone').value=smsSettings.phone||'+998';
+ $('smsHourly').checked=smsSettings.hourly!==false;
+ $('smsShiftEnd').checked=smsSettings.shiftEnd!==false;
+ $('operatorName').value=operator.name;$('operatorCode').value=operator.code;$('operatorPhone').value=operator.phone;
+ $('operatorBadge').textContent=operator.name||'Kiritilmagan';
+}
+function persistAll(){save();saveTemplates();saveShifts();localStorage.setItem(STATUS_KEY,JSON.stringify(truckStatuses));localStorage.setItem(OPERATOR_KEY,JSON.stringify(operator));localStorage.setItem(SMS_KEY,JSON.stringify(smsSettings))}
+function save(){localStorage.setItem(KEY,JSON.stringify(trips))}
+function saveTemplates(){localStorage.setItem(TEMPLATE_KEY,JSON.stringify(truckTemplates))}
+function saveShifts(){localStorage.setItem(SHIFT_KEY,JSON.stringify(shifts))}
+function fmtDuration(ms){const m=Math.max(0,Math.floor(ms/60000));return Math.floor(m/60)+' soat '+String(m%60).padStart(2,'0')+' daqiqa'}
+function dateTime(ts){return new Intl.DateTimeFormat('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(ts))}
+function dateOnly(ts){return new Intl.DateTimeFormat('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(ts))}
+function timeOnly(ts){return new Intl.DateTimeFormat('uz-UZ',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ts))}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function statusOf(plate){return truckStatuses[plate]||'active'}
+function statusLabel(status){return ({active:'Ishlayapti',repair:'Ta’mirda',waiting:'Kutishda',off:'Smenada yo‘q'})[status]||'Ishlayapti'}
+let countingMode=localStorage.getItem('EKG10_COUNTING_MODE')||'normal';
+function setCountingMode(mode){
+ countingMode=mode==='large'?'large':'normal';
+ localStorage.setItem('EKG10_COUNTING_MODE',countingMode);
+ const screen=$('countingScreen');if(screen)screen.classList.toggle('large-mode',countingMode==='large');
+ const normal=$('normalModeBtn'),large=$('largeModeBtn');
+ if(normal)normal.classList.toggle('mode-active',countingMode==='normal');
+ if(large)large.classList.toggle('mode-active',countingMode==='large');
+ if($('truckTemplates'))renderTemplates();
+}
+if($('normalModeBtn'))$('normalModeBtn').addEventListener('click',()=>setCountingMode('normal'));
+if($('largeModeBtn'))$('largeModeBtn').addEventListener('click',()=>setCountingMode('large'));
+
+function renderTemplates(){
+ const host=$('truckTemplates');host.innerHTML='';$('templateCount').textContent=truckTemplates.length+' ta mashina';
+ if(!truckTemplates.length){host.innerHTML='<div class="empty">Mashina raqamlarini qo‘shish uchun yuqoridagi bo‘limni oching.</div>';return}
+ truckTemplates.forEach(plate=>{
+  const truckTrips=currentShift?trips.filter(t=>t.shiftId===currentShift.id&&t.truck.toLowerCase()===plate.toLowerCase()).sort((a,b)=>a.timestamp-b.timestamp):[];
+  const countNow=truckTrips.length;
+  const hourKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()+'-'+d.getHours()};
+  const hourCounts={};
+  truckTrips.forEach(t=>{const key=hourKey(t.timestamp);hourCounts[key]=(hourCounts[key]||0)+1});
+  const currentHourKey=hourKey(Date.now());
+  const currentHourCount=hourCounts[currentHourKey]||0;
+  const hourlySummary=Object.keys(hourCounts).sort((a,b)=>{
+    const [ay,am,ad,ah]=a.split('-').map(Number),[by,bm,bd,bh]=b.split('-').map(Number);
+    return new Date(ay,am,ad,ah)-new Date(by,bm,bd,bh);
+  }).map(key=>{
+    const [y,m,d,h]=key.split('-').map(Number);
+    return String(h).padStart(2,'0')+':00–'+String((h+1)%24).padStart(2,'0')+':00: '+hourCounts[key];
+  });
+  const group=document.createElement('div');group.className='truck-row';
+  const pick=document.createElement('button');pick.type='button';pick.className='truck-pick';pick.disabled=!currentShift||statusOf(plate)!=='active';
+  const info=document.createElement('span'),plateText=document.createElement('span');plateText.className='plate';plateText.textContent=plate;
+  const count=document.createElement('span');count.className='subcount';
+  const hourly=document.createElement('span');hourly.className='hourly-count';
+  hourly.textContent='SOATLIK REYS: '+currentHourCount;
+  const shiftTotal=document.createElement('span');shiftTotal.className='shift-total';
+  shiftTotal.textContent='SMENA JAMI: '+countNow+' reys';
+  const details=document.createElement('span');details.className='hourly-details';
+  details.textContent=hourlySummary.length?'Soatlar bo‘yicha: '+hourlySummary.join('  |  '):'Hali reys qayd etilmagan';
+  count.append(hourly,shiftTotal,details);
+  info.append(plateText,count);const badge=document.createElement('span');badge.className='tap';badge.textContent=statusOf(plate)==='active'?(countingMode==='large'?'+1 REYS':'＋ REYS'):'BAND';
+  pick.append(info,badge);pick.addEventListener('click',()=>recordTrip(plate));
+  const sel=document.createElement('select');sel.className='status-select';sel.setAttribute('aria-label',plate+' holati');
+  [['active','Ishlayapti'],['repair','Ta’mirda'],['waiting','Kutishda'],['off','Smenada yo‘q']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent='Holati: '+l;o.selected=statusOf(plate)===v;sel.append(o)});
+  sel.addEventListener('change',()=>{truckStatuses[plate]=sel.value;localStorage.setItem(STATUS_KEY,JSON.stringify(truckStatuses));renderTemplates();toast(plate+' holati: '+statusLabel(sel.value))});
+  const undo=document.createElement('button');undo.type='button';undo.className='minus-trip';undo.textContent='−';undo.title=plate+' uchun oxirgi reysni bekor qilish';
+  undo.disabled=!currentShift||countNow===0;
+  undo.addEventListener('click',()=>{
+   const latest=trips.filter(t=>t.shiftId===currentShift?.id&&t.truck.toLowerCase()===plate.toLowerCase()).sort((a,b)=>b.timestamp-a.timestamp)[0];
+   if(!latest){toast('Bekor qilinadigan reys topilmadi');return}
+   if(!confirm(plate+' mashinasining oxirgi reysini bekor qilasizmi?'))return;
+   trips=trips.filter(t=>t.id!==latest.id);save();render();toast(plate+' — oxirgi reys bekor qilindi');
+  });
+  const remove=document.createElement('button');remove.type='button';remove.className='remove-truck';remove.textContent='×';remove.title='Mashina ro‘yxatidan o‘chirish';
+  remove.addEventListener('click',()=>{if(!confirm(plate+' mashinasini ro‘yxatdan o‘chirasizmi?'))return;truckTemplates=truckTemplates.filter(x=>x!==plate);saveTemplates();renderTemplates();toast('Mashina ro‘yxatdan o‘chirildi')});
+  group.append(pick,undo,sel,remove);host.append(group);
+ });
+}
+function playTripSound(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  const ctx=new AudioCtx();
+  const now=ctx.currentTime;
+  [[880,0],[1175,0.13]].forEach(([freq,delay])=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.setValueAtTime(freq,now+delay);
+   gain.gain.setValueAtTime(0.0001,now+delay);
+   gain.gain.exponentialRampToValueAtTime(0.18,now+delay+0.015);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.11);
+   osc.connect(gain);gain.connect(ctx.destination);
+   osc.start(now+delay);osc.stop(now+delay+0.12);
+  });
+  setTimeout(()=>ctx.close().catch(()=>{}),500);
+ }catch(e){/* Ovoz qurilma/brauzer tomonidan qo‘llanmasa, hisoblash davom etadi. */}
+}
+function vibrateTrip(){
+ try{if(navigator.vibrate)navigator.vibrate([55,35,75]);}catch(e){}
+}
+function recordTrip(plate){
+ if(!currentShift){toast('Avval smenani boshlang');return false}
+ if(statusOf(plate)!=='active'){toast('Mashina ishlash holatida emas');return false}
+ const id=trips.reduce((m,t)=>Math.max(m,Number(t.id)||0),0)+1;
+ trips.unshift({id,truck:plate,timestamp:Date.now(),shiftId:currentShift.id,shiftType:currentShift.type,operator:operator.name||''});
+ save();playTripSound();vibrateTrip();render();toast(plate+' — reys saqlandi');return true;
+}
+function speakTripConfirmation(plate,qty){
+ try{
+  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
+  window.speechSynthesis.cancel();
+  const countText=qty===1?'bitta reys':qty===2?'ikkita reys':qty===3?'uchta reys':qty===4?'to‘rtta reys':qty===5?'beshta reys':qty+' ta reys';
+  const utterance=new SpeechSynthesisUtterance(plate+' mashinaga '+countText+' qo‘shdim');
+  utterance.lang='uz-UZ';utterance.rate=0.88;utterance.pitch=1;utterance.volume=1;
+  utterance.onerror=()=>{playTripSound()};
+  const voices=window.speechSynthesis.getVoices();
+  const uzVoice=voices.find(v=>/^uz(-|_)/i.test(v.lang));
+  if(uzVoice)utterance.voice=uzVoice;
+  window.speechSynthesis.speak(utterance);
+ }catch(e){/* Nutq sintezi mavjud bo‘lmasa, tasdiq signali saqlanadi. */}
+}
+function getShiftAttendees(){
+ const raw=$('shiftAttendees')?$('shiftAttendees').value:'';
+ return [...new Set(raw.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean))];
+}
+function updateAttendanceCount(){
+ const count=$('attendanceCount');if(count)count.textContent='Xodimlar soni: '+getShiftAttendees().length;
+}
+function syncAttendanceField(){
+ const field=$('shiftAttendees');if(!field)return;
+ if(currentShift){field.value=(currentShift.attendees||[]).join('\n');field.disabled=true;field.style.opacity='.72';}
+ else {field.disabled=false;field.style.opacity='1';}
+ updateAttendanceCount();
+}
+
+const SHIFT_REMINDER_TASKS=[
+ 'Smena boshida po‘lat arqon holatini ko‘zdan kechirish',
+ 'Moylash nuqtalari va moy miqdorini tekshirish',
+ 'Ekskavatorning umumiy texnik holatini tekshirish',
+ 'Zaboy va geologik sharoit bo‘yicha ma’lumotni qayd etish',
+ 'Smena davomida nosozlik va bekor turishlarni jurnalga yozish',
+ 'Smena davomida moylash ishlari va moy sarfini qayd etish',
+ 'Kerakli ehtiyot qismlar bo‘yicha zayavka tayyorlash',
+ 'Smena oxirida ish natijalarini va texnik holatni topshirish'
+];
+let reminderCollapsed=false;
+function renderShiftReminders(){
+ const card=$('shiftReminderCard'),list=$('shiftReminderList');
+ if(!card||!list)return;
+ if(!currentShift){card.style.display='none';return}
+ card.style.display='block';
+ if(!Array.isArray(currentShift.reminders))currentShift.reminders=SHIFT_REMINDER_TASKS.map(()=>false);
+ const done=currentShift.reminders.filter(Boolean).length;
+ $('reminderProgress').textContent=done+' / '+SHIFT_REMINDER_TASKS.length+' bajarildi';
+ list.innerHTML='';
+ SHIFT_REMINDER_TASKS.forEach((task,index)=>{
+  const label=document.createElement('label');label.className='reminder-item'+(currentShift.reminders[index]?' done':'');
+  const input=document.createElement('input');input.type='checkbox';input.checked=!!currentShift.reminders[index];
+  input.addEventListener('change',()=>{
+   if(!Array.isArray(currentShift.reminders))currentShift.reminders=SHIFT_REMINDER_TASKS.map(()=>false);
+   currentShift.reminders[index]=input.checked;saveShifts();renderShiftReminders();
+  });
+  const text=document.createElement('span');text.textContent=task;
+  label.append(input,text);list.append(label);
+ });
+ list.style.display=reminderCollapsed?'none':'grid';
+ $('toggleReminderList').textContent=reminderCollapsed?'Eslatmalarni ochish':'Eslatmalarni yig‘ish';
+ $('resetReminderList').style.display=done?'inline-flex':'none';
+}
+
+function startShift(type,name){
+ if(currentShift){toast('Avval joriy smenani yakunlang');return false}
+ const attendees=getShiftAttendees();
+ if(!attendees.length){toast('Smenaga kelgan xodimlarning F.I.Sh.ini kiriting');$('shiftAttendees').focus();return false}
+ const cleanName=String(name||'').trim()||((new Date()).toLocaleDateString('uz-UZ')+' — '+type+' smena');
+ const shiftStart=Date.now();
+ const selectedMachineId=$('journalMachine')?.value||'ekg10-main';
+ const selectedMachine=Array.isArray(journalMachines)?journalMachines.find(m=>m.id===selectedMachineId):null;
+ const typedExcavator=String($('shiftExcavatorName')?.value||'').trim();
+ const excavatorName=typedExcavator||selectedMachine?.name||'EKG-10';
+ let excavatorId=selectedMachineId;
+ if(Array.isArray(journalMachines)){
+  let matchingMachine=journalMachines.find(m=>String(m.name||'').trim().toLowerCase()===excavatorName.toLowerCase());
+  if(!matchingMachine){matchingMachine={id:'machine-'+Date.now(),name:excavatorName};journalMachines.push(matchingMachine);if(typeof saveJournalState==='function')saveJournalState();if(typeof renderMachineOptions==='function')renderMachineOptions();}
+  excavatorId=matchingMachine.id;
+  if($('journalMachine'))$('journalMachine').value=excavatorId;
+ }
+ const sh={id:shiftStart,name:cleanName,type,start:shiftStart,end:null,status:'active',operator:operator.name||'',attendees,excavatorId,excavatorName,reminders:SHIFT_REMINDER_TASKS.map(()=>false),hourlyTelegramLastAt:shiftStart,hourlyTelegramPending:null};
+ shifts.push(sh);currentShift=sh;saveShifts();syncAttendanceField();render();toast('“'+cleanName+'” smena boshlandi. Xodimlar: '+attendees.length);return true;
+}
+function finishShift(){
+ if(!currentShift){toast('Yakunlanadigan faol smena yo‘q');return}
+ const shiftTrips=trips.filter(t=>t.shiftId===currentShift.id);
+ if(!confirm('Joriy smenani yakunlaysizmi?\n\nSmena: '+(currentShift.name||currentShift.type)+'\nJami reys: '+shiftTrips.length+' ta\n\nMa’lumotlar avtomatik saqlanadi.'))return;
+ const completed=currentShift;
+ completed.end=Date.now();
+ completed.status='finished';
+ completed.totalTrips=shiftTrips.length;
+ completed.durationMs=completed.end-completed.start;
+ completed.truckTotals={};
+ shiftTrips.forEach(t=>{completed.truckTotals[t.truck]=(completed.truckTotals[t.truck]||0)+1});
+ // Reyslar har bir bosishda saqlangan; yakunlashda barcha joriy ma’lumotlarni yana bir bor yozamiz.
+ save();saveShifts();saveTemplates();
+ currentShift=null;
+ render();
+ // Smena yakunida faqat PDF hisobot Telegram ulashishiga chiqariladi.
+ let telegramTask=null;
+ if(telegramAutoShare){
+  try{telegramTask=sendTelegramReport();}catch(err){console.warn('PDF ulashish xatosi:',err);}
+ }
+ if(telegramTask&&typeof telegramTask.catch==='function'){
+  telegramTask.catch(err=>{console.warn('Telegram ulashish xatosi:',err);toast('Smena saqlandi, ammo Telegram ulashish amalga oshmadi. Hisobotni alohida yuborishingiz mumkin.');});
+ }
+ if($('shiftAttendees')){$('shiftAttendees').value='';$('shiftAttendees').disabled=false;$('shiftAttendees').style.opacity='1';updateAttendanceCount();}
+ if(smsSettings.shiftEnd){pendingSmsReason='Smena yakunlandi';showPendingSms('Smena yakunlandi — SMS hisobotini yuborishga tayyor.')}
+ toast('Smena yakunlandi va saqlandi. '+shiftTrips.length+' ta reys hisobga olindi. Yangi smena 0 dan boshlanadi.');
+}
+function showPendingSms(reason){pendingSmsReason=reason;$('pendingSms').hidden=false;$('pendingSmsText').textContent=reason+'. SMS ilovasini ochib yuborishni tasdiqlang.'}
+function buildSmsReport(){
+ const latest=shifts.slice().sort((a,b)=>b.start-a.start)[0];
+ const shift=currentShift||latest;
+ const arr=shift?trips.filter(t=>t.shiftId===shift.id):[];
+ const counts={};arr.forEach(t=>counts[t.truck]=(counts[t.truck]||0)+1);
+ const lines=['EKG-10 REYS HISOBOTI','Operator: '+(operator.name||'Kiritilmagan'),'Smena: '+(shift?(shift.name||shift.type):'—'),'Jami reys: '+arr.length];
+ Object.entries(counts).forEach(([truck,n])=>lines.push(truck+': '+n+' reys'));
+ if(shift&&Array.isArray(shift.attendees)&&shift.attendees.length)lines.push('Smenaga kelganlar: '+shift.attendees.join(', '));
+ if(shift)lines.push('Boshlanish: '+dateTime(shift.start));
+ if(shift?.end)lines.push('Tugash: '+dateTime(shift.end));
+ lines.push('Hisobot: '+dateTime(Date.now()));return lines.join('\n');
+}
+function openSmsComposer(){
+ const phone=$('smsPhone').value.trim();
+ if(!phone||phone==='+998'){toast('SMS qabul qiluvchi raqamini to‘liq kiriting');$('smsPhone').focus();return}
+ const url='sms:'+encodeURIComponent(phone)+'?body='+encodeURIComponent(buildSmsReport());
+ window.location.href=url;
+}
+function getReportShift(){
+ if(currentShift)return currentShift;
+ return shifts.filter(x=>x.status==='finished').sort((a,b)=>(b.end||b.start)-(a.end||a.start))[0]||null;
+}
+function getTruckReportRows(){
+ const sh=getReportShift();
+ if(!sh)return [];
+ const now=Date.now();
+ const hourMoment=sh.status==='active'?now:(sh.end||now);
+ const hourStart=new Date(hourMoment);hourStart.setMinutes(0,0,0);
+ const hourEnd=new Date(hourStart.getTime()+3600000);
+ return truckTemplates.map(plate=>{
+  const own=trips.filter(t=>t.shiftId===sh.id&&String(t.truck).toLowerCase()===plate.toLowerCase());
+  const hourly=own.filter(t=>t.timestamp>=hourStart.getTime()&&t.timestamp<hourEnd.getTime()).length;
+  return {plate,hourly,total:own.length};
+ }).sort((a,b)=>b.total-a.total||a.plate.localeCompare(b.plate));
+}
+function renderTruckReport(){
+ const sh=getReportShift(),rows=getTruckReportRows();
+ $('reportShiftBadge').textContent=sh?((sh.name||sh.type+' smena')):'Smena tanlanmagan';
+ $('reportShiftInfo').textContent=sh?((sh.name||sh.type+' smena')+' · '+dateTime(sh.start)+(sh.end?' — '+dateTime(sh.end):' · Hozir faol')):'Hisobot ko‘rish uchun avval smena boshlang.';
+ const list=$('truckReportList'),comparison=$('truckComparison');list.innerHTML='';comparison.innerHTML='';
+ if(!rows.length){list.innerHTML='<div class="empty">Mashinalar yoki smena reyslari mavjud emas.</div>';comparison.innerHTML='<div class="empty">Taqqoslash uchun ma’lumot yo‘q.</div>';return}
+ rows.forEach(r=>{
+  const card=document.createElement('div');card.className='report-item';
+  const head=document.createElement('div');head.className='report-head';
+  const plate=document.createElement('span');plate.textContent=r.plate;
+  const status=document.createElement('span');status.className='pill';status.textContent=statusLabel(statusOf(r.plate));head.append(plate,status);
+  const nums=document.createElement('div');nums.className='report-numbers';
+  const h=document.createElement('div');h.className='report-number';h.innerHTML='<small>Soatlik reys</small><b>'+r.hourly+'</b>';
+  const t=document.createElement('div');t.className='report-number';t.innerHTML='<small>Smena jami</small><b>'+r.total+'</b>';
+  nums.append(h,t);card.append(head,nums);list.append(card);
+ });
+ rows.forEach((r,i)=>{
+  const line=document.createElement('div');line.className='trip';
+  const left=document.createElement('div');left.innerHTML='<div class="truck">'+(i+1)+'. '+escapeHtml(r.plate)+'</div><div class="time">Soatlik: '+r.hourly+' reys</div>';
+  const right=document.createElement('div');right.className='compare-rank';right.textContent=r.total+' reys';line.append(left,right);comparison.append(line);
+ });
+}
+function getTelegramExcavatorName(sh){
+ if(sh&&sh.excavatorName)return sh.excavatorName;
+ const id=sh&&sh.excavatorId;
+ const found=Array.isArray(journalMachines)?journalMachines.find(m=>m.id===id):null;
+ return found?.name||'EKG-10';
+}
+function getTelegramPeopleLine(sh){
+ const people=[...new Set([sh.operator||operator.name||'',...(Array.isArray(sh.attendees)?sh.attendees:[])].map(x=>String(x||'').trim()).filter(Boolean))];
+ return people.length?people.join(', '):'Ko‘rsatilmagan';
+}
+function buildTelegramReport(shOverride){
+ const sh=shOverride||shifts.filter(x=>x.status==='finished'&&x.end).sort((a,b)=>b.start-a.start)[0];
+ if(!sh){toast('Telegramga yuborish uchun yakunlangan smena mavjud emas');return ''}
+ const own=trips.filter(t=>t.shiftId===sh.id);
+ // Telegram hujjati ostidagi izoh: sana bir marta, qolgan vaqtlar HH:MM.
+ const plates=getShiftTruckPlates(sh,own);
+ const counts={};own.forEach(t=>{const plate=String(t.truck||'').trim();if(plate)counts[plate]=(counts[plate]||0)+1;});
+ const lines=plates.map((plate,i)=>(i+1)+'. '+plate+' — '+(counts[plate]||0)+' reys');
+ return '📅 Sana: '+dateOnly(sh.start)+'\n'+
+ '🚜 Ekskavator: '+getTelegramExcavatorName(sh)+'\n'+
+ '👷 Smena: '+timeOnly(sh.start)+' — '+timeOnly(sh.end||Date.now())+' ('+(sh.type==='night'?'Tungi':'Kunduzgi')+' smena)\n'+
+ '👥 Smenadagi xodimlar: '+getTelegramPeopleLine(sh)+'\n\n'+
+ '🚚 BELAZLAR BO‘YICHA SMENA REYSLARI:\n'+(lines.length?lines.join('\n'):'BelAZ ro‘yxati mavjud emas')+'\n\n'+
+ '📊 UMUMIY REYS: '+own.length+' TA';
+}
+function getShiftTruckPlates(sh,own){
+ return [...new Set([...(truckTemplates||[]),...own.map(t=>String(t.truck||''))].filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+}
+function getHourBuckets(sh,endAt){
+ const end=Math.max(Number(sh.start)||0,Number(endAt)||Date.now());
+ const buckets=[];let from=Number(sh.start)||end;
+ while(from<end){const to=Math.min(from+3600000,end);buckets.push({from,to,label:dateTime(from)+' — '+dateTime(to)});from=to;}
+ if(!buckets.length)buckets.push({from:end,to:end,label:dateTime(end)+' — '+dateTime(end)});
+ return buckets;
+}
+function buildHourlyReportLines(sh,from,to){
+ const own=trips.filter(t=>t.shiftId===sh.id).sort((a,b)=>a.timestamp-b.timestamp);
+ const recent=own.filter(t=>Number(t.timestamp)>=from&&Number(t.timestamp)<to);
+ const plates=getShiftTruckPlates(sh,own);
+ const lines=[getTelegramExcavatorName(sh)+' — SOATLIK HISOBOT','Sana: '+dateOnly(from),'Smena: '+(sh.name||sh.type+' smena'),'Operator: '+(sh.operator||operator.name||'Ko‘rsatilmagan'),'Hisobot oralig‘i: '+timeOnly(from)+' — '+timeOnly(to),''];
+ lines.push('MASHINALAR BO‘YICHA SOATLIK NATIJA');
+ if(!plates.length)lines.push('Mashina ro‘yxati mavjud emas.');
+ plates.forEach((plate,i)=>{
+  const arr=recent.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase());
+  lines.push((i+1)+'. '+plate+' — '+arr.length+' reys');
+  if(arr.length)lines.push('   Reys vaqtlari: '+arr.map(t=>timeOnly(t.timestamp)).join('; '));
+  else lines.push('   Reys vaqtlari: qayd etilmagan');
+ });
+ lines.push('','SOATLIK JAMI: '+recent.length+' reys','SMENA BOSHLANGANIDAN JAMI: '+own.length+' reys','');
+ plates.forEach(plate=>{
+  const total=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;
+  lines.push(plate+' — smena jami '+total+' reys');
+ });
+ return lines;
+}
+function buildHourlyTelegramReport(sh,from,to){
+ const own=trips.filter(t=>t.shiftId===sh.id);
+ const recent=own.filter(t=>Number(t.timestamp)>=from&&Number(t.timestamp)<to);
+ const plates=getShiftTruckPlates(sh,own);
+ const hourly=plates.map((plate,i)=>{
+  const n=recent.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;
+  return (i+1)+'. '+plate+' — '+n+' reys';
+ });
+ const cumulative=plates.map((plate,i)=>{
+  const n=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;
+  return (i+1)+'. '+plate+' — '+n+' reys';
+ });
+ return '🚜 Ekskavator: '+getTelegramExcavatorName(sh)+'\n'+
+  '👷 Smena: '+(sh.name||sh.type+' smena')+'\n'+
+  '👥 Smenadagi xodimlar: '+getTelegramPeopleLine(sh)+'\n\n'+
+  '⏱ Oxirgi davrdagi reyslar ('+dateTime(from)+' — '+dateTime(to)+'):\n'+(hourly.length?hourly.join('\n'):'Reys yo‘q')+'\n'+
+  '📊 Smena boshidan jami reyslar:\n'+(cumulative.length?cumulative.join('\n'):'Reys yo‘q')+'\n\n'+
+  'JAMI: '+recent.length+' reys / smena jami '+own.length+' reys';
+}
+function createTextPdf(lines,fileName){
+ // A4 landscape, readable report with a clear title, section bands, generous spacing and page numbers.
+ const norm=v=>String(v??'').replace(/[ʻ’‘`´]/g,"'").replace(/—|–/g,'-').replace(/·/g,'-').replace(/oʻ|o’|o‘/gi,"o'").replace(/gʻ|g’|g‘/gi,"g'").replace(/[^\x20-\x7E]/g,'?');
+ const esc=v=>norm(v).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+ const W=842,H=595,LEFT=42,RIGHT=42,TOP=535,BOTTOM=42,usable=W-LEFT-RIGHT;
+ const prepared=[];
+ (lines||[]).forEach((raw,idx)=>{
+  const t=norm(raw).trim();
+  if(!t){prepared.push({kind:'gap',text:''});return;}
+  if(idx===0){prepared.push({kind:'title',text:t});return;}
+  if(/^(MASHINALAR BO'YICHA|MASHINALARNING|BELAZLAR BO'YICHA|REYSLAR VAQTI|SOATLIK|JAMI REYSLAR|TOPSHIRDI|QABUL QILDI)/i.test(t)){
+   prepared.push({kind:'section',text:t});return;
+  }
+  if(t.includes('|')){prepared.push({kind:'table',text:t});return;}
+  prepared.push({kind:'body',text:t});
+ });
+ const pages=[];let page=[],y=TOP;
+ const pushPage=()=>{pages.push(page);page=[];y=TOP;};
+ prepared.forEach(item=>{
+  if(item.kind==='gap'){if(y> BOTTOM+12){page.push({...item,y});y-=7;}return;}
+  const size=item.kind==='title'?18:item.kind==='section'?11:item.kind==='table'?8:10;
+  const leading=item.kind==='title'?25:item.kind==='section'?21:item.kind==='table'?13:17;
+  const maxChars=Math.max(45,Math.floor(usable/(size*0.53)));
+  let chunks=[];for(let i=0;i<item.text.length;i+=maxChars)chunks.push(item.text.slice(i,i+maxChars));
+  if(item.kind==='section'&&y-leading< BOTTOM)pushPage();
+  chunks.forEach((chunk,j)=>{
+   if(y-leading<BOTTOM)pushPage();
+   page.push({kind:item.kind,text:chunk,y,size,leading,first:j===0});y-=leading;
+  });
+ });
+ if(page.length||!pages.length)pages.push(page);
+ const objs=[];const pageIds=[];let next=5;
+ objs[1]='<< /Type /Catalog /Pages 2 0 R >>';objs[2]='';
+ objs[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+ objs[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+ pages.forEach((items,pi)=>{
+  const pageId=next++,contentId=next++;pageIds.push(pageId);
+  const c=[];
+  // Header accent and report label.
+  c.push('0.10 0.27 0.43 rg',`0 ${H-12} ${W} 12 re f`,'0.10 0.27 0.43 rg','BT','/F2 8 Tf',`1 0 0 1 ${LEFT} ${H-29} Tm`,'(EKG-10  |  SMENA HISOBOTI) Tj','ET');
+  items.forEach(it=>{
+   if(it.kind==='gap')return;
+   if(it.kind==='title'){
+    c.push('0.08 0.20 0.32 rg',` ${LEFT} ${it.y-5} ${usable} 28 re f`,'1 1 1 rg','BT','/F2 17 Tf',`1 0 0 1 ${LEFT+12} ${it.y+3} Tm`,`(${esc(it.text)}) Tj`,'ET');
+   }else if(it.kind==='section'){
+    c.push('0.88 0.92 0.96 rg',`${LEFT} ${it.y-5} ${usable} 17 re f`,'0.10 0.27 0.43 rg','BT','/F2 10 Tf',`1 0 0 1 ${LEFT+7} ${it.y} Tm`,`(${esc(it.text)}) Tj`,'ET');
+   }else if(it.kind==='table'){
+    c.push('0.12 0.16 0.20 rg','BT','/F1 7.5 Tf',`1 0 0 1 ${LEFT+3} ${it.y} Tm`,`(${esc(it.text)}) Tj`,'ET');
+    c.push('0.82 0.85 0.88 RG','0.45 w',`${LEFT} ${it.y-4} m ${W-RIGHT} ${it.y-4} l S`);
+   }else{
+    c.push('0.12 0.16 0.20 rg','BT','/F1 9.5 Tf',`1 0 0 1 ${LEFT+3} ${it.y} Tm`,`(${esc(it.text)}) Tj`,'ET');
+   }
+  });
+  c.push('0.55 0.60 0.65 RG','0.5 w',`${LEFT} 29 m ${W-RIGHT} 29 l S`,'0.35 0.39 0.44 rg','BT','/F1 8 Tf',`1 0 0 1 ${LEFT} 16 Tm`,`(EKG-10 hisobot  |  ${pi+1}/${pages.length}) Tj`,'ET');
+  const stream=c.join('\n');
+  objs[pageId]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+contentId+' 0 R >>';
+  objs[contentId]='<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream';
+ });
+ objs[2]='<< /Type /Pages /Kids ['+pageIds.map(id=>id+' 0 R').join(' ')+'] /Count '+pageIds.length+' >>';
+ let pdf='%PDF-1.4\n%EKG10\n',offsets=[0];
+ for(let id=1;id<objs.length;id++){offsets[id]=pdf.length;pdf+=id+' 0 obj\n'+objs[id]+'\nendobj\n';}
+ const xref=pdf.length;pdf+='xref\n0 '+objs.length+'\n0000000000 65535 f \n';
+ for(let id=1;id<objs.length;id++)pdf+=String(offsets[id]).padStart(10,'0')+' 00000 n \n';
+ pdf+='trailer\n<< /Size '+objs.length+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+ return {blob:new Blob([pdf],{type:'application/pdf'}),name:fileName};
+}
+
+function renderHourlyTelegramStatus(){
+ const status=$('telegramHourlyStatus'),btn=$('sendHourlyTelegramBtn');
+ if(!status||!btn)return;
+ const pending=currentShift&&currentShift.hourlyTelegramPending;
+ btn.style.display=pending?'block':'none';
+ if(!telegramHourlyEnabled)status.textContent='Soatlik Telegram hisoboti o‘chirilgan.';
+ else if(!currentShift)status.textContent='Soatlik hisobot smena boshlangach ishga tushadi.';
+ else if(pending)status.textContent='Soatlik hisobot tayyor. Telegram guruhini tanlab, yuborishni tasdiqlang.';
+ else {const last=Number(currentShift.hourlyTelegramLastAt||currentShift.start);const left=Math.max(0,3600000-(Date.now()-last));status.textContent='Soatlik hisobot yoqilgan. Keyingi hisobot: taxminan '+Math.ceil(left/60000)+' daqiqadan so‘ng.';}
+}
+function checkHourlyTelegram(){
+ if(!telegramHourlyEnabled||!currentShift)return;
+ if(currentShift.hourlyTelegramPending){renderHourlyTelegramStatus();return;}
+ const last=Number(currentShift.hourlyTelegramLastAt||currentShift.start);
+ const now=Date.now();
+ if(now-last<3600000){renderHourlyTelegramStatus();return;}
+ const report={from:last,to:now,text:buildHourlyTelegramReport(currentShift,last,now)};
+ currentShift.hourlyTelegramPending=report;saveShifts();renderHourlyTelegramStatus();
+ toast('Soatlik Telegram hisoboti tayyorlandi. Yuborish tugmasini bosing.');
+ try{if('Notification' in window&&Notification.permission==='granted')new Notification('EKG-10: soatlik hisobot tayyor',{body:'Telegram guruhiga yuborish uchun dasturni oching.'});}catch(e){}
+}
+async function sendHourlyTelegramReport(){
+ if(!currentShift||!currentShift.hourlyTelegramPending){toast('Hozircha soatlik hisobot tayyor emas');return;}
+ const pending=currentShift.hourlyTelegramPending;
+ const pdfData=createTextPdf(buildHourlyReportLines(currentShift,pending.from,pending.to),'EKG10_soatlik_hisobot.pdf');
+ const file=new File([pdfData.blob],pdfData.name,{type:'application/pdf'});
+ try{
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+   await navigator.share({title:'EKG-10 soatlik PDF hisoboti',text:pending.text||buildHourlyTelegramReport(currentShift,pending.from,pending.to),files:[file]});
+  }else{
+   downloadBlob(pdfData.blob,pdfData.name);
+   toast('Faqat PDF yuklab olindi. Uni Telegram guruhiga hujjat sifatida biriktiring.');
+  }
+  currentShift.hourlyTelegramLastAt=pending.to;currentShift.hourlyTelegramPending=null;saveShifts();renderHourlyTelegramStatus();
+  toast('Soatlik PDF tayyor. Telegram guruhini tanlab yuborishni tasdiqlang.');
+ }catch(err){
+  if(err&&err.name==='AbortError'){toast('Yuborish bekor qilindi. Hisobot tayyor holatda qoldi.');return;}
+  downloadBlob(pdfData.blob,pdfData.name);
+  toast('PDF yuklab olindi. Uni Telegram guruhiga biriktirib yuboring.');
+ }
+}
+
+function makeShiftReportPdf(){
+ const sh=shifts.filter(x=>x.status==='finished'&&x.end).sort((a,b)=>b.start-a.start)[0];
+ if(!sh){toast('PDF hisobot uchun yakunlangan smena mavjud emas');return null;}
+ const own=trips.filter(t=>t.shiftId===sh.id).sort((a,b)=>a.timestamp-b.timestamp);
+ const plates=getShiftTruckPlates(sh,own),buckets=getHourBuckets(sh,sh.end);
+ const lines=[getTelegramExcavatorName(sh)+' — 12 SOATLIK SMENA HISOBOTI','Sana: '+dateOnly(sh.start),'Smena: '+(sh.name||sh.type+' smena'),'Operator: '+(sh.operator||operator.name||'Ko‘rsatilmagan'),'Boshlanishi: '+timeOnly(sh.start),'Tugashi: '+timeOnly(sh.end),'Davomiyligi: '+fmtDuration(sh.end-sh.start),'Xodimlar: '+((sh.attendees||[]).join(', ')||'Ko‘rsatilmagan'),'','MASHINALAR BO‘YICHA SOATLIK REYSLAR'];
+ lines.push('Mashina | '+buckets.map((b,i)=>'Soat '+(i+1)+' ('+timeOnly(b.from)+'-'+timeOnly(b.to)+')').join(' | ')+' | Jami');
+ plates.forEach(plate=>{
+  const vals=buckets.map(b=>own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()&&t.timestamp>=b.from&&t.timestamp<b.to).length);
+  const total=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;
+  lines.push(plate+' | '+vals.join(' | ')+' | '+total);
+ });
+ lines.push('','MASHINALAR BO‘YICHA REYSLAR VAQTI');
+ plates.forEach((plate,i)=>{
+  const arr=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase());
+  lines.push((i+1)+'. '+plate+' — '+arr.length+' reys');
+  if(arr.length)arr.forEach((t,j)=>lines.push('   '+(j+1)+') '+timeOnly(t.timestamp)));
+  else lines.push('   Reys qayd etilmagan');
+ });
+ lines.push('','JAMI REYSLAR: '+own.length,'','Topshirdi: ____________________','Qabul qildi: ____________________');
+ const out=createTextPdf(lines,'EKG10_12_soatlik_smena_hisoboti_'+new Date(sh.start).toISOString().slice(0,10)+'.pdf');
+ return {...out,sh,lines};
+}
+
+function makeShiftExcelReport(sh){
+ const own=trips.filter(t=>t.shiftId===sh.id).sort((a,b)=>a.timestamp-b.timestamp);
+ const plates=getShiftTruckPlates(sh,own);
+ const buckets=getHourBuckets(sh,sh.end||Date.now());
+ const esc=v=>escapeHtml(v==null?'':v);
+ const meta=[
+  ['Hisobot','EKG-10 — 12 soatlik smena hisoboti'],
+  ['Ekskavator',getTelegramExcavatorName(sh)],
+  ['Smena',sh.name||sh.type+' smena'],
+  ['Operator',sh.operator||operator.name||'Ko‘rsatilmagan'],
+  ['Smenadagi xodimlar',(sh.attendees||[]).join(', ')||'Ko‘rsatilmagan'],
+  ['Boshlanishi',dateTime(sh.start)],['Tugashi',dateTime(sh.end)],
+  ['Davomiyligi',fmtDuration((sh.end||Date.now())-sh.start)],['Umumiy reys',own.length]
+ ];
+ const metaHtml=meta.map(r=>'<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>').join('');
+ const head='<tr><th>№</th><th>BelAZ raqami</th>'+buckets.map((b,i)=>'<th>Soat '+(i+1)+'<br>'+esc(b.label)+'</th>').join('')+'<th>Smena jami</th></tr>';
+ const body=plates.map((plate,i)=>{
+  const nums=buckets.map(b=>own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()&&t.timestamp>=b.from&&t.timestamp<b.to).length);
+  const total=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;
+  return '<tr><td>'+(i+1)+'</td><td>'+esc(plate)+'</td>'+nums.map(n=>'<td>'+n+'</td>').join('')+'<td><b>'+total+'</b></td></tr>';
+ }).join('');
+ const details=own.map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(t.truck)+'</td><td>'+esc(dateTime(t.timestamp))+'</td><td>'+esc(t.shiftType||sh.type||'')+'</td><td>'+esc(t.operator||sh.operator||operator.name||'')+'</td></tr>').join('');
+ const html='<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial}table{border-collapse:collapse;margin:8px 0 20px}td,th{border:1px solid #777;padding:6px}th{background:#e8eef5}.title{font-size:18px;font-weight:bold;background:#d9ead3}</style></head><body><table>'+metaHtml+'</table><table><tr><th class="title" colspan="'+(buckets.length+3)+'">BELAZLAR BO‘YICHA SOATLIK REYSLAR</th></tr>'+head+(body||'<tr><td colspan="'+(buckets.length+3)+'">Reys qayd etilmagan</td></tr>')+'</table><table><tr><th class="title" colspan="5">REYSLAR VAQTI BO‘YICHA TAFSILOT</th></tr><tr><th>№</th><th>BelAZ raqami</th><th>Reys vaqti</th><th>Smena</th><th>Operator</th></tr>'+(details||'<tr><td colspan="5">Reys mavjud emas</td></tr>')+'</table></body></html>';
+ const blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel;charset=utf-8'});
+ const day=new Date(sh.start).toISOString().slice(0,10);
+ return {blob,name:'EKG10_12_soatlik_smena_hisoboti_'+day+'.xls'};
+}
+async function sendTelegramReport(){
+ const result=makeShiftReportPdf();if(!result)return;
+ const pdfFile=new File([result.blob],result.name,{type:'application/pdf'});
+ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[pdfFile]})){
+  try{
+   await navigator.share({title:'EKG-10 smena PDF hisoboti',text:buildTelegramReport(result.sh),files:[pdfFile]});
+   toast('Faqat PDF hisoboti tayyor. Telegram guruhini tanlab yuborishni tasdiqlang.');
+   return;
+  }catch(err){
+   if(err&&err.name==='AbortError'){toast('PDF yuborish bekor qilindi. Hisobotni qayta yuborishingiz mumkin.');return;}
+  }
+ }
+ downloadBlob(result.blob,result.name);
+ toast('Faqat PDF hisoboti yuklab olindi. Uni Telegram guruhiga hujjat sifatida biriktiring.');
+}
+
+function printShiftReceipt(){
+ const sh=getReportShift();
+ if(!sh){toast('Chek chiqarish uchun smena mavjud emas');return;}
+ if(sh.status!=='finished'||!sh.end){toast('12 soatlik hisobot uchun avval smenani yakunlang');return;}
+ const own=trips.filter(t=>t.shiftId===sh.id).slice().sort((a,b)=>a.timestamp-b.timestamp);
+ const plates=getShiftTruckPlates(sh,own),buckets=getHourBuckets(sh,sh.end);
+ const w=window.open('','_blank');
+ if(!w){toast('PDF oynasi bloklandi. Brauzerda pop-up oynaga ruxsat bering.');return;}
+ const hourHead=buckets.map((b,i)=>'<th>Soat '+(i+1)+'<br><small>'+escapeHtml(timeOnly(b.from))+'–'+escapeHtml(timeOnly(b.to))+'</small></th>').join('');
+ const matrix=plates.map((plate,i)=>{const vals=buckets.map(b=>own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()&&t.timestamp>=b.from&&t.timestamp<b.to).length);const total=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase()).length;return '<tr><td>'+(i+1)+'</td><td><b>'+escapeHtml(plate)+'</b></td>'+vals.map(n=>'<td class="num">'+n+'</td>').join('')+'<td class="num"><b>'+total+'</b></td></tr>';}).join('');
+ const detail=plates.map((plate,i)=>{const arr=own.filter(t=>String(t.truck).toLowerCase()===plate.toLowerCase());return '<section class="machine"><h3>'+(i+1)+'. '+escapeHtml(plate)+' — '+arr.length+' reys</h3><p>'+ (arr.length?arr.map((t,j)=>(j+1)+') '+escapeHtml(timeOnly(t.timestamp))).join(' &nbsp; | &nbsp; '):'Reys qayd etilmagan')+'</p></section>';}).join('');
+ const attendees=(Array.isArray(sh.attendees)&&sh.attendees.length)?sh.attendees.map(n=>'<li>'+escapeHtml(n)+'</li>').join(''):'<li>Ma’lumot kiritilmagan</li>';
+ w.document.write('<!doctype html><html lang="uz"><head><meta charset="utf-8"><title>EKG-10 — 12 soatlik smena hisoboti</title><style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{font:12px Arial,sans-serif;color:#111;margin:0}h1{text-align:center;font-size:22px;margin:0 0 5px}h2{font-size:15px;margin:18px 0 8px}.center{text-align:center}.meta{line-height:1.8;margin:14px 0}.total{font-size:22px;font-weight:bold;text-align:center;border:2px solid #222;padding:10px;margin:14px 0}table{width:100%;border-collapse:collapse;font-size:10px;margin:8px 0 16px}th,td{border:1px solid #777;padding:5px;text-align:left}th{background:#eee}.num{text-align:center}.machine{break-inside:avoid;border-bottom:1px solid #bbb;padding:3px 0}.machine h3{font-size:12px;margin:7px 0 3px}.machine p{line-height:1.5;margin:3px 0 7px}.sign{margin-top:24px;line-height:2.4}.muted{color:#555;font-size:10px}.page-break{break-before:page}@media print{button{display:none}}</style></head><body><h1>EKG-10</h1><div class="center"><b>12 SOATLIK SMENA HISOBOTI</b></div><div class="meta">Sana: <b>'+escapeHtml(dateOnly(sh.start))+'</b><br>Smena: <b>'+escapeHtml(sh.name||sh.type+' smena')+'</b><br>Operator: '+escapeHtml(sh.operator||operator.name||'Ko‘rsatilmagan')+'<br>Boshlanishi: '+escapeHtml(timeOnly(sh.start))+'<br>Tugashi: '+escapeHtml(timeOnly(sh.end))+'<br>Davomiyligi: '+escapeHtml(fmtDuration(sh.end-sh.start))+'</div><h2>Smenaga kelgan xodimlar</h2><ol>'+attendees+'</ol><h2>Mashinalar bo‘yicha soatlik reyslar</h2><table><thead><tr><th>№</th><th>Mashina raqami</th>'+hourHead+'<th>Jami</th></tr></thead><tbody>'+(matrix||'<tr><td colspan="'+(buckets.length+3)+'">Mashina ma’lumoti mavjud emas</td></tr>')+'</tbody></table><div class="total">JAMI: '+own.length+' REYS</div><h2>Mashinalarning reys qayd etilgan vaqtlari</h2>'+ (detail||'<p>Reys qayd etilmagan</p>')+'<div class="sign">Topshirdi: ____________________ &nbsp;&nbsp;&nbsp; Qabul qildi: ____________________</div><script>window.onload=function(){window.print()}<\/script></body></html>');
+ w.document.close();
+}
+
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function exportTruckReportExcel(){
+ const sh=getReportShift(),rows=getTruckReportRows();
+ if(!sh||!rows.length){toast('Hisobot uchun ma’lumot mavjud emas');return}
+ const data=[['Mashina raqami','Soatlik reys','Smena jami','Smena','Smena boshlanishi','Smena tugashi']];
+ rows.forEach(r=>data.push([r.plate,r.hourly,r.total,sh.type,dateTime(sh.start),sh.end?dateTime(sh.end):'Faol']));
+ const table='<table border="1">'+data.map((row,i)=>'<tr>'+row.map(v=>'<td>'+escapeHtml(v)+'</td>').join('')+'</tr>').join('')+'</table>';
+ downloadBlob(new Blob(['\ufeff<html><meta charset="utf-8">'+table+'</html>'],{type:'application/vnd.ms-excel;charset=utf-8'}),'EKG10_mashinalar_hisoboti.xls');
+ toast('Mashinalar hisoboti Excel formatida tayyor');
+}
+function exportTruckReportPdf(){
+ const sh=getReportShift(),rows=getTruckReportRows();
+ if(!sh||!rows.length){toast('Hisobot uchun ma’lumot mavjud emas');return}
+ const body=rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+escapeHtml(r.plate)+'</td><td>'+r.hourly+'</td><td>'+r.total+'</td></tr>').join('');
+ const w=window.open('','_blank');
+ if(!w){toast('PDF oynasi bloklandi. Brauzerda pop-up oynaga ruxsat bering.');return}
+ w.document.write('<!doctype html><html lang="uz"><meta charset="utf-8"><title>EKG-10 hisobot</title><style>body{font:14px Arial;padding:28px;color:#111}h2{margin-bottom:6px}p{color:#444}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #777;padding:10px;text-align:left}th{background:#eee}@media print{button{display:none}}</style><h2>EKG-10 — Mashinalar hisoboti</h2><p>'+escapeHtml(sh.name||sh.type)+' | Boshlanishi: '+escapeHtml(dateTime(sh.start))+' | '+(sh.end?'Tugashi: '+escapeHtml(dateTime(sh.end)):'Faol')+'</p><table><thead><tr><th>№</th><th>Mashina raqami</th><th>Soatlik reys</th><th>Smena jami</th></tr></thead><tbody>'+body+'</tbody></table><p>Hisobot tuzilgan vaqt: '+escapeHtml(dateTime(Date.now()))+'</p><script>window.onload=function(){window.print()}</scr'+'ipt></html>');
+ w.document.close();
+}
+
+function updateStats(){
+ const now=new Date(),today=now.toLocaleDateString('en-CA'),month=today.slice(0,7);
+ const todayTrips=trips.filter(t=>new Date(t.timestamp).toLocaleDateString('en-CA')===today);
+ const monthTrips=trips.filter(t=>new Date(t.timestamp).toLocaleDateString('en-CA').slice(0,7)===month);
+ $('dailyTrips').textContent=todayTrips.length;$('monthlyTrips').textContent=monthTrips.length;
+ $('dailyTrucks').textContent=new Set(todayTrips.map(t=>t.truck)).size;
+ $('monthlyShifts').textContent=shifts.filter(x=>new Date(x.start).toLocaleDateString('en-CA').slice(0,7)===month).length;
+ $('periodNote').textContent='Bugun: '+today+' · Oy: '+month+' · Barcha ko‘rsatkichlar ushbu qurilmadagi yozuvlardan.';
+}
+function render(){
+ renderTemplates();const now=Date.now(),shiftTrips=currentShift?trips.filter(t=>t.shiftId===currentShift.id):[];
+ $('todayCount').textContent=shiftTrips.length;$('totalCount').textContent=shiftTrips.length;
+ $('todayDate').textContent=currentShift?(currentShift.name||currentShift.type+' smena')+' · '+dateTime(currentShift.start)+' dan':'Smena hali boshlanmagan';if($('simpleShiftLabel'))$('simpleShiftLabel').textContent=currentShift?(currentShift.name||currentShift.type+' smena')+' · '+fmtDuration(now-currentShift.start):'Smena boshlanmagan';
+ $('hourCount').textContent=shiftTrips.filter(t=>now-t.timestamp<3600000&&now>=t.timestamp).length;
+ const hrs=currentShift?Math.max((now-currentShift.start)/3600000,1/60):0;
+ $('hourRate').textContent=currentShift?(shiftTrips.length/hrs).toFixed(1):'—';
+ $('lastTrip').textContent=currentShift?fmtDuration(now-currentShift.start):'—';
+ $('shiftState').textContent=currentShift?'● '+currentShift.type+' smena faol':'Smena boshlanmagan';
+ $('shiftStatus').textContent=currentShift?currentShift.type+' smena faol · Boshlangan: '+dateTime(currentShift.start)+' · Davomiyligi: '+fmtDuration(now-currentShift.start)+' · Reyslar: '+shiftTrips.length+' ta':'Faol smena yo‘q. Oxirgi smena va reyslar avtomatik saqlangan. Yangi smena boshlansa hisob 0 dan boshlanadi.';
+ $('startDay').disabled=!!currentShift;$('startNight').disabled=!!currentShift;$('finishShift').disabled=!currentShift;
+ if($('homeActiveShiftBox')){
+  $('homeActiveShiftBox').style.display=currentShift?'block':'none';
+  $('homeActiveShiftInfo').textContent=currentShift?(currentShift.name||currentShift.type+' smena')+' · Boshlangan: '+dateTime(currentShift.start)+' · Jami reys: '+shiftTrips.length+' ta':'';
+  const latestFinished=shifts.some(x=>x.status==='finished'&&x.end);
+  if($('sendTelegramBtn')) $('sendTelegramBtn').style.display=(!currentShift&&latestFinished)?'block':'none';
+  $('beginNewShift').disabled=!!currentShift;
+  $('beginNewShift').style.opacity=currentShift?'.55':'1';
+ }
+ $('historyBadge').textContent=trips.length+' ta';const host=$('history');host.innerHTML='';
+ if(!trips.length){host.innerHTML='<div class="empty">Hozircha reyslar yo‘q. Birinchi reysni qayd qiling.</div>'}
+ trips.slice(0,100).forEach(t=>{
+  const el=document.createElement('div');el.className='trip';
+  const left=document.createElement('div'),truck=document.createElement('div');truck.className='truck';truck.textContent=t.truck;
+  const time=document.createElement('div');time.className='time';time.textContent=dateTime(t.timestamp)+(t.shiftType?' · '+t.shiftType+' smena':'');
+  left.append(truck,time);const num=document.createElement('div');num.className='number';num.textContent='REYS №'+t.id;
+  const actions=document.createElement('div');actions.className='trip-actions';
+  const edit=document.createElement('button');edit.className='smallbtn';edit.textContent='Tahrirlash';edit.addEventListener('click',()=>editTrip(t.id));
+  const del=document.createElement('button');del.className='smallbtn';del.textContent='Bekor qilish';del.addEventListener('click',()=>deleteTrip(t.id));
+  actions.append(edit,del);const right=document.createElement('div');right.style.textAlign='right';right.append(num,actions);el.append(left,right);host.append(el);
+ });
+ updateStats();
+ updateOldHistoryInfo();
+ renderTruckReport();
+}
+function editTrip(id){
+ const t=trips.find(x=>x.id===id);if(!t)return;
+ const truck=prompt('Mashina raqamini kiriting:',t.truck);if(truck===null)return;
+ if(!truck.trim()){toast('Mashina raqami bo‘sh bo‘lmasin');return}
+ const value=prompt('Reys vaqti (YYYY-MM-DD HH:MM). O‘zgartirmaslik uchun bo‘sh qoldiring:',new Date(t.timestamp).getFullYear()+'-'+String(new Date(t.timestamp).getMonth()+1).padStart(2,'0')+'-'+String(new Date(t.timestamp).getDate()).padStart(2,'0')+' '+String(new Date(t.timestamp).getHours()).padStart(2,'0')+':'+String(new Date(t.timestamp).getMinutes()).padStart(2,'0'));
+ t.truck=truck.trim();
+ if(value&&value.trim()){const d=new Date(value.replace(' ','T'));if(!Number.isNaN(d.getTime()))t.timestamp=d.getTime();else{toast('Sana formati noto‘g‘ri; mashina raqami saqlandi')}}
+ save();render();toast('Reys yangilandi');
+}
+function deleteTrip(id){if(!confirm('Ushbu reysni bekor qilasizmi?'))return;trips=trips.filter(t=>t.id!==id);save();render();toast('Reys bekor qilindi')}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
+function exportExcel(){
+ if(!trips.length){toast('Hisobot uchun reyslar mavjud emas');return}
+ const rows=[['Reys №','Mashina raqami','Sana va vaqt','Smena','Operator']];
+ trips.slice().reverse().forEach(t=>rows.push([t.id,t.truck,dateTime(t.timestamp),t.shiftType||'',t.operator||operator.name||'']));
+ const table='<table border="1">'+rows.map((r,i)=>'<tr>'+r.map(v=>'<td>'+String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))+'</td>').join('')+'</tr>').join('')+'</table>';
+ const blob=new Blob(['\ufeff<html><meta charset="utf-8">'+table+'</html>'],{type:'application/vnd.ms-excel;charset=utf-8'});
+ downloadBlob(blob,'EKG10_reys_hisoboti.xls');toast('Excel hisoboti tayyor');
+}
+
+function getOldArchive(){
+ const oldTrips=trips.filter(t=>!currentShift||t.shiftId!==currentShift.id);
+ const oldShifts=shifts.filter(sh=>sh.status==='finished'&&sh.id!==(currentShift&&currentShift.id));
+ return {oldTrips,oldShifts};
+}
+function updateOldHistoryInfo(){
+ const el=$('oldHistoryInfo');if(!el)return;
+ const a=getOldArchive();el.textContent='Eski reyslar: '+a.oldTrips.length+' ta · Yakunlangan smenalar: '+a.oldShifts.length+' ta. Joriy smena saqlanadi.';
+}
+function exportOldHistoryPdf(){
+ const {oldTrips,oldShifts}=getOldArchive();
+ if(!oldTrips.length&&!oldShifts.length){toast('Eski tarix mavjud emas');return}
+ const shiftMap=new Map(oldShifts.map(x=>[x.id,x]));
+ const rows=oldTrips.slice().sort((a,b)=>a.timestamp-b.timestamp).map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+escapeHtml(t.truck)+'</td><td>'+escapeHtml(dateTime(t.timestamp))+'</td><td>'+escapeHtml(t.shiftType||'—')+'</td><td>'+escapeHtml(t.operator||operator.name||'—')+'</td></tr>').join('');
+ const totals={};oldTrips.forEach(t=>{totals[t.truck]=(totals[t.truck]||0)+1});
+ const summary=Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([plate,n])=>'<tr><td>'+escapeHtml(plate)+'</td><td>'+n+'</td></tr>').join('');
+ const shiftRows=oldShifts.map(sh=>'<tr><td>'+escapeHtml(sh.name||sh.type+' smena')+'</td><td>'+escapeHtml(dateTime(sh.start))+'</td><td>'+escapeHtml(sh.end?dateTime(sh.end):'—')+'</td><td>'+oldTrips.filter(t=>t.shiftId===sh.id).length+'</td></tr>').join('');
+ const w=window.open('','_blank');if(!w){toast('PDF oynasi bloklandi. Pop-up oynaga ruxsat bering.');return}
+ w.document.write('<!doctype html><html lang="uz"><meta charset="utf-8"><title>EKG-10 eski tarix arxivi</title><style>body{font:14px Arial;color:#111;padding:28px}h1{font-size:22px}h2{margin-top:26px}table{width:100%;border-collapse:collapse;margin:12px 0 22px}th,td{border:1px solid #777;padding:8px;text-align:left}th{background:#eee}.note{color:#555}@page{size:A4;margin:15mm}</style><h1>EKG-10 — Eski smenalar va reyslar arxivi</h1><p>Hisobot vaqti: '+escapeHtml(dateTime(Date.now()))+'</p><p class="note">Joriy faol smena ushbu arxivga kiritilmagan.</p><h2>Mashinalar bo‘yicha jami reyslar</h2><table><tr><th>Mashina</th><th>Reyslar</th></tr>'+summary+'</table><h2>Yakunlangan smenalar</h2><table><tr><th>Smena</th><th>Boshlanishi</th><th>Tugashi</th><th>Reyslar</th></tr>'+shiftRows+'</table><h2>Reyslar tafsiloti</h2><table><tr><th>№</th><th>Mashina</th><th>Sana va vaqt</th><th>Smena</th><th>Operator</th></tr>'+rows+'</table><script>window.onload=function(){window.print()}<\/script></html>');w.document.close();
+ toast('PDF oynasi ochildi. “PDF sifatida saqlash”ni tanlang. Keyin eski tarixni o‘chirish tugmasidan foydalaning.');
+}
+function clearOldHistory(){
+ const {oldTrips,oldShifts}=getOldArchive();
+ if(!oldTrips.length&&!oldShifts.length){toast('O‘chiriladigan eski tarix yo‘q');return}
+ if(!confirm('Eski tarixni PDF qilib saqlaganingizni tasdiqlaysizmi? '+oldTrips.length+' ta eski reys va '+oldShifts.length+' ta yakunlangan smena o‘chiriladi. Joriy faol smena saqlanadi.'))return;
+ if(!confirm('DIQQAT! Tanlangan eski ma’lumotlar qayta tiklanmasligi mumkin. Haqiqatan ham o‘chirasizmi?'))return;
+ const oldIds=new Set(oldShifts.map(x=>x.id));
+ trips=trips.filter(t=>currentShift&&t.shiftId===currentShift.id);
+ shifts=shifts.filter(sh=>!oldIds.has(sh.id));
+ save();saveShifts();render();updateOldHistoryInfo();toast('Eski reyslar tarixi tozalandi. Joriy smena saqlandi.');
+}
+
+function backupData(){
+ const data={app:'EKG-10 Reys Hisobi',version:3,createdAt:new Date().toISOString(),trips,truckTemplates,shifts,truckStatuses,operator,smsSettings,journalMachines,journalRows,inventoryMoves};
+ downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'EKG10_zaxira_'+new Date().toISOString().slice(0,10)+'.json');toast('Zaxira nusxa yuklab olindi');
+}
+function restoreData(file){
+ const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);if(!d||!Array.isArray(d.trips)||!Array.isArray(d.shifts)||!Array.isArray(d.truckTemplates))throw Error('format');
+ if(!confirm('Zaxira nusxadagi ma’lumotlar joriy ma’lumotlar o‘rniga tiklansinmi?'))return;
+ trips=d.trips;shifts=d.shifts;truckTemplates=d.truckTemplates;truckStatuses=d.truckStatuses||{};operator=d.operator||{name:'',code:'',phone:''};smsSettings={phone:'+998',hourly:true,shiftEnd:true,...(d.smsSettings||{})};
+ journalMachines=Array.isArray(d.journalMachines)&&d.journalMachines.length?d.journalMachines:[{id:'ekg10-main',name:'EKG-10'}];
+ journalRows=Array.isArray(d.journalRows)?d.journalRows:[];
+ inventoryMoves=Array.isArray(d.inventoryMoves)?d.inventoryMoves:[];
+ currentShift=shifts.find(x=>x.status==='active')||null;
+ persistAll();saveJournalState();load();syncAttendanceField();render();renderHomeTruckRoster();renderMachineOptions();renderJournal();renderInventory();toast('Zaxira nusxa tiklandi');
+ }catch(e){toast('Zaxira fayli noto‘g‘ri yoki buzilgan') }};reader.readAsText(file)}
+function checkHourlySms(){
+ if(!smsSettings.hourly)return;
+ const key=new Date().toISOString().slice(0,13);
+ if(key!==lastHourlyNotice){lastHourlyNotice=key;if(currentShift){showPendingSms('Soatlik hisobot');toast('Soatlik SMS hisoboti tayyorlandi')}}
+}
+$('saveTemplateBtn').addEventListener('click',()=>{
+ const plate=$('truck').value.trim();if(!plate){toast('Avval mashina raqamini kiriting');$('truck').focus();return}
+ if(truckTemplates.some(x=>x.toLowerCase()===plate.toLowerCase())){toast('Bu mashina ro‘yxatda bor');return}
+ truckTemplates.push(plate);truckStatuses[plate]='active';saveTemplates();localStorage.setItem(STATUS_KEY,JSON.stringify(truckStatuses));renderTemplates();renderHomeTruckRoster();$('truck').value='';toast('Mashina ro‘yxatga qo‘shildi');
+});
+$('startDay').addEventListener('click',()=>startShift('Kunduzgi'));
+$('startNight').addEventListener('click',()=>startShift('Tungi'));
+$('finishShift').addEventListener('click',finishShift);
+$('finishShiftHome').addEventListener('click',finishShift);
+$('saveSmsSettings').addEventListener('click',()=>{
+ smsSettings={phone:$('smsPhone').value.trim()||'+998',hourly:$('smsHourly').checked,shiftEnd:$('smsShiftEnd').checked};
+ localStorage.setItem(SMS_KEY,JSON.stringify(smsSettings));$('smsState').textContent='Saqlandi';toast('SMS sozlamalari saqlandi');
+});
+$('sendSmsNow').addEventListener('click',openSmsComposer);$('sendPendingSms').addEventListener('click',openSmsComposer);
+$('saveOperator').addEventListener('click',()=>{
+ operator={name:$('operatorName').value.trim(),code:$('operatorCode').value.trim(),phone:$('operatorPhone').value.trim()};
+ localStorage.setItem(OPERATOR_KEY,JSON.stringify(operator));$('operatorBadge').textContent=operator.name||'Kiritilmagan';toast('Operator profili saqlandi');
+});
+$('refreshBtn').addEventListener('click',()=>{load();render();toast('Ma’lumotlar yangilandi')});
+$('exportBtn').addEventListener('click',exportExcel);
+$('reportExcelBtn').addEventListener('click',exportTruckReportExcel);
+$('reportPdfBtn').addEventListener('click',exportTruckReportPdf);
+$('shiftReceiptBtn').addEventListener('click',printShiftReceipt);
+if($('telegramAutoShare'))$('telegramAutoShare').addEventListener('change',()=>{
+ telegramAutoShare=$('telegramAutoShare').checked;
+ localStorage.setItem(TELEGRAM_AUTO_KEY,JSON.stringify(telegramAutoShare));
+ toast(telegramAutoShare?'Smena oxirida Telegram ulashish yoqildi':'Avtomatik Telegram ulashish o‘chirildi');
+});
+$('sendTelegramBtn').addEventListener('click',sendTelegramReport);
+if($('telegramHourlyEnabled'))$('telegramHourlyEnabled').addEventListener('change',()=>{telegramHourlyEnabled=$('telegramHourlyEnabled').checked;localStorage.setItem(TELEGRAM_HOURLY_KEY,JSON.stringify(telegramHourlyEnabled));if(telegramHourlyEnabled&&'Notification' in window&&Notification.permission==='default'){try{Notification.requestPermission()}catch(e){}}renderHourlyTelegramStatus();toast(telegramHourlyEnabled?'Har 60 daqiqalik hisobot yoqildi':'Soatlik Telegram hisoboti o‘chirildi')});
+if($('sendHourlyTelegramBtn'))$('sendHourlyTelegramBtn').addEventListener('click',sendHourlyTelegramReport);
+// Zaxira boshqaruv tugmalari ushbu soddalashtirilgan ekranda yo‘q;
+ // mavjud bo‘lgan taqdirdagina hodisalarni ulaymiz.
+if($('backupBtn')) $('backupBtn').addEventListener('click',backupData);
+if($('restoreBtn') && $('restoreFile')) {
+ $('restoreBtn').addEventListener('click',()=>$('restoreFile').click());
+ $('restoreFile').addEventListener('change',e=>{if(e.target.files[0])restoreData(e.target.files[0]);e.target.value=''});
+}
+
+function renderHomeTruckRoster(){
+ const host=$('homeTruckRosterList');if(!host)return;host.innerHTML='';
+ if(!truckTemplates.length){host.innerHTML='<span class="hint">Ro‘yxatda mashina yo‘q. Avval “Boshqa bo‘limlar / Sozlamalar” orqali mashina qo‘shing.</span>';return}
+ truckTemplates.forEach(plate=>{
+  const item=document.createElement('div');item.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) minmax(118px,150px) 30px;align-items:center;gap:9px;padding:10px 9px;border:1px solid #38516c;border-radius:14px;background:#19283d;color:#e8f1ff;font-weight:800;font-size:15px';
+  const info=document.createElement('div');info.style.cssText='display:flex;flex-direction:column;gap:3px;min-width:0';
+  const name=document.createElement('span');name.textContent=plate;
+  const count=currentShift?trips.filter(t=>t.shiftId===currentShift.id&&String(t.truck).toLowerCase()===plate.toLowerCase()).length:0;
+  const total=document.createElement('span');total.textContent='Reys: '+count;total.style.cssText='font-size:11px;color:#ffd76b;font-weight:800';
+  info.append(name,total);
+  const plus=document.createElement('button');plus.type='button';plus.textContent='+ REYS';plus.title=plate+' uchun bitta reys qo‘shish';plus.disabled=!currentShift;plus.style.cssText='width:100%;min-height:64px;border:2px solid #35bd82;border-radius:13px;background:'+(currentShift?'linear-gradient(180deg,#1d9566,#176b49)':'#354052')+';color:#eafff3;padding:12px 8px;font-weight:950;font-size:19px;line-height:1.15;cursor:pointer;opacity:'+(currentShift?'1':'.5')+';box-shadow:0 4px 12px #0003';
+  plus.addEventListener('click',()=>{recordTrip(plate);renderHomeTruckRoster()});
+  const del=document.createElement('button');del.type='button';del.textContent='×';del.title=plate+' ni ro‘yxatdan o‘chirish';del.style.cssText='width:28px;height:28px;border:0;border-radius:50%;background:#78343b;color:white;font-size:18px;font-weight:900;line-height:1;cursor:pointer;justify-self:center';
+  del.addEventListener('click',()=>{if(!confirm(plate+' mashinasini faol ro‘yxatdan o‘chirasizmi? Oldingi reyslar va hisobotlar saqlanadi.'))return;truckTemplates=truckTemplates.filter(x=>x.toLowerCase()!==plate.toLowerCase());saveTemplates();renderTemplates();renderHomeTruckRoster();toast(plate+' faol ro‘yxatdan o‘chirildi')});
+  item.append(info,plus,del);host.append(item);
+ });
+}
+function addHomeTruck(){
+ const field=$('homeNewTruckNumber');const plate=field.value.trim();
+ if(!plate){toast('Mashina raqamini kiriting');field.focus();return}
+ if(truckTemplates.some(x=>x.toLowerCase()===plate.toLowerCase())){toast('Bu mashina ro‘yxatda bor');return}
+ truckTemplates.push(plate);truckStatuses[plate]='active';saveTemplates();localStorage.setItem(STATUS_KEY,JSON.stringify(truckStatuses));
+ renderTemplates();renderHomeTruckRoster();field.value='';toast(plate+' ro‘yxatga qo‘shildi');
+}
+$('homeAddTruckBtn').addEventListener('click',addHomeTruck);
+$('homeNewTruckNumber').addEventListener('keydown',e=>{if(e.key==='Enter')addHomeTruck()});
+function showHome(){ $('homeScreen').style.display='block';$('countingScreen').style.display='none';$('advancedContent').style.display='none';renderHomeTruckRoster(); }
+function showCounting(){
+ if(!currentShift){toast('Avval “Yangi smena boshlash” tugmasini bosing');return}
+ $('homeScreen').style.display='none';$('advancedContent').style.display='none';$('countingScreen').style.display='block';setCountingMode(countingMode);renderShiftReminders();render();
+}
+if($('shiftAttendees')){$('shiftAttendees').addEventListener('input',updateAttendanceCount);syncAttendanceField();}
+$('beginNewShift').addEventListener('click',()=>{
+ const type=$('newShiftType').value;
+ const stamp=new Intl.DateTimeFormat('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
+ const name=stamp+' — '+type+' smena';
+ if(startShift(type,name)){
+  $('homeScreen').style.display='none';$('advancedContent').style.display='none';$('countingScreen').style.display='block';setCountingMode(countingMode);renderShiftReminders();render();
+ }
+});
+$('openCounting').addEventListener('click',showCounting);
+
+$('toggleReminderList').addEventListener('click',()=>{
+ reminderCollapsed=!reminderCollapsed;renderShiftReminders();
+});
+$('resetReminderList').addEventListener('click',()=>{
+ if(!currentShift)return;
+ if(!confirm('Barcha eslatma belgilarini bekor qilasizmi?'))return;
+ currentShift.reminders=SHIFT_REMINDER_TASKS.map(()=>false);saveShifts();renderShiftReminders();
+});
+
+$('backHome').addEventListener('click',showHome);
+$('openAdvanced').addEventListener('click',()=>{$('homeScreen').style.display='none';$('countingScreen').style.display='none';$('advancedContent').style.display='block';});
+$('advancedBackHome').addEventListener('click',showHome);
+$('addTruckQuick').addEventListener('click',()=>{
+ const value=$('quickTruckInput').value.trim();
+ if(!value){toast('Mashina raqamini kiriting');$('quickTruckInput').focus();return}
+ $('truck').value=value;
+ $('saveTemplateBtn').click();
+ if(truckTemplates.some(x=>x.toLowerCase()===value.toLowerCase()))$('quickTruckInput').value='';
+});
+$('quickTruckInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('addTruckQuick').click()});
+
+
+// Ovozli boshqaruv: sayt ochiq turgan paytda doimiy tinglaydi.
+let voiceRecognition=null,voiceListening=false,lastVoiceCommand='',lastVoiceAt=0;
+function voiceWordDigits(text){
+ const map={'nol':'0','zero':'0','bir':'1','ikki':'2','uch':'3','to‘rt':'4','tort':'4','besh':'5','olti':'6','yetti':'7','sakkiz':'8','to‘qqiz':'9','toqqiz':'9'};
+ return String(text||'').toLowerCase().replace(/[’'`]/g,'‘').split(/[^a-zа-яўғқҳ‘]+/i).filter(Boolean).map(w=>map[w]).filter(x=>x!==undefined).join('');
+}
+function voiceNumberWords(text){
+ const t=String(text||'').toLowerCase().replace(/[’'`]/g,'‘').replace(/[.,!?]/g,' ').trim();
+ if(/^\d+$/.test(t))return Number(t);
+ const digits=voiceWordDigits(t);if(digits)return Number(digits);
+ const small={'nol':0,'bir':1,'ikki':2,'uch':3,'to‘rt':4,'tort':4,'besh':5,'olti':6,'yetti':7,'sakkiz':8,'to‘qqiz':9,'toqqiz':9,'o‘n':10,'on':10};
+ const words=t.split(/\s+/);let total=0,cur=0;
+ for(const w of words){if(small[w]!==undefined){cur+=small[w]}else if(w==='yuz'){total+=(cur||1)*100;cur=0}else if(w==='ming'){total+=(cur||1)*1000;cur=0}else{return null}}
+ return total+cur||null;
+}
+function parseVoiceCommand(raw){
+ const text=String(raw||'').toLowerCase().replace(/[’'`]/g,'‘').replace(/\s+/g,' ').trim();
+ if(text.includes('tinglashni to‘xtat')||text.includes('ovozni to‘xtat')||text==='to‘xta'||text==='toxta')return {stop:true};
+ const plates=[...new Set([...(truckTemplates||[]),...((currentShift?trips.filter(t=>t.shiftId===currentShift.id).map(t=>t.truck):[]))])];
+ const spokenDigits=voiceWordDigits(text);
+ let plate=plates.find(p=>text.includes(String(p).toLowerCase()));
+ if(!plate){
+  plate=plates.find(p=>{const d=String(p).replace(/\D/g,'');return d.length>=2&&(spokenDigits.includes(d)||text.replace(/\D/g,'').includes(d));});
+ }
+ // Ayrim nutq xizmatlari raqamni "sakkiz yuz olti" deb yozadi.
+ if(!plate){const m=text.match(/(\d{2,})/);if(m)plate=plates.find(p=>String(p).replace(/\D/g,'')===m[1]);}
+ if(!plate)return null;
+ let qty=1;
+ const m=text.match(/(?:ga\s*)?(\d+|nol|bir|ikki|uch|to‘rt|tort|besh|olti|yetti|sakkiz|to‘qqiz|toqqiz|o‘n|on)\s*(?:ta\s*)?reys/);
+ if(m){const n=voiceNumberWords(m[1]);if(n&&n>0&&n<=20)qty=n;}
+ return {plate,qty};
+}
+function setVoiceStatus(message,active){const el=$('voiceStatus');if(el)el.textContent=message;const b=$('voiceToggle');if(b){b.textContent=active?'■ TINGLASHNI TO‘XTATISH':'🎙 DOIMIY TINGLASHNI BOSHLASH';b.style.background=active?'#a83232':'';}}
+function stopVoiceListening(){voiceListening=false;if(voiceRecognition){try{voiceRecognition.stop()}catch(e){}}setVoiceStatus('Ovozli boshqaruv o‘chiq.',false);}
+function startVoiceListening(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!window.isSecureContext && location.protocol!=='https:'){setVoiceStatus('Ovozli boshqaruv uchun HTTPS sayt kerak. Mahalliy file:// faylda mikrofon ishlamasligi mumkin.',false);return}
+ if(!SR){setVoiceStatus('Bu brauzer ovozni tanishni qo‘llamaydi. HTTPS manzilni Chrome’da ochib ko‘ring.',false);return}
+ if(!currentShift){toast('Avval smenani boshlang');return}
+ if(!voiceRecognition){voiceRecognition=new SR();voiceRecognition.lang='uz-UZ';voiceRecognition.continuous=true;voiceRecognition.interimResults=false;voiceRecognition.maxAlternatives=5;
+  voiceRecognition.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(!e.results[i].isFinal)continue;const heard=e.results[i][0].transcript||'';const now=Date.now();if(heard===lastVoiceCommand&&now-lastVoiceAt<1800)continue;lastVoiceCommand=heard;lastVoiceAt=now;const cmd=parseVoiceCommand(heard);if(cmd?.stop){stopVoiceListening();return}if(!cmd){setVoiceStatus('Tushunilmadi: “'+heard+'”. Mashina raqamini qayta ayting.',true);continue}let added=0;for(let n=0;n<cmd.qty;n++){if(recordTrip(cmd.plate))added++;}if(added>0){speakTripConfirmation(cmd.plate,added);setVoiceStatus(heard+' → '+cmd.plate+' ga '+added+' reys qo‘shildi. Ovozli tasdiq berildi.',true);}else{setVoiceStatus(cmd.plate+' uchun reys qo‘shilmadi.',true);}}};
+  voiceRecognition.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){voiceListening=false;setVoiceStatus('Mikrofon ruxsati berilmagan. Brauzer sozlamasidan ruxsat bering.',false)}else if(e.error!=='no-speech'){setVoiceStatus('Ovozni tanishda xatolik: '+e.error,true)}};
+  voiceRecognition.onend=()=>{if(voiceListening){setTimeout(()=>{if(voiceListening)try{voiceRecognition.start()}catch(e){}},500)}};
+ }
+ voiceListening=true;try{voiceRecognition.start();setVoiceStatus('Tinglayapti… Masalan: “806 ga bir reys qo‘sh”.',true)}catch(e){setVoiceStatus('Mikrofonni ishga tushirib bo‘lmadi. Qayta urinib ko‘ring.',false);voiceListening=false}
+}
+$('voiceToggle').addEventListener('click',()=>voiceListening?stopVoiceListening():startVoiceListening());
+
+$('oldHistoryPdfBtn').addEventListener('click',exportOldHistoryPdf);
+$('clearOldHistoryBtn').addEventListener('click',clearOldHistory);
+
+// Yangi elektron jurnallar: ma'lumotlar brauzer xotirasida saqlanadi.
+const JKEY='ekg10_journals_v1', IKEY='ekg10_inventory_v1', MKEY='ekg10_machines_v1';
+let journalType='rope';
+let journalMachines=safeRead(MKEY,[{id:'ekg10-main',name:'EKG-10'}]);
+if(!Array.isArray(journalMachines)||!journalMachines.length)journalMachines=[{id:'ekg10-main',name:'EKG-10'}];
+let journalRows=safeRead(JKEY,[]);
+if(!Array.isArray(journalRows))journalRows=[];
+let inventoryMoves=safeRead(IKEY,[]);
+if(!Array.isArray(inventoryMoves))inventoryMoves=[];
+const journalNames={rope:'Po‘lat arqon jurnali',shiftwork:'Smena davomidagi ishlar jurnali',lubrication:'Smazka va moylar jurnali',request:'Zayavka jurnali',geology:'Geologiya jurnali',parts:'Ehtiyot qismlar jurnali',stock:'Moylash materiallari jurnali'};
+const journalLabels={rope:'Arqon / tros nomi',shiftwork:'Bajarilgan ish',lubrication:'Moylash nuqtasi / moy turi',request:'Talab qilinayotgan detal yoki material',geology:'Uchastka / tog‘ jinsi',parts:'Ehtiyot qismi nomi',stock:'Moylash materiali nomi'};
+const jEl=id=>document.getElementById(id);
+function activeMachineId(){return jEl('journalMachine')?.value||'ekg10-main'}
+function saveJournalState(){localStorage.setItem(JKEY,JSON.stringify(journalRows));localStorage.setItem(IKEY,JSON.stringify(inventoryMoves));localStorage.setItem(MKEY,JSON.stringify(journalMachines));}
+function renderMachineOptions(){const sel=jEl('journalMachine');if(!sel)return;const old=sel.value;sel.innerHTML=journalMachines.map(m=>`<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');if(journalMachines.some(m=>m.id===old))sel.value=old;}
+function renderJournal(){const box=jEl('journalRecords');if(!box)return;const rows=journalRows.filter(r=>r.machineId===activeMachineId()&&r.type===journalType).sort((a,b)=>b.created-a);box.innerHTML=rows.length?rows.map(r=>`<article class="journal-record"><div class="report-head"><strong>${escapeHtml(r.subject||'—')}</strong><span class="pill">${escapeHtml(r.status)}</span></div><div class="journal-meta">${escapeHtml(r.date)} · ${escapeHtml(r.shift)} · ${escapeHtml(r.person||'Mas’ul ko‘rsatilmagan')}</div><div style="margin-top:7px">${escapeHtml(r.details||'Izoh kiritilmagan')}</div><div class="journal-meta">Miqdor/ko‘rsatkich: ${escapeHtml(r.quantity||'—')}</div><div class="journal-actions"><button class="smallbtn" onclick="deleteJournalRecord('${r.id}')">O‘chirish</button></div></article>`).join(''):'<div class="empty">Bu jurnal bo‘yicha hozircha yozuv yo‘q.</div>';}
+function setJournalType(type){journalType=type;jEl('journalModuleTitle').textContent=journalNames[type];jEl('jrSubjectLabel').textContent=journalLabels[type];document.querySelectorAll('#journalNav button').forEach(b=>b.classList.toggle('active',b.dataset.journal===type));renderJournal();}
+window.deleteJournalRecord=id=>{if(!confirm('Ushbu jurnal yozuvi o‘chirilsinmi?'))return;journalRows=journalRows.filter(r=>r.id!==id);saveJournalState();renderJournal();};
+function renderInventory(){const box=jEl('inventoryList');if(!box)return;const sums={};inventoryMoves.filter(m=>(m.machineId||'ekg10-main')===activeMachineId()).forEach(m=>{const k=m.type+'|'+m.name+'|'+m.unit;sums[k]=(sums[k]||0)+(m.action==='in'?m.qty:-m.qty)});const entries=Object.entries(sums);box.innerHTML=entries.length?entries.map(([k,q])=>{const [type,name,unit]=k.split('|');return `<article class="journal-record"><div class="report-head"><strong>${escapeHtml(name)}</strong><span class="number">${q.toLocaleString('uz-UZ')} ${escapeHtml(unit)}</span></div><div class="journal-meta">${type==='parts'?'Ehtiyot qismi':'Moylash materiali'}</div></article>`}).join(''):'<div class="empty">Ombor ma’lumotlari yo‘q.</div>';}
+jEl('journalNav').addEventListener('click',e=>{const b=e.target.closest('button[data-journal]');if(b)setJournalType(b.dataset.journal)});
+jEl('journalMachine').addEventListener('change',()=>{renderJournal();renderInventory();const m=journalMachines.find(x=>x.id===jEl('journalMachine').value);if(m&&$('shiftExcavatorName'))$('shiftExcavatorName').value=m.name});
+jEl('addMachineBtn').addEventListener('click',()=>{const name=jEl('newMachineName').value.trim();if(!name){toast('Ekskavator nomini kiriting');return}if(journalMachines.some(m=>m.name.toLowerCase()===name.toLowerCase())){toast('Bu ekskavator ro‘yxatda bor');return}journalMachines.push({id:'machine-'+Date.now(),name});saveJournalState();renderMachineOptions();jEl('journalMachine').value=journalMachines.at(-1).id;jEl('newMachineName').value='';renderJournal();toast(name+' qo‘shildi')});
+jEl('saveJournalBtn').addEventListener('click',()=>{const subject=jEl('jrSubject').value.trim();if(!subject){toast('Nomi yoki bajarilgan ishni kiriting');return}journalRows.push({id:'jr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),machineId:activeMachineId(),type:journalType,date:jEl('jrDate').value||new Date().toISOString().slice(0,10),shift:jEl('jrShift').value,subject,quantity:jEl('jrQuantity').value.trim(),details:jEl('jrDetails').value.trim(),person:jEl('jrPerson').value.trim(),status:jEl('jrStatus').value,created:Date.now()});saveJournalState();['jrSubject','jrQuantity','jrDetails','jrPerson'].forEach(id=>jEl(id).value='');renderJournal();toast('Jurnalga saqlandi')});
+jEl('saveInventoryBtn').addEventListener('click',()=>{const name=jEl('invName').value.trim(),qty=Number(jEl('invQty').value),unit=jEl('invUnit').value.trim()||'dona';if(!name||!Number.isFinite(qty)||qty<=0){toast('Nomi va musbat miqdorni kiriting');return}const type=jEl('invType').value,action=jEl('invAction').value;const current=inventoryMoves.filter(m=>(m.machineId||'ekg10-main')===activeMachineId()&&m.type===type&&m.name===name&&m.unit===unit).reduce((a,m)=>a+(m.action==='in'?m.qty:-m.qty),0);if(action==='out'&&qty>current){toast('Omborda yetarli qoldiq yo‘q: '+current+' '+unit);return}inventoryMoves.push({id:'im-'+Date.now(),machineId:activeMachineId(),type,name,unit,qty,action,note:jEl('invNote').value.trim(),date:new Date().toISOString().slice(0,10)});saveJournalState();jEl('invName').value='';jEl('invQty').value='';jEl('invNote').value='';renderInventory();toast('Ombor harakati saqlandi')});
+function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+jEl('journalCsvBtn').addEventListener('click',()=>{const rows=journalRows.filter(r=>r.machineId===activeMachineId()&&r.type===journalType);const data=[['Sana','Smena','Nomi','Miqdor','Izoh','Mas’ul','Holati'],...rows.map(r=>[r.date,r.shift,r.subject,r.quantity,r.details,r.person,r.status])];const blob=new Blob(['\ufeff'+data.map(row=>row.map(csvCell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='EKG10_'+journalType+'_jurnal.csv';a.click();URL.revokeObjectURL(url)});
+jEl('journalPrintBtn').addEventListener('click',()=>{const machine=journalMachines.find(m=>m.id===activeMachineId())?.name||'EKG-10';const rows=journalRows.filter(r=>r.machineId===activeMachineId()&&r.type===journalType);const w=window.open('','_blank');if(!w){toast('Chop etish oynasi bloklandi');return}w.document.write('<!doctype html><html lang="uz"><meta charset="utf-8"><title>'+journalNames[journalType]+'</title><style>body{font:13px Arial;padding:20px;color:#111}h2{text-align:center}table{width:100%;border-collapse:collapse}th,td{border:1px solid #777;padding:7px;text-align:left}th{background:#eee}@page{size:A4 landscape;margin:12mm}</style><h2>'+journalNames[journalType]+'</h2><p>Ekskavator: '+machine+'</p><table><tr><th>Sana</th><th>Smena</th><th>Nomi</th><th>Miqdor</th><th>Izoh</th><th>Mas’ul</th><th>Holati</th></tr>'+rows.map(r=>'<tr>'+[r.date,r.shift,r.subject,r.quantity,r.details,r.person,r.status].map(x=>'<td>'+escapeHtml(x||'')+'</td>').join('')+'</tr>').join('')+'</table><script>window.onload=()=>window.print()<\/script></html>');w.document.close()});
+jEl('jrDate').value=new Date().toISOString().slice(0,10);renderMachineOptions();renderJournal();renderInventory();
+
+load();render();renderHomeTruckRoster();showHome();
+setInterval(()=>{if(currentShift){render();checkHourlySms();checkHourlyTelegram()}},15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentShift){checkHourlyTelegram();renderHourlyTelegramStatus()}});
+
+</script>
+</body></html>
